@@ -226,11 +226,11 @@ def main() -> int:
         vr = it.get("vol_ratio")
         flow = it.get("flow")
 
+        # Reduced info for readability (WhatsApp): current price + 24h price change + 24h OI change
         line = (
-            f"- {sym} 现价{_fmt_num(px_now)} | "
-            f"Price 1h{_fmt_pct(px1)} 4h{_fmt_pct(px4)} 24h{_fmt_pct(px24)} | "
-            f"OI 1h{_fmt_pct(oi1)} 4h{_fmt_pct(oi4)} 24h{_fmt_pct(oi24)} | "
-            f"Vol1h {_fmt_num(v1)} (ratio {('?' if vr is None else f'{vr:.2f}')})：{flow}"
+            f"- {sym} 现价{_fmt_num(px_now)}；"
+            f"24h价{_fmt_pct(px24)}；"
+            f"24h OI{_fmt_pct(oi24)}"
         )
         oi_lines.append(line)
 
@@ -307,6 +307,39 @@ def main() -> int:
                 "related_assets": [str(x) for x in rel[:6]],
                 "_inferred": False,
             })
+
+    # Post-process TG narratives: replace contract addresses with resolved symbols when possible
+    if narratives_items:
+        import re
+
+        addr_re = re.compile(r"\b0x[a-fA-F0-9]{40}\b|\b[1-9A-HJ-NP-Za-km-z]{32,44}\b")
+        cache: Dict[str, Optional[str]] = {}
+
+        def _sub(text: str) -> str:
+            if not text:
+                return text
+
+            def repl(m):
+                a = m.group(0)
+                if a in cache:
+                    s = cache[a]
+                else:
+                    s = resolve_addr_symbol(a)
+                    cache[a] = s
+                # If resolved, replace with SYMBOL; if not, remove address.
+                return s or ""
+
+            t2 = addr_re.sub(repl, text)
+            # clean double spaces / empty parentheses leftovers
+            t2 = re.sub(r"\s{2,}", " ", t2).strip()
+            return t2
+
+        for it in narratives_items:
+            try:
+                it["one_liner"] = _sub(str(it.get("one_liner") or ""))
+                it["triggers"] = _sub(str(it.get("triggers") or ""))
+            except Exception:
+                pass
 
     # --- Twitter radar (secondary) ---
     radar = run_meme_radar() or {}

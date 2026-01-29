@@ -45,35 +45,61 @@ def build_summary(
     out: List[str] = []
     out.append(f"*{title}*" if whatsapp else title)
 
-    out.append(H("二级山寨（趋势观点：1H+4H）"))
     oi_lines = oi_lines or []
-    if oi_lines:
-        out.extend(oi_lines)
-    else:
-        out.append("- 无明确 OI/Price 异动信号")
 
-    # Trader plan (optional)
+    # Merge OI trend + trader plan into one section when plans exist (user request).
     if plans:
-        out.append(H("二级山寨Top3（交易员计划）"))
+        out.append(H("二级山寨Top3（趋势+计划）"))
+
+        # build symbol -> trend line mapping
+        sym2trend: Dict[str, str] = {}
+        for ln in oi_lines:
+            t = (ln or "").strip()
+            if not t.startswith("-"):
+                continue
+            body = t.lstrip("-").strip()
+            sym = body.split(" ", 1)[0].strip().upper() if body else ""
+            if sym and sym not in sym2trend:
+                # keep the rest as a compact descriptor
+                rest = body[len(sym):].strip()
+                sym2trend[sym] = rest
+
         for i, p in enumerate((plans or [])[:3], 1):
-            sym = p.get("symbol") or ""
+            sym = (p.get("symbol") or "").upper().strip()
             bias = p.get("bias") or "观望"
             setup = p.get("setup") or ""
+
             out.append(f"{i}) {sym}（{bias}）")
+
+            trend = sym2trend.get(sym)
+            if trend:
+                out.append(f"   - 现状：{trend}")
+
             if setup:
                 out.append(f"   - 结构：{setup}")
+
             trg = p.get("triggers")
             if isinstance(trg, list) and trg:
                 out.append(f"   - 触发：{'; '.join([str(x) for x in trg[:4]])}")
-            inv = p.get("invalidation")
-            if inv:
-                out.append(f"   - 无效：{inv}")
+
             tgt = p.get("targets")
             if isinstance(tgt, list) and tgt:
                 out.append(f"   - 目标：{'; '.join([str(x) for x in tgt[:3]])}")
+
+            inv = p.get("invalidation")
+            if inv:
+                out.append(f"   - 无效：{inv}")
+
             rn = p.get("risk_notes")
             if isinstance(rn, list) and rn:
                 out.append(f"   - 风险：{'; '.join([str(x) for x in rn[:3]])}")
+
+    else:
+        out.append(H("二级山寨（趋势观点：1H+4H）"))
+        if oi_lines:
+            out.extend(oi_lines)
+        else:
+            out.append("- 无明确 OI/Price 异动信号")
 
     out.append(H("Telegram热点Top5（提炼）"))
     if narratives:
