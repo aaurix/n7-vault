@@ -1,0 +1,4 @@
+# Minimal runtime deps for scripts/
+# Install: pip3 install -r requirements.txt
+
+ccxt>=4.2.0
