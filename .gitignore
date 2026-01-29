@@ -1,0 +1,31 @@
+# Repo intent: skills + scripts only (no personal/workspace state)
+
+# Personal/agent state
+MEMORY.md
+USER.md
+SOUL.md
+TOOLS.md
+AGENTS.md
+BOOTSTRAP.md
+HEARTBEAT.md
+IDENTITY.md
+
+# Runtime/state dirs
+memory/
+tmp/
+config/
+canvas/
+
+# Python env
+.venv*/
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+
+# Credentials / secrets (if any)
+**/*token*
+**/*key*
+**/*secret*
+**/credentials/**
