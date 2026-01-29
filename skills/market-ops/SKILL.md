@@ -12,6 +12,11 @@ This skill documents and standardizes the production pipelines in this workspace
 
 Use this skill when the user asks for any of:
 
+4) **Telegram local search / summarize** (via HawkFi Telegram MCP)
+- “查找telegram消息/群组消息/频道消息”
+- “搜索 TG 某个关键词”
+- “总结某个群最近 N 条消息/过去 X 小时消息”
+
 1) **Hourly summary**
 - “开启小时级别推送 / 关掉推送 / 改成Top3/Top5 / 改输出格式”
 - “跑一下过去一小时数据”
