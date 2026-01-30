@@ -545,9 +545,10 @@ def main() -> int:
             ev = x.get("evidence") or {}
             kept = ev.get("kept")
             total = ev.get("total")
-            ratio = f"{kept}/{total}" if (kept is not None or total is not None) else "-"
+            # Fallback: do NOT show kept/total; only indicate whether evidence exists.
+            label = "观点不足/讨论稀薄" if not (kept and int(kept) > 0) else "观点待提炼"
             ca_twitter_topics.append({
-                "one_liner": f"{sym}: CA+$SYMBOL 证据 {ratio}",
+                "one_liner": f"{sym}: {label}",
                 "sentiment": "",
                 "signals": f"CA:{str(ca)[:6]}…; ${sym}",
                 "related_assets": [],
