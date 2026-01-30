@@ -60,9 +60,12 @@ TG_CHANNELS: Dict[str, str] = {
     "Pow's Gem Calls": "1198046393",
     "AU Trading Journal 🩵😈": "2955560057",
     "Birds of a Feather": "2272160911",
-    # Viewpoint sources
+    # Viewpoint sources (expanded)
     "1000X GEM NFT Group": "2335179695",
     "1000xGem Group": "1956264308",
+    "A’s alpha": "2243200666",
+    "Pickle Cat's Den 🥒": "2408369357",
+    "Legandary 牛市卷王版本": "3219058398",
 }
 
 VIEWPOINT_CHAT_IDS = {
@@ -70,6 +73,11 @@ VIEWPOINT_CHAT_IDS = {
     int(TG_CHANNELS["1000xGem Group"]),
     int(TG_CHANNELS["特训组"]),
     int(TG_CHANNELS["特训组(同名备用)"]),
+    int(TG_CHANNELS["A’s alpha"]),
+    int(TG_CHANNELS["推特AI分析"]),
+    int(TG_CHANNELS["Pickle Cat's Den 🥒"]),
+    int(TG_CHANNELS["Legandary 牛市卷王版本"]),
+    int(TG_CHANNELS["AU Trading Journal 🩵😈"]),
 }
 
 
