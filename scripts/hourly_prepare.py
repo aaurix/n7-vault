@@ -69,8 +69,10 @@ def _tg_topics_fallback(texts: List[str], *, limit: int = 5) -> List[Dict[str, A
 def run_prepare(total_budget_s: float = 240.0) -> Dict[str, Any]:
     ctx: PipelineContext = build_context(total_budget_s=total_budget_s)
 
-    # Force-disable LLM summarization in this prepare stage.
-    ctx.use_llm = False
+    # Default: enable LLM in prepare stage when available.
+    # You can disable via env HOURLY_PREP_USE_LLM=0.
+    if os.environ.get("HOURLY_PREP_USE_LLM") in {"0", "false", "False"}:
+        ctx.use_llm = False
 
     if not ctx.client.health_ok():
         raise RuntimeError("TG service not healthy")
@@ -80,6 +82,13 @@ def run_prepare(total_budget_s: float = 240.0) -> Dict[str, Any]:
     fetch_tg_messages(ctx)
     build_human_texts(ctx)
     build_oi(ctx)
+
+    # LLM-based OI plans (optional, budgeted)
+    if ctx.use_llm:
+        from hourly.market_summary_pipeline import build_oi_plans_step
+
+        build_oi_plans_step(ctx)
+
     build_viewpoint_threads(ctx)
     build_tg_topics(ctx)
 
@@ -123,7 +132,7 @@ def run_prepare(total_budget_s: float = 240.0) -> Dict[str, Any]:
         "since": ctx.since,
         "until": ctx.until,
         "hourKey": ctx.hour_key,
-        "use_llm": False,
+        "use_llm": bool(ctx.use_llm),
         "perf": ctx.perf,
         "errors": ctx.errors,
         "prepared": {

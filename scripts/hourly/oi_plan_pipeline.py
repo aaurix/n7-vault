@@ -184,7 +184,8 @@ def build_oi_plans(
     """Call LLM to generate trading plans."""
 
     time_budget_ok = time_budget_ok or (lambda _limit: True)
-    errors = errors or []
+    if errors is None:
+        errors = []
 
     if not use_llm:
         errors.append(f"{tag}_skipped:no_llm")
