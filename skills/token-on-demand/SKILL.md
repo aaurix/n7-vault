@@ -1,6 +1,6 @@
 ---
 name: token-on-demand
-description: On-demand token analysis for two flows: (1) perps/alt symbols (e.g., XXXUSDT) and (2) on-chain meme tokens via contract address (CA). Use when user asks to analyze a symbol or sends a CA.
+description: On-demand token analysis (not cron): (1) perp/alt symbol (e.g., XXXUSDT) and (2) on-chain meme via contract address/CA (0x… or Solana base58). Use for spot checks, risk/tradability bullets, and trade-plan style summaries.
 ---
 
 # token-on-demand
