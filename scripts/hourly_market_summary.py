@@ -589,11 +589,34 @@ def main() -> int:
 
     ca_twitter_topics: List[Dict[str, Any]] = []
 
-    def _rule_tags(snips: List[str], *, sym: str) -> List[str]:
-        """Extract a few high-signal phrases (no quotes, no LLM).
+    def _rule_one_liner(snips: List[str], *, sym: str) -> str:
+        """Best-effort Chinese viewpoint without LLM.
 
-        Goal: avoid turning $32M/$50 into tags; keep it minimal and readable.
+        Keep it minimal (no big taxonomy), but avoid useless 'word salad'.
         """
+        import re
+        text = "\n".join([(s or "")[:240] for s in (snips or [])]).lower()
+        # strip urls
+        text = re.sub(r"https?://\S+", " ", text)
+        # remove $numbers
+        text = re.sub(r"\$\d+(?:\.\d+)?(?:[mk])?\b", " ", text)
+
+        # A few high-signal patterns (tiny set)
+        if any(k in text for k in ["rug", "scam", "hacked", "hack", "exploit"]):
+            return f"{sym}: 有人质疑安全/诈骗风险，争论点集中在是否RUG/被黑"[:120]
+        if any(k in text for k in ["rebrand", "rename", "changed name"]):
+            return f"{sym}: 讨论集中在改名/品牌重塑，市场在评估是否利好注意力"[:120]
+        if any(k in text for k in ["launch", "live", "listing", "binance", "alpha"]):
+            return f"{sym}: 讨论集中在上线/上所/活动预期，情绪偏事件驱动"[:120]
+        if any(k in text for k in ["lp", "liquidity", "add liquidity", "pool"]):
+            return f"{sym}: 讨论集中在加池/流动性变化与短线拉砸博弈"[:120]
+        if any(k in text for k in ["buy", "sell", "pump", "dump", "moon"]):
+            return f"{sym}: 讨论以情绪/短线交易为主（追涨/砸盘分歧），缺少统一叙事"[:120]
+        return f"{sym}: 社交讨论分散，未形成可复述的一致观点"[:120]
+
+
+    def _rule_tags(snips: List[str], *, sym: str) -> List[str]:
+        """Extract a few minimal anchors (no quotes, no LLM)."""
         import re
         from collections import Counter
 
@@ -664,11 +687,7 @@ def main() -> int:
             snips = ((x.get("evidence") or {}).get("snippets") or [])
             tags = _rule_tags(snips, sym=sym)
             sen = _rule_sentiment(tags)
-            # one-liner is NOT a quote; it's a tag summary.
-            if tags:
-                one = f"{sym}: 讨论集中在 {"/".join(tags[:4])}"
-            else:
-                one = f"{sym}: 讨论分散/缺少明确锚点"
+            one = _rule_one_liner(snips, sym=sym)
             sig = "; ".join(tags[:8])
             if ca:
                 sig = (sig + ("; " if sig else "") + f"CA:{ca[:6]}…")
@@ -710,7 +729,12 @@ def main() -> int:
                             upgraded.append(base_it)
                     ca_twitter_topics = upgraded
                 else:
-                    errors.append("tw_ca_viewpoints_llm_empty")
+                    # record minimal debug so we can see why LLM didn't return items
+                    raw = (out.get("raw") if isinstance(out, dict) else None) if 'out' in locals() else None
+                    if raw:
+                        errors.append("tw_ca_viewpoints_llm_empty:raw:" + str(raw)[:180])
+                    else:
+                        errors.append("tw_ca_viewpoints_llm_empty")
             except Exception as e:
                 errors.append(f"tw_ca_viewpoints_llm_failed:{e}")
         elif use_llm and _over_budget(118.0):
