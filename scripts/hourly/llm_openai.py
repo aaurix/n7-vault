@@ -215,13 +215,21 @@ def _resolve_chat_endpoint(model: str) -> Tuple[str, str, str]:
     if not k_or:
         raise RuntimeError("OPENROUTER_API_KEY not found")
 
-    # If caller already passes an OpenRouter model, keep it.
+    def _normalize_openrouter_model(m: str) -> str:
+        m = (m or "").strip()
+        # In OpenClaw/Clawdbot configs we often prefix with "openrouter/".
+        # OpenRouter's OpenAI-compatible API expects provider/model (no openrouter/ prefix).
+        if m.startswith("openrouter/"):
+            return m[len("openrouter/") :]
+        return m
+
+    # If caller already passes an OpenRouter model ref, normalize it.
     if model.startswith("openrouter/"):
-        return "https://openrouter.ai/api/v1", k_or, model
+        return "https://openrouter.ai/api/v1", k_or, _normalize_openrouter_model(model)
 
     # Otherwise, force to configured OpenRouter model.
-    forced_model = os.environ.get("OPENROUTER_CHAT_MODEL") or "openrouter/deepseek/deepseek-v3.2"
-    return "https://openrouter.ai/api/v1", k_or, forced_model
+    forced_model = os.environ.get("OPENROUTER_CHAT_MODEL") or "deepseek/deepseek-v3.2"
+    return "https://openrouter.ai/api/v1", k_or, _normalize_openrouter_model(forced_model)
 
 
 def chat_json(
@@ -239,12 +247,15 @@ def chat_json(
         "model": model_id,
         "temperature": temperature,
         "max_tokens": max_tokens,
-        "response_format": {"type": "json_object"},
         "messages": [
             {"role": "system", "content": system},
             {"role": "user", "content": user},
         ],
     }
+
+    # OpenAI supports strict JSON mode; OpenRouter providers vary, so keep it compatible.
+    if "api.openai.com" in base_url:
+        payload["response_format"] = {"type": "json_object"}
 
     req = urlreq.Request(
         f"{base_url}/chat/completions",
@@ -261,11 +272,47 @@ def chat_json(
         data = json.loads(resp.read().decode("utf-8"))
 
     content = (((data.get("choices") or [{}])[0].get("message") or {}).get("content") or "{}").strip()
-    try:
-        return json.loads(content)
-    except Exception:
-        # Return as best-effort
-        return {"raw": content}
+
+    def _try_parse_json(s: str) -> Optional[Dict[str, Any]]:
+        if not s:
+            return None
+        s2 = s.strip()
+        try:
+            out = json.loads(s2)
+            return out if isinstance(out, dict) else None
+        except Exception:
+            pass
+
+        # Strip fenced code blocks
+        if "```" in s2:
+            import re as _re
+
+            m = _re.search(r"```(?:json)?\s*(\{.*?\})\s*```", s2, _re.S | _re.I)
+            if m:
+                try:
+                    out = json.loads(m.group(1))
+                    return out if isinstance(out, dict) else None
+                except Exception:
+                    pass
+
+        # Best-effort: take the first {...} span
+        i = s2.find("{")
+        j = s2.rfind("}")
+        if 0 <= i < j:
+            frag = s2[i : j + 1]
+            try:
+                out = json.loads(frag)
+                return out if isinstance(out, dict) else None
+            except Exception:
+                return None
+        return None
+
+    parsed = _try_parse_json(content)
+    if parsed is not None:
+        return parsed
+
+    # Return as best-effort
+    return {"raw": content}
 
 
 def summarize_token_thread(
