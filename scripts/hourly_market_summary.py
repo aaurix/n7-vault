@@ -108,15 +108,8 @@ def run_kline_context(symbol: str, *, interval: str, lookback: int = 80) -> str:
 # (moved) run_kline_json -> hourly.kline_fetcher
 
 
-def run_meme_radar(errors: Optional[List[str]] = None) -> Dict[str, Any]:
-    """Run twitter->dex meme radar and load its output json.
-
-    Best-effort, but do not silently fail: record errors for debugging.
-    """
-
-    errors = errors or []
-
-    cmd = [
+def _meme_radar_cmd() -> List[str]:
+    return [
         "python3",
         "/Users/massis/clawd/scripts/meme_radar.py",
         "--hours",
@@ -126,12 +119,20 @@ def run_meme_radar(errors: Optional[List[str]] = None) -> Dict[str, Any]:
         "bsc",
         "base",
         "--tweet-limit",
-        "80",
+        "120",
         "--limit",
         "8",
     ]
+
+
+def run_meme_radar(errors: Optional[List[str]] = None) -> Dict[str, Any]:
+    """Run twitter->dex meme radar (blocking) and load its output json."""
+
+    errors = errors or []
+
+    cmd = _meme_radar_cmd()
     try:
-        p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=140)
+        p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=160)
         if p.returncode != 0:
             errors.append(f"meme_radar_failed:code={p.returncode} err={(p.stderr or '')[:180]}")
     except Exception as e:
@@ -185,6 +186,20 @@ def main() -> int:
 
     if not client.health_ok():
         raise SystemExit("TG service not healthy")
+
+    # Start meme radar in parallel (I/O heavy) to overlap with TG processing.
+    _t_meme_async = time.perf_counter()
+    meme_proc = None
+    try:
+        meme_proc = subprocess.Popen(
+            _meme_radar_cmd(),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            text=True,
+        )
+    except Exception as e:
+        errors.append(f"meme_radar_spawn_failed:{e}")
+        meme_proc = None
 
     # PERF: TG fetch/replay block
     _t_fetch = time.perf_counter()
@@ -403,8 +418,33 @@ def main() -> int:
     _mark("tg_topics_pipeline", _t_tg_topics)
 
     _t_meme = time.perf_counter()
-    radar = run_meme_radar(errors=errors) or {}
+    radar = {}
+    if meme_proc is not None:
+        try:
+            # Wait for the already-started radar; hard cap to avoid wedging the hourly job.
+            meme_proc.wait(timeout=170)
+        except Exception:
+            try:
+                meme_proc.kill()
+            except Exception:
+                pass
+            errors.append("meme_radar_timeout")
+
+        # Load output file regardless of process exit code.
+        path = "/Users/massis/clawd/memory/meme/last_candidates.json"
+        if os.path.exists(path):
+            try:
+                radar = json.loads(open(path, "r", encoding="utf-8").read())
+            except Exception as e:
+                errors.append(f"meme_radar_read_failed:{e}")
+        else:
+            errors.append("meme_radar_empty:no_output_file")
+    else:
+        radar = run_meme_radar(errors=errors) or {}
+
     _mark("meme_radar", _t_meme)
+    if meme_proc is not None:
+        _mark("meme_radar_async_total", _t_meme_async)
     radar_items = radar.get("items") or []
 
     # --- TG CA candidates -> merge into radar (so meme shortlist isn't Twitter-only) ---
