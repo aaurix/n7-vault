@@ -363,24 +363,28 @@ def summarize_twitter_topics(*, twitter_items: List[Dict[str, Any]]) -> Dict[str
 
 
 def summarize_twitter_ca_viewpoints(*, items: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Summarize viewpoints for on-chain meme candidates using ONLY CA+$SYMBOL evidence.
+    """Summarize viewpoints for on-chain meme candidates.
+
+    CA is OPTIONAL. The goal is to summarize what Twitter is saying about a token,
+    and use CA only as an additional disambiguation anchor when available.
 
     Input items schema (best-effort):
-      [{sym, ca, evidence:{kept,total,snippets}}]
+      [{sym, ca?, evidence:{snippets}}]
 
     Output:
-      {items:[{sym, ca, one_liner, sentiment, signals}]}
+      {items:[{sym, ca?, one_liner, sentiment, signals}]}
     """
 
     system = (
-        "你是加密交易员助手。输入是若干链上meme候选，每个候选只给：symbol、合约地址、以及Twitter证据片段（通过CA+$SYMBOL搜索得到）。\n"
-        "任务：为每个候选提炼‘市场观点/叙事’的一句话总结，Top5即可。\n"
-        "禁止：引用原文、输出链接、编造没有出现在片段里的事实。\n"
-        "输出JSON：{items:[{sym, ca, one_liner, sentiment, signals}]}\n"
+        "你是加密交易员助手。输入是若干候选token，每个候选给：symbol、(可选)合约地址、以及Twitter证据片段(去噪后的短句)。\n"
+        "任务：为每个候选提炼‘当前社交讨论在说什么’的一句话观点总结，最多Top5。\n"
+        "硬约束：不能引用原文句子；不能输出链接；不能编造未出现的事实。\n"
+        "非常重要：只要某个候选的snippets非空，就必须为它产出一条items（即使只能给出‘共识不足/分歧点’也要写清楚主要争论点）。\n"
+        "输出JSON：{items:[{sym, ca?, one_liner, sentiment, signals}]}\n"
         "规则：\n"
         "- sentiment只能是: 偏多/偏空/分歧/中性\n"
-        "- one_liner：20~60字，尽量包含一个可交易锚点（事件/资金/交易所/链/叙事）。\n"
-        "- signals：3~8个短词/短语，用分号连接（例如：Binance Alpha; 加池; CTO; 拉盘; 砸盘）。\n"
+        "- one_liner：20~60字，写‘讨论的主张/分歧’，避免只报数字。\n"
+        "- signals：3~8个短词/短语（用分号连接），只从snippets里抽象，不要扩展新概念。\n"
     )
 
     user = {
@@ -388,8 +392,8 @@ def summarize_twitter_ca_viewpoints(*, items: List[Dict[str, Any]]) -> Dict[str,
         "requirements": {"language": "zh", "no_quotes": True, "topN": 5},
     }
 
-    # Keep it fast to avoid hourly time-budget fallback.
-    return chat_json(system=system, user=json.dumps(user, ensure_ascii=False), temperature=0.1, max_tokens=420, timeout=22)
+    # Keep it fast, but allow a bit more room to avoid empty items.
+    return chat_json(system=system, user=json.dumps(user, ensure_ascii=False), temperature=0.1, max_tokens=520, timeout=35)
 
 
 def summarize_overall(

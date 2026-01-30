@@ -589,59 +589,61 @@ def main() -> int:
 
     ca_twitter_topics: List[Dict[str, Any]] = []
 
-    def _rule_tags(snips: List[str]) -> List[str]:
-        """Extract lightweight 'topic tags' from snippets (no quotes, no LLM)."""
+    def _rule_tags(snips: List[str], *, sym: str) -> List[str]:
+        """Extract a few high-signal phrases (no quotes, no LLM).
+
+        Goal: avoid turning $32M/$50 into tags; keep it minimal and readable.
+        """
         import re
+        from collections import Counter
 
         txt = " ".join([(s or "")[:180] for s in (snips or [])])
         low = txt.lower()
 
-        # cashtags first
+        # Remove URLs
+        low = re.sub(r"https?://\S+", " ", low)
+
+        # Remove $numbers like $50, $32m, $1.2k
+        low = re.sub(r"\$\d+(?:\.\d+)?(?:[mk])?\b", " ", low)
+
+        # Keep only the main token cashtag as an anchor
         tags: List[str] = []
-        for m in re.findall(r"\$[A-Za-z0-9]{2,10}", txt):
-            u = m.upper()
-            if u not in tags:
-                tags.append(u)
-        # common meme/crypto keywords
-        kw_map = {
-            "binance": "BINANCE",
-            "alpha": "Binance Alpha",
-            "cto": "CTO",
-            "liquidity": "加池/LP",
-            "lp": "加池/LP",
-            "burn": "销毁",
-            "mint": "增发",
-            "tax": "税",
-            "lock": "锁仓",
-            "renounce": "弃权",
-            "rug": "RUG",
-            "scam": "SCAM",
-            "hack": "Hack",
-            "exploit": "Exploit",
-            "airdrop": "Airdrop",
-            "pump": "Pump",
-            "moon": "Moon",
-            "send": "Send",
-            "dump": "Dump",
-            "sell": "Sell",
-            "buy": "Buy",
-            "whale": "Whale",
-            "mcap": "MCAP",
-            "market cap": "MCAP",
-            "pump.fun": "pump.fun",
-            "raydium": "Raydium",
-            "meteora": "Meteora",
-            "uniswap": "Uniswap",
-            "sol": "Solana",
-            "solana": "Solana",
-            "base": "Base",
-            "bsc": "BSC",
-            "eth": "ETH",
-        }
-        for k, v in kw_map.items():
+        sym_u = (sym or "").upper().lstrip("$")
+        if sym_u:
+            tags.append(f"${sym_u}")
+
+        # Very small keyword set (not a taxonomy)
+        kws = [
+            ("binance alpha", "Binance Alpha"),
+            ("cto", "CTO"),
+            ("airdrop", "Airdrop"),
+            ("rug", "RUG"),
+            ("scam", "SCAM"),
+            ("hack", "Hack"),
+            ("exploit", "Exploit"),
+            ("lp", "LP"),
+            ("liquidity", "LP"),
+            ("pump.fun", "pump.fun"),
+            ("raydium", "Raydium"),
+            ("uniswap", "Uniswap"),
+        ]
+        for k, v in kws:
             if k in low and v not in tags:
                 tags.append(v)
-        return tags[:10]
+
+        # Add top 2 frequent meaningful words (fallback)
+        words = re.findall(r"[a-z]{3,}", low)
+        stop = set(["this","that","with","from","they","them","have","just","like","will","your","youre","dont","does","about","what","when","then","into","over","been","much","more","very","only","still","than","also","here","there","bull","bear","long","short","buy","sell","pump","dump"])
+        c = Counter([w for w in words if w not in stop])
+        for w, _ in c.most_common(6):
+            if w.upper() == sym_u.lower():
+                continue
+            if w not in tags:
+                tags.append(w)
+            if len(tags) >= 6:
+                break
+
+        return tags[:6]
 
     def _rule_sentiment(tags: List[str]) -> str:
         bear = any(t in tags for t in ["RUG", "SCAM", "Hack", "Exploit", "Dump", "Sell"])
@@ -660,7 +662,7 @@ def main() -> int:
             sym = str(x.get("sym") or "").upper().strip()
             ca = str(x.get("ca") or "").strip()
             snips = ((x.get("evidence") or {}).get("snippets") or [])
-            tags = _rule_tags(snips)
+            tags = _rule_tags(snips, sym=sym)
             sen = _rule_sentiment(tags)
             # one-liner is NOT a quote; it's a tag summary.
             if tags:
