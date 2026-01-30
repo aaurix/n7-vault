@@ -604,9 +604,10 @@ def main() -> int:
             errors.append(f"tw_topics_llm_failed:{e}")
 
     def _heuristic_twitter_topics(lines: List[str]) -> List[Dict[str, Any]]:
-        """Trader-style fallback summary (no quotes).
+        """Fact-style fallback summary (no quotes).
 
-        Turn noisy following+lists lines into a few actionable theme sentences.
+        Extracts *discussion claims* (numbers/entities/verbs) and turns them into trader-usable bullets
+        without quoting any original tweet.
         """
 
         # strip handles for analysis
@@ -616,66 +617,90 @@ def main() -> int:
             if s:
                 texts.append(s)
 
-        # collect top tickers (cashtags)
+        # top cashtags
         tickers: List[str] = []
-        for t in texts[:60]:
+        for t in texts[:80]:
             for m in re.findall(r"\$[A-Za-z]{2,10}", t):
                 u = m.upper()
                 if u not in tickers:
                     tickers.append(u)
         tickers = tickers[:6]
 
-        # detect numeric levels (e.g., 83000 / 85,000 / 2730)
-        levels: List[str] = []
-        for t in texts[:60]:
-            for m in re.findall(r"\b\d{2,3}[,\.]?\d{3}(?:\.\d+)?\b|\b\d{3,5}(?:\.\d+)?\b", t.replace(",", "")):
-                if m not in levels:
-                    levels.append(m)
-        levels = levels[:4]
+        # helper: pull key levels / amounts
+        def _levels() -> List[str]:
+            out: List[str] = []
+            for t in texts[:80]:
+                tt = t.replace(",", "")
+                for m in re.findall(r"\b\d{2,3}\s*-\s*\d{2,3}k\b|\b\d{2,3}k\b|\b\d{3,5}(?:\.\d+)?\b", tt, flags=re.I):
+                    mm = m.lower().replace(" ", "")
+                    if mm not in out:
+                        out.append(mm)
+            return out[:4]
 
+        def _amounts() -> List[str]:
+            out: List[str] = []
+            for t in texts[:80]:
+                tt = t.replace(",", "")
+                for m in re.findall(r"\$?\b\d+(?:\.\d+)?\s*(?:b|m|k)\b", tt, flags=re.I):
+                    mm = m.lower().replace(" ", "")
+                    if mm not in out:
+                        out.append(mm)
+            return out[:4]
+
+        lvls = _levels()
+        amts = _amounts()
+
+        # counts for common claim types
         def _count_any(kws: List[str]) -> int:
             c = 0
-            for t in texts[:40]:
+            for t in texts[:50]:
                 tl = t.lower()
                 if any(k in tl for k in kws):
                     c += 1
             return c
 
-        # theme intensity
-        c_macro = _count_any(["fed", "rates", "rate", "powell", "fomc", "cpi", "ppi", "shutdown", "treasury", "yields", "dollar"]) + _count_any(["宏观", "降息", "加息", "停摆", "美联储", "利率", "债", "收益率", "美元"])
-        c_liq = _count_any(["liquid", "liquidation", "liq", "leverage", "delever", "margin", "stop"]) + _count_any(["清算", "杠杆", "去杠杆", "爆仓", "止损"])
-        c_flow = _count_any(["etf", "outflow", "inflow", "flows", "flow"]) + _count_any(["etf", "资金流", "流出", "流入"])
-        c_risk = _count_any(["gold", "xau", "silver", "spx", "nasdaq", "risk-off", "risk on"]) + _count_any(["黄金", "纳指", "美股", "风险", "risk"])
+        c_liq = _count_any(["liquid", "liquidation", "liquidated", "liq", "forced", "margin", "leverage", "delever"]) + _count_any(["清算", "爆仓", "强平", "杠杆", "去杠杆"])
+        c_flow = _count_any(["etf", "outflow", "inflow", "flows", "netflow"]) + _count_any(["资金流", "流出", "流入", "etf"])
+        c_macro = _count_any(["fed", "powell", "rates", "fomc", "cpi", "ppi", "shutdown", "yields", "dollar"]) + _count_any(["美联储", "利率", "停摆", "收益率", "美元", "宏观"])
+        c_cross = _count_any(["gold", "silver", "spx", "nasdaq", "risk-off", "risk on"]) + _count_any(["黄金", "白银", "纳指", "美股", "风险偏好"])
 
         out: List[Dict[str, Any]] = []
 
-        # Build 3 concise trader-like takeaways
-        # 1) Macro / cross-asset
-        if c_macro or c_risk:
-            sigs = []
-            if c_macro:
-                sigs.append("宏观/利率预期")
-            if c_risk:
-                sigs.append("跨资产同波动")
-            one = "市场讨论偏‘宏观驱动+跨资产联动’，风险偏好不稳，先看关键位确认再加仓"
-            if levels:
-                one += f"（关注区间: {', '.join(levels[:2])}）"
-            out.append({"one_liner": one, "sentiment": "分歧", "signals": "; ".join(sigs), "related_assets": tickers})
-
-        # 2) Deleveraging / liquidation
+        # 1) Liquidations / deleveraging claim
         if c_liq:
-            one = "讨论集中在‘去杠杆/清算链条’：破位→触发止损/强平→二次下探，反弹更像回补而非趋势反转"
-            out.append({"one_liner": one, "sentiment": "偏空", "signals": "清算; 杠杆收缩; 破位延续", "related_assets": tickers})
+            extra = []
+            if amts:
+                extra.append(f"规模: {amts[0]}")
+            if lvls:
+                extra.append(f"关键位: {lvls[0]}")
+            one = "讨论主线之一是‘杠杆出清/清算驱动的下跌’（破位→止损/强平链条）"
+            if extra:
+                one += f"；" + "，".join(extra)
+            out.append({"one_liner": one, "sentiment": "偏空", "signals": "清算; 杠杆; 破位链条", "related_assets": tickers})
 
-        # 3) Flows / ETF / positioning
+        # 2) ETF/flows claim
         if c_flow:
-            one = "资金流/ETF/仓位变化被反复提及：短线情绪容易被‘流入/流出’放大，策略上等确认再跟随"
-            out.append({"one_liner": one, "sentiment": "中性", "signals": "资金流; ETF; 仓位调整", "related_assets": tickers})
+            extra = f"（提到ETF/资金流的频率较高）"
+            one = "资金流/ETF 被频繁用作解释变量：短线波动更容易被‘流出/流入’放大"
+            out.append({"one_liner": one + extra, "sentiment": "中性", "signals": "资金流; ETF; 情绪放大", "related_assets": tickers})
 
-        # Ensure at least 2 lines
+        # 3) Macro / cross-asset claim
+        if c_macro or c_cross:
+            one = "宏观与跨资产联动（利率预期/美元/黄金/美股）被拿来解释风险偏好变化，倾向先防守再确认"
+            if lvls:
+                one += f"；关注: {', '.join(lvls[:2])}"
+            out.append({"one_liner": one, "sentiment": "分歧", "signals": "宏观; 跨资产; 风险偏好", "related_assets": tickers})
+
+        # Ensure at least 2 bullets
         if len(out) < 2:
-            one = "关注流里主要在复盘‘下跌原因与关键位’，整体更偏谨慎：不追第一根，等回踩/收回再做"
+            one = "关注流更多在复盘‘下跌原因+关键位’，共识偏谨慎：等待确认信号，不追第一根"
             out.append({"one_liner": one, "sentiment": "分歧", "signals": "关键位; 复盘; 风控", "related_assets": tickers})
+
+        # Add a trader playbook line (still no quotes)
+        if out:
+            lv = ", ".join(lvls[:2]) if lvls else "关键位"
+            one = f"抓法：等 {lv} 附近出现‘收回/回踩确认’再跟随；无确认则轻仓/快进快出"
+            out.append({"one_liner": one, "sentiment": "中性", "signals": "触发/无效/风控", "related_assets": tickers})
 
         return out[:5]
 
