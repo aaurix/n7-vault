@@ -21,6 +21,13 @@ memory/tmp_*.json
 config/
 canvas/
 **/credentials/**
-**/*token*
-**/*key*
-**/*secret*
+
+# Common secret file patterns (keep narrow to avoid false positives like skill names)
+*.env
+*.pem
+*secret*.txt
+*secret*.json
+*key*.pem
+*key*.json
+*token*.txt
+*token*.json

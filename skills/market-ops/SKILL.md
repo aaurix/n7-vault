@@ -1,96 +1,29 @@
 ---
 name: market-ops
-version: 0.1.0
-description: Production ops for the hourly TG+Twitter market summary + on-demand symbol/CA analysis.
+description: Production ops for the hourly TG+Twitter market/meme summary: pipeline behavior, WhatsApp delivery, cron/idempotency, and debugging.
 ---
 
 # market-ops
 
-This skill documents and standardizes the production pipelines in this workspace.
+This skill is the **runbook** for the hourly summary pipeline in this repo.
 
-## When to use
+## Use this skill when
+- Changing the hourly summary content/format (Top3/Top5, sections, wording)
+- Debugging hourly cron failures, missing deliveries, idempotency issues
+- Tuning TG/Twitter topic extraction, filtering, or summary quality
+- Adjusting meme radar merge behavior inside the hourly summary
 
-Use this skill when the user asks for any of:
+## Quick start (most common)
+- Run locally:
+  - `python3 /Users/massis/clawd/scripts/hourly_market_summary.py`
+- Cron rule of thumb:
+  - **Do not use heredocs** like `python3 - <<'PY'` (cron exec may fail)
+- Delivery rule of thumb:
+  - WhatsApp message split: keep each chunk **<= ~950 chars**
 
-4) **Telegram local search / summarize** (via HawkFi Telegram MCP)
-- “查找telegram消息/群组消息/频道消息”
-- “搜索 TG 某个关键词”
-- “总结某个群最近 N 条消息/过去 X 小时消息”
-
-1) **Hourly summary**
-- “开启小时级别推送 / 关掉推送 / 改成Top3/Top5 / 改输出格式”
-- “跑一下过去一小时数据”
-
-2) **Alt/Perp (二级山寨) analysis**
-- “分析 PUMP / XXXUSDT”
-- “深入分析二级山寨 …（要现价、24h价、24h OI、MC/FDV等）”
-
-3) **Contract address (CA) analysis**
-- User sends an on-chain contract address.
-
-## Production architecture (3-layer)
-
-### Layer 1 — Core library (reusable modules)
-Located at:
-- `scripts/hourly/*.py`
-
-Key modules:
-- `topic_pipeline.py` — unified topics pipeline (TG + Twitter)
-- `oi_plan_pipeline.py` — Top3 OI trader plans
-- `binance_futures.py` — price/OI/volume (no key) + OI hist
-- `kline_fetcher.py` + `binance_kline_context.py --json` — structured kline inputs
-- `coingecko.py` — MC/FDV (USD) with conservative mapping (hide when unmatched)
-- `llm_openai.py` — OpenAI chat/embeddings + embeddings cache
-
-### Layer 2 — Cron runner (stable)
-- Cron job: **Hourly TG+Twitter market/meme summary**
-- Runs: `python3 /Users/massis/clawd/scripts/hourly_market_summary.py`
-- Delivery: WhatsApp + PushDeer
-- Requirements:
-  - Stability-first (time budget gating)
-  - Idempotent delivery via `memory/hourly_summary_delivery.json`
-  - **Do not use heredocs** like `python3 - <<'PY'` in cron.
-
-### Layer 3 — Chat runner (on-demand)
-- In chat, run the same core modules via:
-  - `python3 scripts/hourly_market_summary.py` (for last hour)
-  - Single-symbol deep analysis (future improvement): `python3 scripts/binance_kline_context.py <SYMBOL> --json`
-
-## Output specs (current)
-
-### 二级山寨（趋势观点：1H+4H）
-- **Top3** (deduped)
-- Each line is **natural language**, reduced info:
-  - current price
-  - 24h price change
-  - 24h OI change
-  - OI notional value (USD)
-  - MC/FDV (USD abbreviated) **only when resolvable**
-
-Example:
-- `CYSUSDT 现价0.2069；24h价-20.4%；24h OI+46.0%；OI价值$5.26M（24h+2.8%）；MC$32.05M/FDV$199.32M`
-
-### 二级山寨Top3（交易员计划）
-- LLM-generated plans, bias only when trend is very clear/extreme; otherwise bias=观望.
-- Uses structured kline json + OI/price/vol + (optional) twitter snippets.
-
-### Telegram热点Top5 / Twitter热点Top5
-- Topic clustering via embeddings (K=10) -> LLM summarize -> post-filter.
-
-## Contract address handling (CA)
-If user sends a CA:
-- Resolve chain + token basics (DEX/liq/mcap/fdv where available)
-- Cross-source sentiment: Twitter + TG viewpoint chats (+ Reddit if feasible)
-- Output: sources, main narrative, sentiment, trader risk profile.
-
-## Operational rules
-
-- **Stability-first**: if close to time budget, skip non-essential LLM steps.
-- **errors** are written into JSON output for debugging but MUST NOT be included in user-visible messages.
-- Prefer conservative matching (e.g., CoinGecko symbol->id): if ambiguous, do not display.
-
-## Troubleshooting
-
-- WhatsApp disconnect (428/499): transient; cron will continue; next run should deliver.
-- Cron exec errors: avoid heredocs; use plain commands.
-- If Twitter topics are noisy: adjust `twitter_context.py` and topic postfilters.
+## Reference docs (read as needed)
+- Hourly pipeline overview: `references/pipeline-hourly.md`
+- TG热点提炼（按“高信息密度预筛→LLM→事件卡片”）: `references/telegram-topics.md`
+- WhatsApp delivery + idempotency: `references/delivery-whatsapp.md`
+- Debugging checklist: `references/debugging.md`
+- Chat source config strategy (HOT vs VIEWPOINT): `references/chat-sources.md`
