@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
+from hourly.perp_dashboard import render_perp_dashboards_mini
+
 
 def split_whatsapp_text(text: str, *, max_chars: int = 950) -> List[str]:
     """Split WhatsApp message into chunks.
@@ -122,6 +124,7 @@ def build_summary(
     overlap_syms: Optional[List[str]] = None,
     sentiment: str = "",
     watch: Optional[List[str]] = None,
+    perp_dash_inputs: Optional[List[Dict[str, Any]]] = None,
     whatsapp: bool = True,
 ) -> str:
     def H(s: str) -> str:
@@ -132,8 +135,87 @@ def build_summary(
 
     oi_lines = oi_lines or []
 
-    # Merge OI trend + trader plan into one section when plans exist (user request).
-    if plans:
+    dash_inputs = perp_dash_inputs if isinstance(perp_dash_inputs, list) else []
+    dash_inputs = [d for d in dash_inputs if isinstance(d, dict) and str(d.get("symbol") or "").strip()]
+
+    # Prefer the richer deterministic mini dashboards when available.
+    if dash_inputs:
+        out.append(H("二级山寨Top3（决策仪表盘mini+计划）" if plans else "二级山寨Top3（决策仪表盘mini）"))
+
+        # Optional: use plan bias (LLM) to override rule bias in the mini dashboard.
+        sym2plan: Dict[str, Dict[str, Any]] = {}
+        sym2bias: Dict[str, str] = {}
+        if plans:
+            for p in (plans or [])[:5]:
+                if not isinstance(p, dict):
+                    continue
+                sym = str(p.get("symbol") or "").upper().strip()
+                if not sym or sym in sym2plan:
+                    continue
+                sym2plan[sym] = p
+                b = str(p.get("bias") or "").strip()
+                if b:
+                    sym2bias[sym] = b
+
+        for i, d in enumerate(dash_inputs[:3], 1):
+            sym = str(d.get("symbol") or "").upper().strip()
+            d2 = dict(d)
+            if sym in sym2bias:
+                d2["bias_hint"] = sym2bias[sym]
+
+            block = render_perp_dashboards_mini([d2], top_n=1)
+            if block:
+                if str(block[0]).startswith("1)"):
+                    block[0] = str(block[0]).replace("1)", f"{i})", 1)
+            out.extend(block)
+
+            # Attach compact plan line when available (keep bounded).
+            p = sym2plan.get(sym) if plans else None
+            if isinstance(p, dict):
+                setup = (p.get("setup") or "").strip()
+                trg = p.get("triggers") if isinstance(p.get("triggers"), list) else []
+                tgt = p.get("targets") if isinstance(p.get("targets"), list) else []
+                inv = (p.get("invalidation") or "").strip()
+
+                chunks: List[str] = []
+                if setup:
+                    chunks.append(f"结构:{setup}")
+                if trg:
+                    chunks.append("触发:" + "；".join([str(x) for x in trg[:2] if x]))
+                if tgt:
+                    chunks.append("目标:" + "；".join([str(x) for x in tgt[:2] if x]))
+                if inv:
+                    chunks.append(f"无效:{inv}")
+
+                if chunks:
+                    out.append("   - 计划：" + " | ".join(chunks))
+
+                # Top1 only: include Twitter view summary (no raw snippets)
+                if i == 1:
+                    q = (p.get("twitter_quality") or "").strip()
+                    bull = (p.get("twitter_bull") or "").strip()
+                    bear = (p.get("twitter_bear") or "").strip()
+
+                    meta = p.get("twitter_meta") if isinstance(p.get("twitter_meta"), dict) else None
+                    total = meta.get("total") if meta else None
+                    kept = meta.get("kept") if meta else None
+
+                    if (bull or bear or q) or (meta and (total is not None or kept is not None)):
+                        parts = []
+                        if bull:
+                            parts.append(f"看多:{bull}")
+                        if bear:
+                            parts.append(f"看空:{bear}")
+                        if q:
+                            parts.append(f"质量:{q}")
+                        if not parts:
+                            parts.append("无明确多空观点")
+
+                        tail = f"（{kept}/{total}）" if (kept is not None or total is not None) else ""
+                        out.append(f"   - Twitter：{' | '.join(parts)}{tail}")
+
+    # Fallback to the legacy oi_lines when dashboards are unavailable.
+    elif plans:
         out.append(H("二级山寨Top3（趋势+计划）"))
 
         # build symbol -> trend line mapping

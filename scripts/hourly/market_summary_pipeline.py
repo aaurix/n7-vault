@@ -31,6 +31,7 @@ from hourly.dex import enrich_addr, enrich_symbol, resolve_addr_symbol
 from hourly.embed_cluster import greedy_cluster
 from hourly.filters import extract_symbols_and_addrs, is_botish_text
 from hourly.kline_fetcher import run_kline_json
+from hourly.perp_dashboard import build_perp_dash_inputs
 from hourly.llm_openai import (
     embeddings,
     load_openai_api_key,
@@ -986,6 +987,12 @@ def render(ctx: PipelineContext) -> Dict[str, Any]:
 
     title = f"{ctx.now_sh.strftime('%H')}:00 二级山寨+链上meme"
 
+    perp_dash_inputs: List[Dict[str, Any]] = []
+    try:
+        perp_dash_inputs = build_perp_dash_inputs(oi_items=ctx.oi_items, max_n=3)
+    except Exception:
+        perp_dash_inputs = []
+
     summary_whatsapp = build_summary(
         title=title,
         oi_lines=ctx.oi_lines,
@@ -997,6 +1004,7 @@ def render(ctx: PipelineContext) -> Dict[str, Any]:
         overlap_syms=None,
         sentiment=ctx.sentiment,
         watch=ctx.watch,
+        perp_dash_inputs=perp_dash_inputs,
         whatsapp=True,
     )
 
@@ -1011,6 +1019,7 @@ def render(ctx: PipelineContext) -> Dict[str, Any]:
         overlap_syms=None,
         sentiment=ctx.sentiment,
         watch=ctx.watch,
+        perp_dash_inputs=perp_dash_inputs,
         whatsapp=False,
     )
 

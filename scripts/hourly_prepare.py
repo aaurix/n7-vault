@@ -29,6 +29,7 @@ from hourly.market_summary_pipeline import (
     merge_tg_addr_candidates_into_radar,
 )
 from hourly.filters import extract_symbols_and_addrs, stance_from_texts
+from hourly.perp_dashboard import build_perp_dash_inputs
 
 
 def _tg_topics_fallback(texts: List[str], *, limit: int = 5) -> List[Dict[str, Any]]:
@@ -122,6 +123,14 @@ def run_prepare(total_budget_s: float = 240.0) -> Dict[str, Any]:
         if len(ca_inputs) >= 8:
             break
 
+    perp_dash_inputs: List[Dict[str, Any]] = []
+    try:
+        # Top perps are already enriched inside ctx.oi_items (kline_1h/4h + price/OI changes).
+        perp_dash_inputs = build_perp_dash_inputs(oi_items=ctx.oi_items, max_n=3)
+    except Exception as e:
+        ctx.errors.append(f"perp_dash_inputs_failed:{type(e).__name__}:{e}")
+        perp_dash_inputs = []
+
     debug = {
         "human_texts": len(ctx.human_texts or []),
         "messages_by_chat": {k: len(v or []) for k, v in (ctx.messages_by_chat or {}).items()},
@@ -138,6 +147,7 @@ def run_prepare(total_budget_s: float = 240.0) -> Dict[str, Any]:
         "prepared": {
             "oi_lines": ctx.oi_lines,
             "oi_items": ctx.oi_items,
+            "perp_dash_inputs": perp_dash_inputs,
             "oi_plans": ctx.oi_plans,
             "tg_topics": ctx.narratives,
             "threads_strong": ctx.strong_threads,
