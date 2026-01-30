@@ -19,7 +19,7 @@ from typing import Any, Dict, List
 
 
 _PROMO_PAT = re.compile(
-    r"(join our telegram|vip telegram|dm to join|link in bio|join alpha|calls|signal active|\bvip\b|airdrop\b|giveaway)",
+    r"(join our telegram|vip telegram|dm to join|link in bio|join alpha|calls|signal active|\bvip\b|airdrop\b|giveaway|\bdaily alpha\b|\bjoin:\b)",
     re.IGNORECASE,
 )
 
@@ -53,40 +53,46 @@ def _is_good_snippet(text: str, *, symbol: str, base: str) -> bool:
     sym_l = symbol.lower()
     base_l = base.lower()
 
-    # Ambiguity guard: some bases are generic words (e.g. PUMP) and get lots of off-topic hits.
-    # For those, require explicit futures symbol mention.
-    ambiguous_bases = {"pump"}
-
-    if base_l in ambiguous_bases:
-        if sym_l not in low and (f"{base_l}/usdt" not in low) and (f"{base_l} usdt" not in low):
-            return False
-    else:
-        # normal case: allow base mention or explicit symbol
-        if sym_l not in low and base_l not in low and (f"${base_l}" not in low):
-            return False
+    # Symbol relevance (keep relatively loose across all symbols).
+    # Accept if it mentions the explicit futures symbol OR the base (plain or $base).
+    if sym_l not in low and base_l not in low and (f"${base_l}" not in low):
+        return False
 
     # violent/off-topic
     if any(k in low for k in ["rpg", "rocket", "grenade", "shooting", "killed", "dead", "bomb"]):
         return False
+
+    # bot-like alert/broadcast templates (not trader opinions)
+    if any(k in low for k in ["whale alert", "liquidation", "liquidated", "liq", "filled", "profit", "returns", "mcap", "market cap"]) or re.search(r"\bmc\b", low) or re.search(r"\b\d+(?:\.\d+)?x+\b", low, re.IGNORECASE):
+        # allow only if it also contains explicit tp/sl/support/resistance type content
+        if not re.search(r"\b(tp\d*|sl|stop|support|resistance|entry|exit)\b", low):
+            return False
 
     # reject obvious cross-token signal spam: too many $TICKER
     if len(re.findall(r"\$[A-Za-z0-9]{2,10}", t)) >= 6:
         return False
 
     # keep if looks like trading talk (levels / tp / sl / support / resistance)
-    if re.search(r"\b(tp\d*|sl|stop|support|resistance|break|hold|bias|entry|exit)\b", low):
+    if re.search(r"\b(tp\d*|sl|stop|support|resistance|break|hold|bias|entry|exit|long|short|buy|sell)\b", low):
         return True
 
     # keep if includes numeric levels
     if re.search(r"\b0\.\d{3,}|\b\d+\.\d+", t):
         return True
 
-    # keep short symbol-only chatter only if it mentions symbol and is short
-    if len(t) <= 60:
-        return True
+    # otherwise: allow some short chatter, but avoid ultra-short noise
+    return len(t) <= 90
 
-    return False
-    return False
+
+def _clean_snippet(t: str) -> str:
+    t = (t or "").replace("\n", " ").strip()
+    # drop urls
+    t = re.sub(r"https?://\S+", "", t)
+    # drop most emojis / symbols (keep $, letters, digits, basic punct)
+    t = re.sub(r"[^\w\s\$\./%\-\+\,\;\:\(\)\[\]\#]", " ", t)
+    # collapse spaces
+    t = re.sub(r"\s+", " ", t).strip()
+    return t
 
 
 def twitter_context_for_symbol(symbol: str, *, limit: int = 6) -> Dict[str, Any]:
@@ -103,15 +109,23 @@ def twitter_context_for_symbol(symbol: str, *, limit: int = 6) -> Dict[str, Any]
     total = len(rows)
 
     snippets: List[str] = []
+    seen = set()
     for r in rows:
-        txt = (r.get("text") if isinstance(r, dict) else "") or ""
-        txt = txt.replace("\n", " ").strip()
-        if not _is_good_snippet(txt, symbol=sym, base=base):
+        raw = (r.get("text") if isinstance(r, dict) else "") or ""
+        if not _is_good_snippet(raw, symbol=sym, base=base):
             continue
-        # compact
-        txt = re.sub(r"https?://\S+", "", txt).strip()
-        txt = re.sub(r"\s+", " ", txt).strip()
-        snippets.append(txt[:180])
+
+        txt = _clean_snippet(raw)
+        if not txt:
+            continue
+
+        # dedup by prefix to avoid repeated spam
+        k = txt.lower()[:90]
+        if k in seen:
+            continue
+        seen.add(k)
+
+        snippets.append(txt[:160])
         if len(snippets) >= limit:
             break
 

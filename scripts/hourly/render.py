@@ -67,32 +67,61 @@ def build_summary(
         for i, p in enumerate((plans or [])[:3], 1):
             sym = (p.get("symbol") or "").upper().strip()
             bias = p.get("bias") or "观望"
-            setup = p.get("setup") or ""
+            setup = (p.get("setup") or "").strip()
 
-            out.append(f"{i}) {sym}（{bias}）")
-
-            trend = sym2trend.get(sym)
+            # Line 1: symbol + current state (compact)
+            trend = sym2trend.get(sym) or ""
             if trend:
-                out.append(f"   - 现状：{trend}")
+                out.append(f"{i}) {sym}（{bias}）现状：{trend}")
+            else:
+                out.append(f"{i}) {sym}（{bias}）")
 
+            # Line 2: compact plan (structure + triggers + targets + invalidation)
+            trg = p.get("triggers") if isinstance(p.get("triggers"), list) else []
+            tgt = p.get("targets") if isinstance(p.get("targets"), list) else []
+            inv = (p.get("invalidation") or "").strip()
+
+            chunks: List[str] = []
             if setup:
-                out.append(f"   - 结构：{setup}")
-
-            trg = p.get("triggers")
-            if isinstance(trg, list) and trg:
-                out.append(f"   - 触发：{'; '.join([str(x) for x in trg[:4]])}")
-
-            tgt = p.get("targets")
-            if isinstance(tgt, list) and tgt:
-                out.append(f"   - 目标：{'; '.join([str(x) for x in tgt[:3]])}")
-
-            inv = p.get("invalidation")
+                chunks.append(f"结构:{setup}")
+            if trg:
+                chunks.append("触发:" + "；".join([str(x) for x in trg[:2] if x]))
+            if tgt:
+                chunks.append("目标:" + "；".join([str(x) for x in tgt[:2] if x]))
             if inv:
-                out.append(f"   - 无效：{inv}")
+                chunks.append(f"无效:{inv}")
+
+            if chunks:
+                out.append("   - 计划：" + " | ".join(chunks))
 
             rn = p.get("risk_notes")
             if isinstance(rn, list) and rn:
-                out.append(f"   - 风险：{'; '.join([str(x) for x in rn[:3]])}")
+                out.append(f"   - 风险：{str(rn[0])}")
+
+            # Top1: include Twitter views summary (no raw snippets)
+            if i == 1:
+                q = (p.get("twitter_quality") or "").strip()
+                bull = (p.get("twitter_bull") or "").strip()
+                bear = (p.get("twitter_bear") or "").strip()
+
+                meta = p.get("twitter_meta") if isinstance(p.get("twitter_meta"), dict) else None
+                total = meta.get("total") if meta else None
+                kept = meta.get("kept") if meta else None
+
+                # show line if we have any twitter meta, even if LLM couldn't summarize
+                if (bull or bear or q) or (meta and (total is not None or kept is not None)):
+                    parts = []
+                    if bull:
+                        parts.append(f"看多:{bull}")
+                    if bear:
+                        parts.append(f"看空:{bear}")
+                    if q:
+                        parts.append(f"质量:{q}")
+                    if not parts:
+                        parts.append("无明确多空观点")
+
+                    tail = f"（{kept}/{total}）" if (kept is not None or total is not None) else ""
+                    out.append(f"   - Twitter：{' | '.join(parts)}{tail}")
 
     else:
         out.append(H("二级山寨（趋势观点：1H+4H）"))

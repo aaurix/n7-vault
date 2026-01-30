@@ -31,7 +31,7 @@ from hourly.bots import load_bot_sender_ids
 from hourly.oi import parse_oi_signals
 from hourly.viewpoints import extract_viewpoint_threads
 from hourly.render import build_summary
-from hourly.dex import enrich_symbol, resolve_addr_symbol
+from hourly.dex import enrich_symbol, enrich_addr, resolve_addr_symbol
 from hourly.llm_openai import (
     embeddings,
     summarize_token_thread,
@@ -99,7 +99,14 @@ def run_kline_context(symbol: str, *, interval: str, lookback: int = 80) -> str:
 # (moved) run_kline_json -> hourly.kline_fetcher
 
 
-def run_meme_radar() -> Dict[str, Any]:
+def run_meme_radar(errors: Optional[List[str]] = None) -> Dict[str, Any]:
+    """Run twitter->dex meme radar and load its output json.
+
+    Best-effort, but do not silently fail: record errors for debugging.
+    """
+
+    errors = errors or []
+
     cmd = [
         "python3",
         "/Users/massis/clawd/scripts/meme_radar.py",
@@ -110,21 +117,26 @@ def run_meme_radar() -> Dict[str, Any]:
         "bsc",
         "base",
         "--tweet-limit",
-        "120",
+        "80",
         "--limit",
         "8",
     ]
     try:
-        subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=60)
-    except Exception:
-        pass
+        p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=140)
+        if p.returncode != 0:
+            errors.append(f"meme_radar_failed:code={p.returncode} err={(p.stderr or '')[:180]}")
+    except Exception as e:
+        errors.append(f"meme_radar_failed:{e}")
 
     path = "/Users/massis/clawd/memory/meme/last_candidates.json"
     if os.path.exists(path):
         try:
             return json.loads(open(path, "r", encoding="utf-8").read())
-        except Exception:
+        except Exception as e:
+            errors.append(f"meme_radar_read_failed:{e}")
             return {}
+
+    errors.append("meme_radar_empty:no_output_file")
     return {}
 
 
@@ -265,6 +277,17 @@ def main() -> int:
 
     # --- Telegram topics (热点Top5) via unified topic pipeline ---
     narratives_items: List[Dict[str, Any]] = []
+
+    def _tg_topic_postfilter(it: Dict[str, Any]) -> bool:
+        # Drop vague one-liners like "某个/一些/不明" that are not actionable.
+        one = str(it.get("one_liner") or "")
+        if not one.strip():
+            return False
+        bad = ["某个", "某些", "一些", "不明", "有人", "群友", "大家", "市场参与者", "投资者", "用户"]
+        if any(x in one for x in bad):
+            return False
+        return True
+
     if use_llm:
         # Build topics (best-effort). On failure/budget, it returns [].
         topics = build_topics(
@@ -274,7 +297,7 @@ def main() -> int:
             llm_summarizer=summarize_narratives,
             llm_items_key="items",
             prefilter=None,
-            postfilter=None,
+            postfilter=lambda it: _tg_topic_postfilter(it),
             max_clusters=10,
             threshold=0.82,
             embed_timeout=30,
@@ -342,8 +365,53 @@ def main() -> int:
                 pass
 
     # --- Twitter radar (secondary) ---
-    radar = run_meme_radar() or {}
+    radar = run_meme_radar(errors=errors) or {}
     radar_items = radar.get("items") or []
+
+    # --- TG CA candidates -> merge into radar (so meme shortlist isn't Twitter-only) ---
+    import re
+
+    evm_re = re.compile(r"\b0x[a-fA-F0-9]{40}\b")
+    sol_re = re.compile(r"\b[1-9A-HJ-NP-Za-km-z]{32,44}\b")
+
+    addr_counts: Dict[str, int] = {}
+    addr_examples: Dict[str, str] = {}
+
+    for t in human_texts[:500]:
+        if not t:
+            continue
+        for a in evm_re.findall(t):
+            addr_counts[a] = addr_counts.get(a, 0) + 1
+            addr_examples.setdefault(a, t[:220])
+        for a in sol_re.findall(t):
+            if not any(ch.isdigit() for ch in a):
+                continue
+            addr_counts[a] = addr_counts.get(a, 0) + 1
+            addr_examples.setdefault(a, t[:220])
+
+    tg_addr_items: List[Dict[str, Any]] = []
+    for addr, cnt in sorted(addr_counts.items(), key=lambda kv: kv[1], reverse=True)[:12]:
+        dexm = enrich_addr(addr)
+        if not dexm:
+            continue
+        tg_addr_items.append(
+            {
+                "addr": addr,
+                "mentions": cnt,
+                "tickers": [dexm.get("baseSymbol")] if dexm.get("baseSymbol") else [],
+                "examples": [{"handle": "TG", "text": addr_examples.get(addr, "")[:220]}],
+                "dex": dexm,
+                "sourceKey": f"TG:{addr}",
+            }
+        )
+
+    seen_addr = set([str(it.get("addr") or "") for it in radar_items])
+    for it in tg_addr_items:
+        a = str(it.get("addr") or "")
+        if a and a not in seen_addr:
+            radar_items.append(it)
+            seen_addr.add(a)
+
     twitter_lines: List[str] = []
     radar_syms: List[str] = []
 

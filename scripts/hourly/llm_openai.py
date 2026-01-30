@@ -293,12 +293,19 @@ def summarize_oi_trading_plans(*, items: List[Dict[str, Any]]) -> Dict[str, Any]
     system = (
         "你是专业交易员助手，负责把结构化的OI/价格/K线信息转成可执行的交易计划。\n"
         "只允许使用输入字段推导，不要编造新闻/链上/资金流。不要引用原话。\n"
-        "输出JSON：{items:[{symbol,bias,setup,triggers,invalidation,targets,risk_notes}]}。\n"
+        "输出JSON：{items:[{symbol,bias,setup,triggers,invalidation,targets,risk_notes,twitter_bull,twitter_bear,twitter_quality}]}。\n"
         "- bias 只能是: 多 / 空 / 观望\n"
-        "- 只有在趋势非常明显或出现极端条件（例如: 高位增仓+价格急涨/高位背离/快速减仓反向等）才允许 bias=多/空；否则一律 bias=观望\n"
+        "- 只有在趋势非常明显或出现极端条件才允许 bias=多/空；否则一律 bias=观望\n"
         "- 你会拿到 kline_1h/kline_4h 的结构化字段：range(lo/hi/pos/loc), swing(hi/lo), ema20_slope_pct, rsi14, volume(ratio) 等。\n"
-        "- setup 必须明确写：1h/4h趋势(依据ema20_slope_pct+结构位置) + 位置(靠近高/低/中部) + 量能( volume.ratio ) + OI flow 解读\n"
-        "- triggers / invalidation / targets 必须输出（即使 bias=观望也要给条件触发），用简短要点，不需要精确价格，可引用 swing/区间上沿下沿/ATR。\n"
+        "- setup 必须一句话，<=60字：1h/4h趋势 + 位置 + 量能(量比) + OI flow\n"
+        "- triggers 必须给2条，简短，<=24字/条（可用‘突破区间上沿/跌破区间下沿/回踩EMA20确认’这种模板）\n"
+        "- targets 必须给2条，<=24字/条（优先：区间上沿/下沿、swing high/low）\n"
+        "- invalidation 必须给1条，<=28字（明确一个失效条件）\n"
+        "- risk_notes 给1条，<=24字\n"
+        "- 如果输入里含 twitter_summary 或 twitter.snippets：请额外输出\n"
+        "  - twitter_quality: 一句话（例如：讨论偏少/偏营销/分歧/有交易员共识）\n"
+        "  - twitter_bull: 1句<=24字概括看多理由（没有则空字符串）\n"
+        "  - twitter_bear: 1句<=24字概括看空理由（没有则空字符串）\n"
     )
 
     user = {
@@ -306,19 +313,21 @@ def summarize_oi_trading_plans(*, items: List[Dict[str, Any]]) -> Dict[str, Any]
         "requirements": {"language": "zh", "no_quotes": True},
     }
 
-    return chat_json(system=system, user=json.dumps(user, ensure_ascii=False), temperature=0.1, max_tokens=650)
+    return chat_json(system=system, user=json.dumps(user, ensure_ascii=False), temperature=0.1, max_tokens=780)
 
 
 def summarize_narratives(*, tg_messages: List[str]) -> Dict[str, Any]:
     system = (
         "你是加密交易员助手。输入是过去1小时的Telegram观点源人类聊天（已过滤机器人）。\n"
-        "请提炼Top5‘叙事/事件’（允许没有具体token），不要引用原话，不要复述聊天记录。\n"
+        "请提炼Top5‘叙事/事件’，目标是可操作、可定位。不要引用原话，不要复述聊天记录。\n"
         "输出JSON：{items:[{one_liner, sentiment, triggers, related_assets}]}。\n"
         "硬性要求：\n"
         "- sentiment只能是: 偏多/偏空/分歧/中性\n"
-        "- one_liner必须具体，避免‘某些/一些/不明币’这类泛化；至少包含一个可定位锚点（链/平台/事件/概念/人物/时间窗）。如果聊天中出现明确token/名称（如fdog/中文名），尽量在one_liner里直接点名。\n"
+        "- 禁止使用泛指开头：某个/某些/一些/有人/用户/群友/大家/市场参与者/投资者。\n"
+        "- one_liner必须包含至少一个可定位锚点：明确token/项目名/链名/平台名/具体事件（如上线/上所/解锁/黑客/清算/回购/治理）/时间窗。\n"
+        "- 如果无法满足锚点要求，请不要输出该条（宁可少于5条）。\n"
         "- triggers用3~8个短词/短语概括（用分号或逗号连接），不要写长段。\n"
-        "- related_assets尽量填token/链/平台/人物；无法确认token就留空数组（不要编）。\n"
+        "- related_assets尽量填token/链/平台/人物；不确定就留空数组（不要编）。\n"
     )
 
     user = {

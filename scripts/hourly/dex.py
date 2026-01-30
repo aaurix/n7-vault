@@ -63,6 +63,15 @@ def enrich_symbol(sym: str) -> Optional[Dict[str, Any]]:
     return pair_metrics(best)
 
 
+def enrich_addr(addr: str) -> Optional[Dict[str, Any]]:
+    """Resolve a contract address to best DexScreener pair metrics (best-effort)."""
+    pairs = dexscreener_search(addr)
+    best = best_pair(pairs)
+    if not best:
+        return None
+    return pair_metrics(best)
+
+
 def resolve_addr_symbol(addr: str) -> Optional[str]:
     pairs = dexscreener_search(addr)
     best = best_pair(pairs)

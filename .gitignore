@@ -1,20 +1,4 @@
-# Repo intent: skills + scripts only (no personal/workspace state)
-
-# Personal/agent state
-MEMORY.md
-USER.md
-SOUL.md
-TOOLS.md
-AGENTS.md
-BOOTSTRAP.md
-HEARTBEAT.md
-IDENTITY.md
-
-# Runtime/state dirs
-memory/
-tmp/
-config/
-canvas/
+# Repo intent: scripts + skills + workspace notes (controlled)
 
 # Python env
 .venv*/
@@ -24,8 +8,19 @@ __pycache__/
 # OS
 .DS_Store
 
-# Credentials / secrets (if any)
+# Runtime/cache that should not be versioned
+memory/embeddings_cache.json
+memory/meme/last_candidates.json
+memory/hourly_summary_delivery.json
+memory/pill_ack.json
+memory/*.json
+memory/*.jsonl
+memory/tmp_*.json
+
+# Local configs / credentials (never commit)
+config/
+canvas/
+**/credentials/**
 **/*token*
 **/*key*
 **/*secret*
-**/credentials/**

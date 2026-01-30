@@ -15,6 +15,84 @@ from __future__ import annotations
 from typing import Any, Callable, Dict, List, Optional
 
 from .binance_futures import oi_changes, price_changes
+from .twitter_context import twitter_context_for_symbol
+
+
+def _summarize_twitter_views(tw: Dict[str, Any]) -> Dict[str, Any]:
+    """Summarize trader-like Twitter snippets into bull/bear points (no extra LLM).
+
+    Output:
+      {total, kept, bull_points, bear_points}
+    """
+
+    total = int(tw.get("total") or 0)
+    kept = int(tw.get("kept") or 0)
+    snips = tw.get("snippets") or []
+    if not isinstance(snips, list):
+        snips = []
+
+    bull_kw = ["long", "buy", "bull", "bullish", "breakout", "break above", "break up", "support", "hold", "bid", "accumulate"]
+    bear_kw = ["short", "sell", "bear", "bearish", "breakdown", "break below", "break down", "resistance", "reject", "distribution", "dump"]
+
+    import re
+
+    def _pick_level(t: str) -> Optional[str]:
+        m = re.search(r"\b\d+\.\d+\b|\b0\.\d{3,}\b", t)
+        return m.group(0) if m else None
+
+    bull: List[str] = []
+    bear: List[str] = []
+
+    for raw in snips[:8]:
+        t = str(raw or "").strip()
+        if not t:
+            continue
+        low = t.lower()
+        lvl = _pick_level(t)
+
+        is_bull = any(k in low for k in bull_kw)
+        is_bear = any(k in low for k in bear_kw)
+
+        # Decide bucket
+        if is_bull and not is_bear:
+            if lvl and "break" in low:
+                bull.append(f"提到突破 {lvl}")
+            elif lvl and "support" in low:
+                bull.append(f"提到支撑 {lvl}")
+            else:
+                bull.append(t[:60])
+        elif is_bear and not is_bull:
+            if lvl and "break" in low:
+                bear.append(f"提到跌破 {lvl}")
+            elif lvl and "resistance" in low:
+                bear.append(f"提到压力 {lvl}")
+            else:
+                bear.append(t[:60])
+
+        if len(bull) >= 2 and len(bear) >= 2:
+            break
+
+    # De-dup while keeping order
+    def _uniq(xs: List[str]) -> List[str]:
+        out: List[str] = []
+        seen = set()
+        for x in xs:
+            k = x.strip().lower()
+            if not k or k in seen:
+                continue
+            seen.add(k)
+            out.append(x.strip())
+        return out
+
+    bull = _uniq(bull)[:2]
+    bear = _uniq(bear)[:2]
+
+    return {
+        "total": total,
+        "kept": kept,
+        "bull_points": bull,
+        "bear_points": bear,
+    }
 
 
 def build_oi_items(
@@ -33,7 +111,7 @@ def build_oi_items(
     """
 
     items: List[Dict[str, Any]] = []
-    for s in (oi_signals or [])[:top_n]:
+    for idx, s in enumerate((oi_signals or [])[:top_n]):
         sym = s.get("symbol")
         if not sym:
             continue
@@ -55,6 +133,15 @@ def build_oi_items(
         except Exception:
             pass
 
+        tw_ctx = None
+        tw_sum = None
+        if idx == 0:
+            # Only for Top1 to keep cost + output length bounded.
+            tw_ctx = twitter_context_for_symbol(sym, limit=8)
+            # Keep raw snippets for LLM to summarize (no raw quotes shown to user).
+            # Still keep a lightweight rule summary for debugging.
+            tw_sum = _summarize_twitter_views(tw_ctx)
+
         items.append(
             {
                 "symbol": sym,
@@ -75,6 +162,8 @@ def build_oi_items(
                 "flow": s.get("flow") or "",
                 "kline_1h": k1,
                 "kline_4h": k4,
+                "twitter": tw_ctx,
+                "twitter_summary": tw_sum,
             }
         )
 
@@ -118,15 +207,29 @@ def build_oi_plans(
         for it in its[:top_n]:
             if not isinstance(it, dict):
                 continue
+            sym = it.get("symbol") or ""
+            # attach twitter summary for top1 (by item order and symbol match)
+            tw_sum = None
+            try:
+                if out == [] and oi_items and str(oi_items[0].get("symbol") or "") == str(sym):
+                    tw_sum = oi_items[0].get("twitter_summary")
+            except Exception:
+                pass
+
             out.append(
                 {
-                    "symbol": it.get("symbol") or "",
+                    "symbol": sym,
                     "bias": it.get("bias") or "观望",
                     "setup": it.get("setup") or "",
                     "triggers": it.get("triggers") if isinstance(it.get("triggers"), list) else [],
                     "invalidation": it.get("invalidation") or "",
                     "targets": it.get("targets") if isinstance(it.get("targets"), list) else [],
                     "risk_notes": it.get("risk_notes") if isinstance(it.get("risk_notes"), list) else [],
+                    # twitter summary fields are only expected for Top1
+                    "twitter_quality": (it.get("twitter_quality") or "") if isinstance(it.get("twitter_quality"), str) else "",
+                    "twitter_bull": (it.get("twitter_bull") or "") if isinstance(it.get("twitter_bull"), str) else "",
+                    "twitter_bear": (it.get("twitter_bear") or "") if isinstance(it.get("twitter_bear"), str) else "",
+                    "twitter_meta": oi_items[0].get("twitter") if (out == [] and oi_items and str(oi_items[0].get("symbol") or "") == str(sym)) else None,
                 }
             )
         return out
