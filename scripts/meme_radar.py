@@ -20,26 +20,17 @@ Outputs:
 import argparse
 import datetime as dt
 import json
-import os
 import re
 import subprocess
-import sys
-from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-# Unified twitter evidence for memes (CA + $SYMBOL)
-try:
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ""))
-    from hourly.twitter_context import twitter_evidence_for_ca  # type: ignore
-except Exception:
-    twitter_evidence_for_ca = None
+from repo_paths import memory_path
+from hourly.twitter_context import twitter_evidence_for_ca
 
 from zoneinfo import ZoneInfo
 
-try:
-    import urllib.request as urlreq
-except Exception:  # pragma: no cover
-    urlreq = None
+import urllib.request as urlreq
 
 
 SH_TZ = ZoneInfo("Asia/Shanghai")
@@ -54,6 +45,11 @@ TICKER_RE = re.compile(r"\$[A-Za-z]{2,10}")
 TICKER_EXCLUDE = {
     "BTC","ETH","SOL","BNB","USDC","USDT","USD","DXY","CPI","PPI","FOMC","ETF",
 }
+
+# Resolve repo paths so cron CWD does not affect file IO.
+_MEME_DIR: Path = memory_path("meme")
+DEX_CACHE_PATH: Path = _MEME_DIR / "dex_cache.json"
+OUTPUT_PATH: Path = _MEME_DIR / "last_candidates.json"
 
 
 def run(cmd: List[str]) -> str:
@@ -202,13 +198,13 @@ def detect_candidates(rows: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
     return out
 
 
-DEX_CACHE_PATH = os.path.join("memory", "meme", "dex_cache.json")
+# DEX_CACHE_PATH defined near top (absolute; cwd-independent)
 
 
 def _load_dex_cache() -> Dict[str, Any]:
     try:
-        if os.path.exists(DEX_CACHE_PATH):
-            return json.loads(open(DEX_CACHE_PATH, "r", encoding="utf-8").read())
+        if DEX_CACHE_PATH.exists():
+            return json.loads(DEX_CACHE_PATH.read_text(encoding="utf-8"))
     except Exception:
         pass
     return {"version": 1, "items": {}}
@@ -216,8 +212,8 @@ def _load_dex_cache() -> Dict[str, Any]:
 
 def _save_dex_cache(cache: Dict[str, Any]) -> None:
     try:
-        os.makedirs(os.path.dirname(DEX_CACHE_PATH), exist_ok=True)
-        open(DEX_CACHE_PATH, "w", encoding="utf-8").write(json.dumps(cache, ensure_ascii=False))
+        DEX_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        DEX_CACHE_PATH.write_text(json.dumps(cache, ensure_ascii=False), encoding="utf-8")
     except Exception:
         pass
 
@@ -458,11 +454,27 @@ def main() -> int:
                 }
     perf["twitter_evidence"] = round(time.perf_counter() - _t, 3)
 
-    os.makedirs("memory/meme", exist_ok=True)
+    _MEME_DIR.mkdir(parents=True, exist_ok=True)
     # Persist cache + output
     _save_dex_cache(dex_cache)
 
-    open("memory/meme/last_candidates.json", "w").write(json.dumps({"generatedAt": dt.datetime.now(SH_TZ).isoformat(), "hours": args.hours, "items": enriched, "perf": perf, "elapsed_s": round(time.perf_counter()-_t0, 3)}, ensure_ascii=False, indent=2))
+    open(
+        OUTPUT_PATH,
+        "w",
+        encoding="utf-8",
+    ).write(
+        json.dumps(
+            {
+                "generatedAt": dt.datetime.now(SH_TZ).isoformat(),
+                "hours": args.hours,
+                "items": enriched,
+                "perf": perf,
+                "elapsed_s": round(time.perf_counter() - _t0, 3),
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
 
     print(f"链上Meme雷达（过去{args.hours}小时，来源：Following提及 → DexScreener验证）")
     if not enriched:
