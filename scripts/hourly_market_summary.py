@@ -155,8 +155,17 @@ def main() -> int:
     now_sh = dt.datetime.now(SH_TZ)
     now_utc = now_sh.astimezone(UTC)
 
-    # --- Time budget (stability-first) ---
+    # --- Time budget + perf (stability-first) ---
     t0 = dt.datetime.now(UTC)
+    import time
+    perf_t0 = time.perf_counter()
+    perf: Dict[str, float] = {}
+
+    def _mark(name: str, start_s: float) -> None:
+        try:
+            perf[name] = round(time.perf_counter() - start_s, 3)
+        except Exception:
+            pass
 
     def _elapsed_s() -> float:
         return (dt.datetime.now(UTC) - t0).total_seconds()
@@ -171,11 +180,15 @@ def main() -> int:
 
     errors: List[str] = []
 
-    # LLM availability flag (used throughout; stability-first gating applies per-step)
-    use_llm = bool(load_openai_api_key())
+    # LLM policy (user requirement): do NOT use OpenAI Chat/Completions.
+    # Embeddings are allowed elsewhere (e.g., for clustering), but all chat-based summarization is disabled.
+    use_llm = False
 
     if not client.health_ok():
         raise SystemExit("TG service not healthy")
+
+    # PERF: TG fetch/replay block
+    _t_fetch = time.perf_counter()
 
     # --- Fetch messages (DB read; replay only when needed) ---
     messages_by_chat: Dict[str, List[Dict[str, Any]]] = {}
@@ -256,7 +269,10 @@ def main() -> int:
         )
         oi_lines.append(line)
 
+    _mark("tg_fetch_and_replay", _t_fetch)
+
     # --- OI trader plans (Top3, high priority) ---
+    _t_oi = time.perf_counter()
     oi_plans = build_oi_plans(
         use_llm=use_llm,
         oi_items=oi_items,
@@ -268,7 +284,10 @@ def main() -> int:
         tag="oi_plan",
     )
 
+    _mark("oi_plans", _t_oi)
+
     # --- Viewpoint threads (token/CA only; no quotes) ---
+    _t_view = time.perf_counter()
     bot_ids = load_bot_sender_ids()
     human_texts: List[str] = []
     for cid in VIEWPOINT_CHAT_IDS:
@@ -285,7 +304,10 @@ def main() -> int:
     strong_threads = vp.get("strong") or []
     weak_threads = vp.get("weak") or []
 
+    _mark("viewpoint_threads", _t_view)
+
     # --- Telegram topics (热点Top5) via unified topic pipeline ---
+    _t_tg_topics = time.perf_counter()
     narratives_items: List[Dict[str, Any]] = []
 
     def _tg_topic_postfilter(it: Dict[str, Any]) -> bool:
@@ -375,7 +397,11 @@ def main() -> int:
                 pass
 
     # --- Twitter radar (secondary) ---
+    _mark("tg_topics_pipeline", _t_tg_topics)
+
+    _t_meme = time.perf_counter()
     radar = run_meme_radar(errors=errors) or {}
+    _mark("meme_radar", _t_meme)
     radar_items = radar.get("items") or []
 
     # --- TG CA candidates -> merge into radar (so meme shortlist isn't Twitter-only) ---
@@ -1186,6 +1212,7 @@ def main() -> int:
             watch.extend([x for x in tg_syms[:3] if x])
 
     title = f"{now_sh.strftime('%H')}:00 二级山寨+链上meme"
+    _t_render = time.perf_counter()
     summary_whatsapp = build_summary(
         title=title,
         oi_lines=oi_lines,
@@ -1221,6 +1248,8 @@ def main() -> int:
         tmp_md = ""
 
     hour_key = now_sh.strftime("%Y-%m-%d %H:00")
+    _mark("render", _t_render)
+
     summary_hash = _sha1(summary_whatsapp + "\n---\n" + summary_markdown)
 
     out = {
@@ -1233,6 +1262,7 @@ def main() -> int:
         "summary_markdown_path": tmp_md,
         "errors": errors,
         "elapsed_s": round(_elapsed_s(), 2),
+        "perf": perf,
         "use_llm": bool(use_llm),
     }
 
