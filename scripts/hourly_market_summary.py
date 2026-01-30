@@ -574,113 +574,90 @@ def main() -> int:
         if len(cand) >= 40:
             break
 
-    # If LLM available: summarize via topics pipeline; else fallback to top lines.
-    if use_llm and cand and not _over_budget(65.0):
-        topics = build_topics(
-            texts=cand,
-            embeddings_fn=embeddings,
-            cluster_fn=greedy_cluster,
-            llm_summarizer=summarize_twitter_topics,
-            llm_items_key="items",
-            prefilter=_is_cryptoish_twitter_text,
-            postfilter=None,
-            max_clusters=10,
-            threshold=0.82,
-            embed_timeout=30,
-            time_budget_ok=lambda lim: (not _over_budget(lim)),
-            budget_embed_s=40.0,
-            budget_llm_s=55.0,
-            llm_arg_name="twitter_items",
-            errors=errors,
-            tag="tw_topics",
-        )
-        for it in (topics or [])[:5]:
-            if not isinstance(it, dict):
-                continue
-            one = str(it.get("one_liner") or "").strip()
-            sen = str(it.get("sentiment") or "").strip()
-            sig = it.get("signals")
-            if isinstance(sig, list):
-                sig = "; ".join([str(x) for x in sig[:8]])
-            sig = str(sig or "").strip()
-            rel = it.get("related_assets")
-            if not isinstance(rel, list):
-                rel = []
-            if one:
-                twitter_topics.append({
-                    "one_liner": one[:90],
-                    "sentiment": sen,
-                    "signals": sig,
-                    "related_assets": [str(x).strip() for x in rel[:6] if str(x).strip()],
-                })
+    # Summarize (no raw quotes): prefer direct LLM summarization.
+    if use_llm and cand and not _over_budget(55.0):
+        try:
+            tw_items = [{"text": t[:240]} for t in cand[:30]]
+            out = summarize_twitter_topics(twitter_items=tw_items)
+            its = out.get("items") if isinstance(out, dict) else None
+            if isinstance(its, list):
+                for it in its[:5]:
+                    if not isinstance(it, dict):
+                        continue
+                    one = str(it.get("one_liner") or "").strip()
+                    sen = str(it.get("sentiment") or "").strip()
+                    sig = it.get("signals")
+                    if isinstance(sig, list):
+                        sig = "; ".join([str(x) for x in sig[:8]])
+                    sig = str(sig or "").strip()
+                    rel = it.get("related_assets")
+                    if not isinstance(rel, list):
+                        rel = []
+                    if one:
+                        twitter_topics.append({
+                            "one_liner": one[:90],
+                            "sentiment": sen,
+                            "signals": sig,
+                            "related_assets": [str(x).strip() for x in rel[:6] if str(x).strip()],
+                        })
+        except Exception as e:
+            errors.append(f"tw_topics_llm_failed:{e}")
 
-    # Deterministic fallback (no LLM or empty topics)
-    if not twitter_topics and cand:
-        for ln in cand[:5]:
-            twitter_topics.append({"one_liner": ln[:90], "sentiment": "中性", "signals": "", "related_assets": []})
+    def _heuristic_twitter_topics(lines: List[str]) -> List[Dict[str, Any]]:
+        """Cheap fallback: summarize by keyword buckets + tickers without quoting raw tweets."""
 
-    # NOTE: we still keep meme_radar-derived snippets elsewhere (meme section); twitter_topics is now independent.
+        # strip handles for analysis
+        texts = []
+        for ln in lines:
+            s = re.sub(r"^@[^:]{1,50}:\s*", "", ln).strip()
+            if s:
+                texts.append(s)
 
-        def _postfilter_topic(it: Dict[str, Any]) -> bool:
-            s = (f"{it.get('one_liner','')} {it.get('signals','')}" or "").lower()
-            violence = any(k in s for k in [
-                "rpg", "rocket", "grenade", "shooting", "killed", "dead", "bomb",
-                "火箭筒", "榴弹", "枪击", "爆炸", "恐袭",
-            ])
-            crypto_sig = any(k in s for k in [
-                "$", "crypto", "token", "airdrop", "binance", "alpha", "dex", "defi", "meme",
-                "sol", "bsc", "base", "eth", "btc", "cex", "sec", "lawsuit", "court",
-                "ripple", "xrp", "chain", "onchain",
-            ])
-            if violence and not crypto_sig:
-                return False
-            if crypto_sig:
-                return True
-            rel = it.get('related_assets') or []
-            if isinstance(rel, list):
-                for x in rel:
-                    if str(x).upper().strip() in tw_syms_set:
-                        return True
-            return True
+        buckets = {
+            "宏观/政策": ["fed", "rates", "rate", "powell", "fomc", "cpi", "ppi", "shutdown", "treasury", "yields", "dollar"],
+            "去杠杆/清算": ["liquid", "liquidation", "liq", "leverage", "delever", "margin", "stop"],
+            "BTC/主线": ["btc", "bitcoin", "$btc", "etf"],
+            "ETH/山寨": ["eth", "ethereum", "$eth", "alts", "altcoin"],
+            "链上/交易所": ["binance", "coinbase", "okx", "bybit", "hyperliquid", "funding", "oi", "open interest"],
+            "黄金/风险资产": ["gold", "xau", "silver", "spx", "nasdaq", "risk-off", "risk on"],
+        }
 
-        topics = build_topics(
-            texts=[x.get("text") or "" for x in twitter_input],
-            embeddings_fn=embeddings,
-            cluster_fn=greedy_cluster,
-            llm_summarizer=summarize_twitter_topics,
-            llm_items_key="items",
-            prefilter=_is_cryptoish_twitter_text,
-            postfilter=_postfilter_topic,
-            max_clusters=10,
-            threshold=0.84,
-            embed_timeout=30,
-            time_budget_ok=lambda lim: (not _over_budget(lim)),
-            budget_embed_s=55.0,
-            budget_llm_s=65.0,
-            llm_arg_name="twitter_items",
-            errors=errors,
-            tag="tw_topics",
-        )
+        # count hits
+        scored = []
+        for name, kws in buckets.items():
+            c = 0
+            for t in texts[:30]:
+                tl = t.lower()
+                if any(k in tl for k in kws):
+                    c += 1
+            if c:
+                scored.append((name, c))
+        scored.sort(key=lambda x: -x[1])
 
-        # normalize to render schema
-        for it in (topics or [])[:5]:
-            if not isinstance(it, dict):
-                continue
-            one = str(it.get("one_liner") or "").strip()
-            sen = str(it.get("sentiment") or "").strip()
-            sig = it.get("signals")
-            if isinstance(sig, list):
-                sig = "; ".join([str(x) for x in sig[:8]])
-            sig = str(sig or "").strip()
-            rel = it.get("related_assets")
-            if not isinstance(rel, list):
-                rel = []
-            twitter_topics.append({
-                "one_liner": one,
-                "sentiment": sen,
-                "signals": sig,
-                "related_assets": [str(x).strip() for x in rel[:6] if str(x).strip()],
-            })
+        # collect top tickers
+        tickers = []
+        for t in texts[:40]:
+            for m in re.findall(r"\$[A-Za-z]{2,10}", t):
+                u = m.upper()
+                if u not in tickers:
+                    tickers.append(u)
+        tickers = tickers[:6]
+
+        out = []
+        for name, c in scored[:4]:
+            extra = f"（讨论度{c}）"
+            out.append({"one_liner": f"{name}{extra}", "sentiment": "中性", "signals": "", "related_assets": tickers})
+        return out
+
+    # If still empty, fall back to heuristic summary (no raw quotes).
+    if not twitter_topics:
+        if not cand:
+            errors.append("tw_topics_empty")
+        else:
+            errors.append("tw_topics_no_summary")
+            twitter_topics = _heuristic_twitter_topics(cand)
+
+    # NOTE: meme_radar-derived snippets are used in meme section; twitter_topics is independent and summarized.
 
     # --- LLM summarization (Top tokens + 1 overall) ---
     # reuse use_llm computed above
