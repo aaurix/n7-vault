@@ -11,7 +11,10 @@ It mirrors the hourly_prepare pattern:
 
 Usage:
   python3 scripts/analyze_symbol_prepare.py PUMPUSDT
+  python3 scripts/analyze_symbol_prepare.py PUMP
+  python3 scripts/analyze_symbol_prepare.py $PUMP
   python3 scripts/analyze_symbol_prepare.py PUMPUSDT --pretty
+  python3 scripts/analyze_symbol_prepare.py pump --dry-run-normalize
 
 Output contract (best-effort):
 {
@@ -32,6 +35,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -41,7 +45,100 @@ sys.path.insert(0, os.path.dirname(__file__))
 from hourly.binance_futures import oi_changes, price_changes  # noqa: E402
 from hourly.coingecko import get_market_cap_fdv  # noqa: E402
 from hourly.kline_fetcher import run_kline_json  # noqa: E402
-from hourly.twitter_context import twitter_context_for_symbol  # noqa: E402
+from hourly.twitter_context import TwitterQuerySpec, twitter_evidence  # noqa: E402
+
+
+DEFAULT_QUOTE = "USDT"
+_KNOWN_QUOTES = ("USDT", "USDC", "USD", "BUSD", "BTC", "ETH")
+
+
+def _dedup_keep_order(xs: List[str]) -> List[str]:
+    seen: set[str] = set()
+    out: List[str] = []
+    for x in xs or []:
+        t = (x or "").strip()
+        if not t:
+            continue
+        k = t.upper()
+        if k in seen:
+            continue
+        seen.add(k)
+        out.append(t)
+    return out
+
+
+def normalize_symbol_input(raw: str, *, default_quote: str = DEFAULT_QUOTE) -> Dict[str, str]:
+    """Normalize user input into a perp symbol + social cashtag.
+
+    Examples:
+      - "$pump" -> {perp_symbol:"PUMPUSDT", cashtag:"$PUMP"}
+      - "pump"  -> {perp_symbol:"PUMPUSDT", cashtag:"$PUMP"}
+      - "PUMP"  -> {perp_symbol:"PUMPUSDT", cashtag:"$PUMP"}
+      - "PUMP/USDT" -> "PUMPUSDT"
+      - "BINANCE:PUMPUSDT" -> "PUMPUSDT"
+
+    Rules:
+      - Default quote asset: USDT
+      - Market data symbol: BASE+QUOTE (e.g., PUMPUSDT)
+      - Social anchor: $BASE (uppercase)
+    """
+
+    s = (raw or "").strip()
+    if not s:
+        raise ValueError("empty symbol")
+
+    # Common copy/paste formats: BINANCE:PUMPUSDT, $pump, pump/usdt
+    s = s.strip()
+    if ":" in s:
+        s = s.split(":")[-1].strip()
+
+    s = re.sub(r"\s+", "", s)
+    s = s.upper()
+
+    if s.startswith("$"):
+        s = s[1:]
+
+    # Allow BASE/QUOTE explicit form.
+    base = ""
+    quote = (default_quote or DEFAULT_QUOTE).upper().strip() or DEFAULT_QUOTE
+    if "/" in s:
+        left, right = s.split("/", 1)
+        base = left.strip().lstrip("$")
+        q = right.strip().lstrip("$")
+        if q:
+            quote = q
+    else:
+        # "XXXPERP" -> "XXX"
+        if s.endswith("PERP") and len(s) > 4:
+            s = s[: -len("PERP")]
+
+        # If user already provided quote (e.g., XXXUSDT), keep it.
+        for q in _KNOWN_QUOTES:
+            if s.endswith(q) and len(s) > len(q):
+                base = s[: -len(q)]
+                quote = q
+                break
+        else:
+            base = s
+
+    base = re.sub(r"[^A-Z0-9]", "", base)
+    quote = re.sub(r"[^A-Z0-9]", "", quote)
+
+    if not base:
+        raise ValueError(f"invalid base from input: {raw!r}")
+    if not quote:
+        quote = DEFAULT_QUOTE
+
+    perp_symbol = f"{base}{quote}"
+    cashtag = f"${base}"
+
+    return {
+        "input": (raw or "").strip(),
+        "base": base,
+        "quote": quote,
+        "perp_symbol": perp_symbol,
+        "cashtag": cashtag,
+    }
 
 
 def _clamp(x: float, lo: float, hi: float) -> float:
@@ -238,8 +335,24 @@ def _scores(*, k1: Dict[str, Any], k4: Dict[str, Any], px: Dict[str, Any], oi: D
 
 
 def run_prepare(symbol: str) -> Dict[str, Any]:
-    sym = (symbol or "").upper().strip()
+    raw = (symbol or "").strip()
     errors: List[str] = []
+
+    try:
+        norm = normalize_symbol_input(raw)
+    except Exception as e:
+        # Keep prepare stage deterministic and non-fatal.
+        sym = raw.upper().strip()
+        return {
+            "symbol": sym,
+            "use_llm": False,
+            "errors": [f"normalize:{type(e).__name__}:{e}"],
+            "prepared": {"symbol": sym, "normalization": {"input": raw}},
+        }
+
+    sym = norm["perp_symbol"]
+    base = norm["base"]
+    cashtag = norm["cashtag"]
 
     px: Dict[str, Any] = {}
     oi: Dict[str, Any] = {}
@@ -269,13 +382,20 @@ def run_prepare(symbol: str) -> Dict[str, Any]:
         errors.append(f"kline_4h:{type(e).__name__}:{e}")
 
     try:
-        base = sym.replace("USDT", "")
         mcfdv = get_market_cap_fdv(base)
     except Exception as e:
         errors.append(f"coingecko:{type(e).__name__}:{e}")
 
     try:
-        tw = twitter_context_for_symbol(sym, limit=8)
+        # Use stronger search anchors:
+        # - always include futures symbol (e.g., PUMPUSDT)
+        # - always include cashtag (e.g., $PUMP)
+        # - include bare base for non-ambiguous tickers; hourly.twitter_context will drop it for ambiguous ones
+        #   via its existing ambiguous list.
+        aliases = _dedup_keep_order([sym, cashtag, base])
+        spec = TwitterQuerySpec(topic=sym, aliases=aliases, intent="plan", window_hours=24, snippet_limit=8)
+        out = twitter_evidence(spec)
+        tw = {"total": out.get("total", 0), "kept": out.get("kept", 0), "snippets": out.get("snippets", [])}
     except Exception as e:
         errors.append(f"twitter:{type(e).__name__}:{e}")
         tw = {"total": 0, "kept": 0, "snippets": []}
@@ -327,6 +447,7 @@ def run_prepare(symbol: str) -> Dict[str, Any]:
 
     prepared = {
         "symbol": sym,
+        "normalization": norm,
         "price": {
             "now": px.get("px_now"),
             "chg_1h_pct": px.get("px_1h"),
@@ -360,11 +481,40 @@ def run_prepare(symbol: str) -> Dict[str, Any]:
     }
 
 
+def _self_check_normalize() -> None:
+    cases = {
+        "$pump": ("PUMPUSDT", "$PUMP"),
+        "pump": ("PUMPUSDT", "$PUMP"),
+        "PUMP": ("PUMPUSDT", "$PUMP"),
+        "PUMPUSDT": ("PUMPUSDT", "$PUMP"),
+        "pump/usdt": ("PUMPUSDT", "$PUMP"),
+        "BINANCE:pumpusdt": ("PUMPUSDT", "$PUMP"),
+    }
+    for raw, (sym, cashtag) in cases.items():
+        n = normalize_symbol_input(raw)
+        assert n["perp_symbol"] == sym, (raw, n)
+        assert n["cashtag"] == cashtag, (raw, n)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("symbol", help="e.g. PUMPUSDT")
+    ap.add_argument("symbol", nargs="?", help="e.g. PUMPUSDT | PUMP | $pump")
     ap.add_argument("--pretty", action="store_true", help="pretty-print json")
+    ap.add_argument("--dry-run-normalize", action="store_true", help="print normalization json and exit")
+    ap.add_argument("--self-check", action="store_true", help="run tiny normalization self-check and exit")
     args = ap.parse_args()
+
+    if args.self_check:
+        _self_check_normalize()
+        print("OK")
+        return 0
+
+    if not args.symbol:
+        ap.error("symbol is required")
+
+    if args.dry_run_normalize:
+        print(json.dumps(normalize_symbol_input(args.symbol), ensure_ascii=False, indent=2, sort_keys=True))
+        return 0
 
     out = run_prepare(args.symbol)
     if args.pretty:

@@ -9,10 +9,18 @@ This skill covers **interactive** analysis requests (not cron).
 
 ## Two different flows
 1) **Perp / 二级山寨（symbol-based）**
-   - Input: `WLDUSDT` / `PUMPUSDT`
+   - Input forms accepted (normalized deterministically):
+     - `PUMPUSDT` → `PUMPUSDT`
+     - `PUMP` / `pump` / `$pump` → `PUMPUSDT` (**default quote: USDT**)
+   - Social search normalization:
+     - Uses cashtag anchor `$PUMP` (uppercase) + perp symbol anchor `PUMPUSDT`
+     - For ambiguous tickers (see `scripts/hourly/twitter_context.py` ambiguous list), bare words are de-emphasized and stronger anchors are required.
    - Prepare→Agent pattern:
-     - prepare（无LLM）: `python3 /Users/massis/clawd/scripts/analyze_symbol_prepare.py <SYMBOL> --pretty`
-     - agent（默认输出）: `python3 /Users/massis/clawd/scripts/analyze_symbol.py <SYMBOL>`
+     - prepare（无LLM）: `python3 /Users/massis/clawd/scripts/analyze_symbol_prepare.py <SYMBOL_OR_TICKER> --pretty`
+     - agent（默认输出）: `python3 /Users/massis/clawd/scripts/analyze_symbol.py <SYMBOL_OR_TICKER>`
+   - Debug normalization:
+     - `python3 /Users/massis/clawd/scripts/analyze_symbol_prepare.py pump --dry-run-normalize`
+     - `python3 /Users/massis/clawd/scripts/analyze_symbol_prepare.py --self-check`
    - Default output: **方案2 决策仪表盘**（趋势/OI/社交评分 + 要点）
    - Optional: **方案1 交易计划**（`--template plan`）
 
@@ -22,11 +30,12 @@ This skill covers **interactive** analysis requests (not cron).
 
 ## Quick commands
 - Symbol dashboard (default):
-  - `python3 /Users/massis/clawd/scripts/analyze_symbol.py <SYMBOL>`
+  - `python3 /Users/massis/clawd/scripts/analyze_symbol.py <SYMBOL_OR_TICKER>`
+  - examples: `python3 .../analyze_symbol.py PUMP` / `python3 .../analyze_symbol.py $pump`
 - Symbol trade plan (方案1):
-  - `python3 /Users/massis/clawd/scripts/analyze_symbol.py <SYMBOL> --template plan`
+  - `python3 /Users/massis/clawd/scripts/analyze_symbol.py <SYMBOL_OR_TICKER> --template plan`
 - Symbol prepare JSON (deterministic, no LLM):
-  - `python3 /Users/massis/clawd/scripts/analyze_symbol_prepare.py <SYMBOL> --pretty`
+  - `python3 /Users/massis/clawd/scripts/analyze_symbol_prepare.py <SYMBOL_OR_TICKER> --pretty`
 - CA analysis:
   - `python3 /Users/massis/clawd/scripts/analyze_ca.py <CA>`
 

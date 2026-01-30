@@ -14,8 +14,11 @@ Optional: 方案1 交易计划 (use --template plan)
 
 Usage:
   python3 scripts/analyze_symbol.py PUMPUSDT
+  python3 scripts/analyze_symbol.py PUMP
+  python3 scripts/analyze_symbol.py $PUMP
   python3 scripts/analyze_symbol.py PUMPUSDT --template plan
   python3 scripts/analyze_symbol.py PUMPUSDT --json
+  python3 scripts/analyze_symbol.py pump --dry-run-normalize
 
 Notes:
 - If OPENAI_API_KEY is missing or LLM call fails, falls back to deterministic output.
@@ -33,7 +36,7 @@ from typing import Any, Dict, List, Optional
 # make ./scripts importable
 sys.path.insert(0, os.path.dirname(__file__))
 
-from analyze_symbol_prepare import run_prepare  # noqa: E402
+from analyze_symbol_prepare import normalize_symbol_input, run_prepare  # noqa: E402
 from hourly.llm_openai import chat_json, load_openai_api_key, summarize_oi_trading_plans  # noqa: E402
 from hourly.render import split_whatsapp_text  # noqa: E402
 
@@ -387,11 +390,16 @@ def _render_plan_text(plan: Dict[str, Any]) -> str:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("symbol", help="e.g. PUMPUSDT")
+    ap.add_argument("symbol", help="e.g. PUMPUSDT | PUMP | $pump")
     ap.add_argument("--template", choices=["dashboard", "plan"], default="dashboard")
     ap.add_argument("--json", action="store_true", help="emit json (includes whatsapp chunks)")
     ap.add_argument("--no-llm", action="store_true", help="force deterministic output")
+    ap.add_argument("--dry-run-normalize", action="store_true", help="print normalization json and exit")
     args = ap.parse_args()
+
+    if args.dry_run_normalize:
+        print(json.dumps(normalize_symbol_input(args.symbol), ensure_ascii=False, indent=2, sort_keys=True))
+        return 0
 
     prepared = run_prepare(args.symbol)
 
