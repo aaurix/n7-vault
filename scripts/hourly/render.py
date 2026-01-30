@@ -8,6 +8,91 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 
+def split_whatsapp_text(text: str, *, max_chars: int = 950) -> List[str]:
+    """Split WhatsApp message into chunks.
+
+    WhatsApp messages can truncate/fail when too long; we keep each chunk <= max_chars.
+    Splitting tries to respect newlines/section boundaries.
+    """
+
+    s = (text or "").strip()
+    if not s:
+        return []
+
+    # Normalize newlines (keep explicit line boundaries).
+    lines = s.replace("\r\n", "\n").replace("\r", "\n").split("\n")
+
+    chunks: List[str] = []
+    cur: str = ""
+
+    def flush() -> None:
+        nonlocal cur
+        t = cur.strip()
+        if t:
+            chunks.append(t)
+        cur = ""
+
+    def split_long_line(line: str) -> List[str]:
+        """Split a single overlong line into <=max_chars pieces."""
+
+        out: List[str] = []
+        rest = (line or "").strip()
+        while rest and len(rest) > max_chars:
+            window = rest[:max_chars]
+            # Try to split near the end at a natural boundary.
+            cut = max_chars
+            for sep in [" ", "；", ";", "，", ",", "。", ".", "|", "/"]:
+                idx = window.rfind(sep)
+                if idx >= int(max_chars * 0.6):
+                    cut = idx + 1
+                    break
+            out.append(rest[:cut].strip())
+            rest = rest[cut:].strip()
+        if rest:
+            out.append(rest)
+        return out
+
+    for line in lines:
+        line = (line or "").rstrip()
+        if not line:
+            # Preserve paragraph breaks when possible.
+            if cur and not cur.endswith("\n"):
+                cur += "\n"
+            continue
+
+        candidate = (cur + "\n" + line).strip() if cur else line.strip()
+        if len(candidate) <= max_chars:
+            cur = candidate
+            continue
+
+        # Candidate would exceed the limit.
+        if cur:
+            flush()
+
+        if len(line) <= max_chars:
+            cur = line.strip()
+            continue
+
+        # Overlong single line: split it.
+        for part in split_long_line(line):
+            if len(part) <= max_chars:
+                chunks.append(part)
+            else:
+                chunks.append(part[:max_chars].strip())
+        cur = ""
+
+    flush()
+
+    # Defensive: enforce max_chars.
+    out2: List[str] = []
+    for c in chunks:
+        if len(c) <= max_chars:
+            out2.append(c)
+        else:
+            out2.extend(split_long_line(c))
+    return [x for x in out2 if x and len(x) <= max_chars]
+
+
 def _cn_num(x: Any) -> str:
     if x is None:
         return "?"

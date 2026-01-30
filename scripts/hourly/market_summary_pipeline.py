@@ -41,7 +41,7 @@ from hourly.llm_openai import (
 )
 from hourly.oi import parse_oi_signals
 from hourly.oi_plan_pipeline import build_oi_items, build_oi_plans
-from hourly.render import build_summary
+from hourly.render import build_summary, split_whatsapp_text
 from hourly.tg_client import TgClient, msg_text, sender_id
 from hourly.topic_pipeline import build_topics
 from hourly.viewpoints import extract_viewpoint_threads
@@ -448,7 +448,10 @@ def build_tg_topics(ctx: PipelineContext) -> None:
                 else:
                     s = resolve_addr_symbol(a)
                     cache[a] = s
-                return s or ""
+                if s:
+                    return s
+                # Keep a short anchor instead of deleting the address (prevents anchorless one-liners).
+                return (a[:6] + "…" + a[-4:]) if len(a) >= 12 else a
 
             t2 = addr_re.sub(repl, text)
             t2 = re.sub(r"\s{2,}", " ", t2).strip()
@@ -1020,6 +1023,7 @@ def render(ctx: PipelineContext) -> Dict[str, Any]:
         tmp_md_path = ""
 
     summary_hash = _sha1(summary_whatsapp + "\n---\n" + summary_markdown)
+    summary_whatsapp_chunks = split_whatsapp_text(summary_whatsapp, max_chars=950)
 
     done()
 
@@ -1029,6 +1033,7 @@ def render(ctx: PipelineContext) -> Dict[str, Any]:
         "hourKey": ctx.hour_key,
         "summaryHash": summary_hash,
         "summary_whatsapp": summary_whatsapp,
+        "summary_whatsapp_chunks": summary_whatsapp_chunks,
         "summary_markdown": summary_markdown,
         "summary_markdown_path": tmp_md_path,
         "errors": ctx.errors,
@@ -1084,6 +1089,7 @@ def run_pipeline(*, total_budget_s: float = 240.0) -> Dict[str, Any]:
                 "hourKey": ctx.hour_key,
                 "summaryHash": "",
                 "summary_whatsapp": "",
+                "summary_whatsapp_chunks": [],
                 "summary_markdown": "",
                 "summary_markdown_path": "",
                 "errors": ctx.errors + [f"fatal_render:{type(e2).__name__}:{e2}"],

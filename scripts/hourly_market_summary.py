@@ -45,6 +45,7 @@ def main() -> int:
                 "hourKey": "",
                 "summaryHash": "",
                 "summary_whatsapp": "",
+                "summary_whatsapp_chunks": [],
                 "summary_markdown": "",
                 "summary_markdown_path": "",
                 "errors": [f"fatal_wrapper:{type(e).__name__}:{e}"],

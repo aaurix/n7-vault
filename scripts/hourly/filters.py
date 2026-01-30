@@ -11,7 +11,7 @@ from typing import List, Tuple, Set
 
 TICKER_DOLLAR_RE = re.compile(r"\$[A-Za-z]{2,10}")
 TICKER_UPPER_RE = re.compile(r"\b[A-Z]{2,10}\b")
-BASE58_RE = re.compile(r"\b[1-9A-HJ-NP-Za-km-z]{32,}\b")
+BASE58_RE = re.compile(r"\b[1-9A-HJ-NP-Za-km-z]{32,44}\b")
 EVM_ADDR_RE = re.compile(r"\b0x[a-fA-F0-9]{40}\b")
 
 TICKER_EXCLUDE = {

@@ -205,8 +205,9 @@ def main():
     if plan is None:
         plan = rule_based_plan(item.get("symbol") or args.symbol.upper(), item)
 
-    out = {"item": item, "plan": plan}
     if args.json:
+        # Contract: align with hourly-style plural keys.
+        out = {"items": [item], "plans": [plan]}
         print(json.dumps(out, ensure_ascii=False))
     else:
         print(render_text(item, plan))
