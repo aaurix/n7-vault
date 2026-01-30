@@ -480,11 +480,146 @@ def main() -> int:
             "text": txt,
         })
 
-    # --- Twitter topics (热点Top5) via unified topic pipeline ---
+    # --- Twitter topics (热点Top5) ---
+    # Definition (per user): summarize what the user-followed accounts are talking about.
+    # Sources (C): Macro list + NB traders list + home/following.
     twitter_topics: List[Dict[str, Any]] = []
 
-    if use_llm and twitter_input:
-        tw_syms_set = set([str(x).upper().strip() for x in radar_syms if x])
+    def _bird_plain(cmd: List[str], *, timeout_s: int = 25) -> List[str]:
+        """Return compact per-tweet lines from bird --plain.
+
+        Filters out obvious metadata + common promo spam.
+        """
+
+        try:
+            p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=timeout_s)
+            out = (p.stdout or "").splitlines()
+
+            # Bird --plain output is multi-line per tweet. Convert it into compact per-tweet lines.
+            bad_prefix = (">", "date:", "url:", "PHOTO:", "VIDEO:", "────────────────")
+
+            # Common promo spam patterns
+            promo_pat = re.compile(
+                r"(\bvip\b|join our telegram|follow us on telegram|signal|paid group|link in bio|bitget\s*vip|费率更低|福利更狠)",
+                re.IGNORECASE,
+            )
+
+            tweets: List[str] = []
+            cur_handle = ""
+            cur_text: List[str] = []
+
+            def flush():
+                nonlocal cur_handle, cur_text
+                txt = " ".join([t for t in cur_text if t]).strip()
+                if txt:
+                    line = (f"{cur_handle} {txt}".strip() if cur_handle else txt)
+                    # remove trailing ':' in handle header
+                    line = re.sub(r"^(@[^:]{1,40}:)\s*", r"\1 ", line)
+                    # promo drop
+                    if not promo_pat.search(line):
+                        tweets.append(line)
+                cur_handle = ""
+                cur_text = []
+
+            for x in out:
+                s = (x or "").strip()
+                if not s:
+                    flush()
+                    continue
+                if any(s.startswith(bp) for bp in bad_prefix):
+                    continue
+
+                # Detect tweet header line: "@handle (Name):"
+                if s.startswith("@") and ":" in s and len(s) < 80:
+                    flush()
+                    cur_handle = s
+                    continue
+
+                # Skip pure retweet marker line
+                if s.startswith("RT ") and not cur_text:
+                    continue
+
+                cur_text.append(s)
+
+            flush()
+            return tweets
+        except Exception:
+            return []
+
+    # Collect candidate lines (bounded)
+    tw_lines: List[str] = []
+    # Always try a small fetch; even under time pressure, deterministic fallback is cheap.
+    tw_lines += _bird_plain(["bird", "list-timeline", "1967565567474475252", "-n", "40", "--plain"], timeout_s=12)  # macro
+    tw_lines += _bird_plain(["bird", "list-timeline", "1967571227402514522", "-n", "30", "--plain"], timeout_s=12)  # traders
+    tw_lines += _bird_plain(["bird", "home", "--following", "-n", "40", "--plain"], timeout_s=12)  # following
+
+    # Filter + dedup
+    cand: List[str] = []
+    seen_ln = set()
+    for ln in tw_lines:
+        if not ln:
+            continue
+        if not _is_cryptoish_twitter_text(ln):
+            continue
+        # strip URLs to stabilize dedup and reduce noise
+        ln2 = re.sub(r"https?://\S+", "", ln).strip()
+        ln2 = re.sub(r"\s+", " ", ln2).strip()
+        if not ln2:
+            continue
+        k = ln2.lower()[:120]
+        if k in seen_ln:
+            continue
+        seen_ln.add(k)
+        cand.append(ln2)
+        if len(cand) >= 40:
+            break
+
+    # If LLM available: summarize via topics pipeline; else fallback to top lines.
+    if use_llm and cand and not _over_budget(65.0):
+        topics = build_topics(
+            texts=cand,
+            embeddings_fn=embeddings,
+            cluster_fn=greedy_cluster,
+            llm_summarizer=summarize_twitter_topics,
+            llm_items_key="items",
+            prefilter=_is_cryptoish_twitter_text,
+            postfilter=None,
+            max_clusters=10,
+            threshold=0.82,
+            embed_timeout=30,
+            time_budget_ok=lambda lim: (not _over_budget(lim)),
+            budget_embed_s=40.0,
+            budget_llm_s=55.0,
+            llm_arg_name="twitter_items",
+            errors=errors,
+            tag="tw_topics",
+        )
+        for it in (topics or [])[:5]:
+            if not isinstance(it, dict):
+                continue
+            one = str(it.get("one_liner") or "").strip()
+            sen = str(it.get("sentiment") or "").strip()
+            sig = it.get("signals")
+            if isinstance(sig, list):
+                sig = "; ".join([str(x) for x in sig[:8]])
+            sig = str(sig or "").strip()
+            rel = it.get("related_assets")
+            if not isinstance(rel, list):
+                rel = []
+            if one:
+                twitter_topics.append({
+                    "one_liner": one[:90],
+                    "sentiment": sen,
+                    "signals": sig,
+                    "related_assets": [str(x).strip() for x in rel[:6] if str(x).strip()],
+                })
+
+    # Deterministic fallback (no LLM or empty topics)
+    if not twitter_topics and cand:
+        for ln in cand[:5]:
+            twitter_topics.append({"one_liner": ln[:90], "sentiment": "中性", "signals": "", "related_assets": []})
+
+    # NOTE: we still keep meme_radar-derived snippets elsewhere (meme section); twitter_topics is now independent.
 
         def _postfilter_topic(it: Dict[str, Any]) -> bool:
             s = (f"{it.get('one_liner','')} {it.get('signals','')}" or "").lower()
