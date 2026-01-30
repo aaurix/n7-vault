@@ -75,6 +75,52 @@ def _has_crypto_context(low: str) -> bool:
     return any(k in low for k in _CONTEXT_KW)
 
 
+def _alias_hit(raw: str, *, aliases: List[str], base: str = "") -> bool:
+    """Check if raw text hits any alias safely (used even when base is unknown).
+
+    - For CA aliases: require literal substring match.
+    - For cashtags: require literal $TICKER boundary match.
+    - For tickers: require word boundary match.
+    """
+
+    t = (raw or "").strip()
+    if not t:
+        return False
+    t2 = re.sub(r"https?://\S+", " ", t)
+    low = re.sub(r"\s+", " ", t2).strip().lower()
+
+    amb = _ambiguous_bases()
+    for a in aliases or []:
+        al = (a or "").strip()
+        if not al:
+            continue
+
+        # Contract address / long base58: match literally
+        if al.startswith("0x") or (len(al) >= 32 and re.fullmatch(r"[1-9A-HJ-NP-Za-km-z]{32,44}", al)):
+            if al.lower() in low:
+                return True
+            continue
+
+        al_u = al.upper().lstrip("$")
+        if al_u in amb and not al.strip().startswith("$"):
+            continue
+
+        if re.fullmatch(r"\$?[A-Za-z0-9]{2,12}", al):
+            tok = al.lower().lstrip("$")
+            if al.startswith("$"):
+                if re.search(rf"\${re.escape(tok)}(?![a-z0-9_])", low):
+                    return True
+            else:
+                if re.search(rf"\b{re.escape(tok)}\b", low):
+                    return True
+            continue
+
+        if al.lower() in low:
+            return True
+
+    return False
+
+
 def _is_relevant(raw: str, *, aliases: List[str], base: str) -> bool:
     """Relevance gate for evidence gathering.
 
@@ -92,29 +138,8 @@ def _is_relevant(raw: str, *, aliases: List[str], base: str) -> bool:
     base_u = (base or "").upper().strip()
     base_l = base_u.lower()
 
-    # Any explicit alias mention counts (with safeguards against substring false positives).
-    amb = _ambiguous_bases()
-    for a in aliases or []:
-        al = (a or "").strip()
-        if not al:
-            continue
-        al_u = al.upper().lstrip("$")
-        # Skip bare ambiguous base aliases like "PUMP"; require $PUMP or pair alias.
-        if al_u in amb and not al.strip().startswith("$"):
-            continue
-        # For ticker-like aliases, require safe matching.
-        if re.fullmatch(r"\$?[A-Za-z0-9]{2,12}", al):
-            tok = al.lower().lstrip("$")
-            if al.startswith("$"):
-                # Cashtag must appear literally, otherwise it matches generic words like "pump".
-                if re.search(rf"\${re.escape(tok)}(?![a-z0-9_])", low):
-                    return True
-            else:
-                if re.search(rf"\b{re.escape(tok)}\b", low):
-                    return True
-            continue
-        if al.lower() in low:
-            return True
+    if _alias_hit(raw, aliases=aliases, base=base):
+        return True
 
     # No base available
     if not base_u:
@@ -318,6 +343,11 @@ def twitter_evidence(spec: TwitterQuerySpec) -> Dict[str, Any]:
             if not _is_good_snippet(raw, symbol=base, base=base):
                 dropped["irrelevant"] += 1
                 continue
+        else:
+            # No base derived (e.g. CA-based meme search): require at least one alias hit.
+            if not _alias_hit(raw, aliases=spec.aliases):
+                dropped["irrelevant"] += 1
+                continue
 
         txt = _clean_snippet(raw)
         if not txt:
@@ -345,6 +375,25 @@ def twitter_evidence(spec: TwitterQuerySpec) -> Dict[str, Any]:
             "dropped": dropped,
         },
     }
+
+
+def twitter_evidence_for_ca(ca: str, symbol: str, *, intent: str = "catalyst", window_hours: int = 24, limit: int = 10) -> Dict[str, Any]:
+    """Standard evidence for on-chain meme tokens.
+
+    Unified rule:
+    - Query anchors: CA + $SYMBOL (do not rely on bare SYMBOL).
+    """
+
+    ca = (ca or "").strip()
+    sym = (symbol or "").strip().upper().lstrip("$")
+    aliases: List[str] = []
+    if ca:
+        aliases.append(ca)
+    if sym:
+        aliases.append(f"${sym}")
+
+    spec = TwitterQuerySpec(topic=f"{sym}" if sym else ca, aliases=aliases, intent=intent, window_hours=window_hours, snippet_limit=limit)
+    return twitter_evidence(spec)
 
 
 def twitter_context_for_symbol(symbol: str, *, limit: int = 6) -> Dict[str, Any]:

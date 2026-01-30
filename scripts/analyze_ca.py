@@ -31,7 +31,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ""))
 from hourly.dex import resolve_addr_symbol
 from hourly.dex import dexscreener_search, best_pair, pair_metrics
 from hourly.llm_openai import load_openai_api_key, chat_json
-from hourly.twitter_context import _run_bird_search  # type: ignore
+from hourly.twitter_context import twitter_evidence_for_ca
 
 
 EVM_CA_RE = re.compile(r"^0x[a-fA-F0-9]{40}$")
@@ -70,20 +70,10 @@ def _mcporter_search(q: str, *, limit: int = 80) -> List[Dict[str, Any]]:
         return []
 
 
-def _twitter_search_snips(q: str, *, limit: int = 10) -> List[str]:
-    rows = _run_bird_search(q, n=40, timeout_s=22)
-    out: List[str] = []
-    for r in rows:
-        txt = (r.get("text") if isinstance(r, dict) else "") or ""
-        txt = txt.replace("\n", " ").strip()
-        txt = re.sub(r"https?://\S+", "", txt).strip()
-        txt = re.sub(r"\s+", " ", txt).strip()
-        if not txt:
-            continue
-        out.append(txt[:220])
-        if len(out) >= limit:
-            break
-    return out
+def _twitter_snips_for_ca(addr: str, sym: str) -> List[str]:
+    ev = twitter_evidence_for_ca(addr, sym, intent="catalyst", window_hours=24, limit=12)
+    snips = ev.get("snippets") if isinstance(ev, dict) else []
+    return snips if isinstance(snips, list) else []
 
 
 def render_text(report: Dict[str, Any]) -> str:
@@ -158,11 +148,8 @@ def main() -> int:
 
     report["telegram"] = {"hits": len(tg_hits)}
 
-    # Twitter search
-    tw_q = addr
-    if sym:
-        tw_q = f"{addr} OR ${sym} OR {sym}"
-    tw_snips = _twitter_search_snips(tw_q, limit=12)
+    # Twitter search (unified rule for meme): CA + $SYMBOL
+    tw_snips = _twitter_snips_for_ca(addr, sym)
     report["twitter"] = {"count": len(tw_snips)}
 
     # Optional LLM summary
