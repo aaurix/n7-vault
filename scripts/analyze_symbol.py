@@ -290,11 +290,21 @@ def _render_dashboard_text(prepared: Dict[str, Any], dash: Dict[str, Any]) -> st
     derived = p.get("derived") if isinstance(p.get("derived"), dict) else {}
 
     scores = derived.get("scores") if isinstance(derived.get("scores"), dict) else {}
+    flow = (derived.get("flow_label") or "").strip()
+
+    k1 = p.get("kline_1h") if isinstance(p.get("kline_1h"), dict) else {}
+    k4 = p.get("kline_4h") if isinstance(p.get("kline_4h"), dict) else {}
 
     lines: List[str] = []
     lines.append(f"*{sym} 方案2 决策仪表盘*")
     lines.append(f"- 现价：{_fmt_num(price.get('now'))} | 24h {_fmt_pct(price.get('chg_24h_pct'))}")
-    lines.append(f"- OI：24h {_fmt_pct(oi.get('chg_24h_pct'))} | 价值 {_fmt_usd(oi.get('oi_value_now'))}")
+    lines.append(
+        f"- 涨跌：1h {_fmt_pct(price.get('chg_1h_pct'))} | 4h {_fmt_pct(price.get('chg_4h_pct'))}"
+    )
+    lines.append(
+        f"- OI：1h {_fmt_pct(oi.get('chg_1h_pct'))} | 4h {_fmt_pct(oi.get('chg_4h_pct'))} | 24h {_fmt_pct(oi.get('chg_24h_pct'))}"
+    )
+    lines.append(f"- OI名义：{_fmt_usd(oi.get('oi_value_now'))}")
 
     mc = market.get("market_cap")
     fdv = market.get("fdv")
@@ -307,9 +317,12 @@ def _render_dashboard_text(prepared: Dict[str, Any], dash: Dict[str, Any]) -> st
         if bits:
             lines.append(f"- {'/'.join(bits)}")
 
-    lines.append(
-        f"- 评分：趋势{int(scores.get('trend') or 0)}/100 | OI{int(scores.get('oi') or 0)}/100 | 社交{int(scores.get('social') or 0)}/100 | 综合{int(scores.get('overall') or 0)}/100"
-    )
+    trend_s = int(scores.get("trend") or 0)
+    oi_s = int(scores.get("oi") or 0)
+    soc_s = int(scores.get("social") or 0)
+    all_s = int(scores.get("overall") or 0)
+
+    lines.append(f"- 评分：趋势{trend_s}/100 | OI{oi_s}/100 | 社交{soc_s}/100 | 综合{all_s}/100")
 
     verdict = (dash.get("verdict") or derived.get("bias_hint") or "观望").strip()
     lines.append(f"- 结论：{verdict}")
@@ -317,6 +330,80 @@ def _render_dashboard_text(prepared: Dict[str, Any], dash: Dict[str, Any]) -> st
     lv = derived.get("key_levels") if isinstance(derived.get("key_levels"), dict) else {}
     if lv.get("support") is not None or lv.get("resistance") is not None:
         lines.append(f"- 关键位：上{_fmt_num(lv.get('resistance'))} / 下{_fmt_num(lv.get('support'))}")
+
+    # Key structure data (compact, WhatsApp-friendly)
+    k1_sw = k1.get("swing") if isinstance(k1.get("swing"), dict) else {}
+    k4_sw = k4.get("swing") if isinstance(k4.get("swing"), dict) else {}
+    k1_rg = k1.get("range") if isinstance(k1.get("range"), dict) else {}
+    rsi1 = k1.get("rsi14")
+    rsi4 = k4.get("rsi14")
+    atr1 = k1.get("atr14")
+    atr4 = k4.get("atr14")
+    ema4 = k4.get("ema20")
+    slope4 = k4.get("ema20_slope_pct")
+    vol1 = k1.get("volume") if isinstance(k1.get("volume"), dict) else {}
+
+    struct_lines: List[str] = []
+    if k1_sw.get("hi") is not None or k1_sw.get("lo") is not None:
+        struct_lines.append(f"1H swing：上{_fmt_num(k1_sw.get('hi'))} / 下{_fmt_num(k1_sw.get('lo'))}")
+    if k4_sw.get("hi") is not None or k4_sw.get("lo") is not None:
+        struct_lines.append(f"4H swing：上{_fmt_num(k4_sw.get('hi'))} / 下{_fmt_num(k4_sw.get('lo'))}")
+    if k1_rg.get("hi") is not None or k1_rg.get("lo") is not None:
+        pos = k1_rg.get("pos")
+        pos_s = "?" if pos is None else f"{float(pos):.2f}"
+        struct_lines.append(f"1H 区间：{_fmt_num(k1_rg.get('lo'))}~{_fmt_num(k1_rg.get('hi'))} | pos {pos_s}")
+
+    ind_bits: List[str] = []
+    if ema4 is not None or slope4 is not None:
+        if isinstance(slope4, (int, float)):
+            ind_bits.append(f"4H EMA20 {_fmt_num(ema4)} | 斜率{slope4:+.2f}%")
+        else:
+            ind_bits.append(f"4H EMA20 {_fmt_num(ema4)}")
+    if rsi1 is not None or rsi4 is not None:
+        ind_bits.append(f"RSI：1H {_fmt_num(rsi1)} | 4H {_fmt_num(rsi4)}")
+    if atr1 is not None or atr4 is not None:
+        ind_bits.append(f"ATR：1H {_fmt_num(atr1)} | 4H {_fmt_num(atr4)}")
+    if vol1.get("ratio") is not None:
+        ind_bits.append(f"量能比(1H)：{_fmt_num(vol1.get('ratio'))}")
+
+    if struct_lines or ind_bits:
+        lines.append("*关键结构数据*")
+        for s in (struct_lines + ind_bits)[:6]:
+            lines.append(f"- {s}")
+
+    # Score explanation (deterministic, avoid pretending precision)
+    exp: List[str] = []
+    if trend_s >= 70:
+        exp.append("趋势分高：4H趋势上行/位置偏上")
+    elif trend_s <= 30:
+        exp.append("趋势分低：4H趋势下行/位置偏下")
+    else:
+        exp.append("趋势分中：方向不够一致")
+
+    if oi_s >= 65:
+        exp.append("OI分高：增仓与价格同向")
+    elif oi_s <= 35:
+        exp.append("OI分低：增仓与价格逆向/出清")
+    else:
+        exp.append("OI分中：多空博弈/震荡")
+
+    tw = p.get("twitter") if isinstance(p.get("twitter"), dict) else {}
+    kept = int(tw.get("kept") or 0)
+    total = int(tw.get("total") or 0)
+    if total and kept <= 1:
+        exp.append("社交分低：有效观点偏少")
+    elif total and kept >= 4:
+        exp.append("社交分偏高：有一定观点密度")
+    else:
+        exp.append("社交分中：证据一般")
+
+    if flow:
+        exp.append(f"资金结构：{flow}")
+
+    if exp:
+        lines.append("*评分解释*")
+        for e in exp[:5]:
+            lines.append(f"- {e}")
 
     bullets = dash.get("bullets") if isinstance(dash.get("bullets"), list) else []
     if bullets:
