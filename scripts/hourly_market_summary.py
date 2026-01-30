@@ -617,7 +617,7 @@ def main() -> int:
             if s:
                 texts.append(s)
 
-        # top cashtags
+        # top cashtags + entity anchors (so related_assets is not all $BTC)
         tickers: List[str] = []
         for t in texts[:80]:
             for m in re.findall(r"\$[A-Za-z]{2,10}", t):
@@ -625,6 +625,32 @@ def main() -> int:
                 if u not in tickers:
                     tickers.append(u)
         tickers = tickers[:6]
+
+        entities: List[str] = []
+        def _add_ent(x: str):
+            x = (x or "").strip()
+            if x and x not in entities:
+                entities.append(x)
+
+        for t in texts[:80]:
+            tl = t.lower()
+            if any(k in tl for k in ["bitcoin", " btc", "$btc", "比特币", "btc"]):
+                _add_ent("BTC")
+            if any(k in tl for k in ["ethereum", " eth", "$eth", "以太坊", "eth"]):
+                _add_ent("ETH")
+            if any(k in tl for k in ["gold", " xau", "黄金"]):
+                _add_ent("GOLD")
+            if any(k in tl for k in ["nasdaq", " nq", "纳指"]):
+                _add_ent("NASDAQ")
+            if any(k in tl for k in ["spx", "s&p", "标普"]):
+                _add_ent("SPX")
+            if any(k in tl for k in ["us stocks", "美股"]):
+                _add_ent("US-STOCKS")
+            if any(k in tl for k in ["binance", "币安", "cz"]):
+                _add_ent("BINANCE")
+            if any(k in tl for k in ["etf"]):
+                _add_ent("ETF")
+        rel_assets = (entities + tickers)[:8]
 
         # helper: pull key levels / amounts
         def _levels() -> List[str]:
@@ -676,31 +702,31 @@ def main() -> int:
             one = "讨论主线之一是‘杠杆出清/清算驱动的下跌’（破位→止损/强平链条）"
             if extra:
                 one += f"；" + "，".join(extra)
-            out.append({"one_liner": one, "sentiment": "偏空", "signals": "清算; 杠杆; 破位链条", "related_assets": tickers})
+            out.append({"one_liner": one, "sentiment": "偏空", "signals": "清算; 杠杆; 破位链条", "related_assets": rel_assets})
 
         # 2) ETF/flows claim
         if c_flow:
             extra = f"（提到ETF/资金流的频率较高）"
             one = "资金流/ETF 被频繁用作解释变量：短线波动更容易被‘流出/流入’放大"
-            out.append({"one_liner": one + extra, "sentiment": "中性", "signals": "资金流; ETF; 情绪放大", "related_assets": tickers})
+            out.append({"one_liner": one + extra, "sentiment": "中性", "signals": "资金流; ETF; 情绪放大", "related_assets": rel_assets})
 
         # 3) Macro / cross-asset claim
         if c_macro or c_cross:
             one = "宏观与跨资产联动（利率预期/美元/黄金/美股）被拿来解释风险偏好变化，倾向先防守再确认"
             if lvls:
                 one += f"；关注: {', '.join(lvls[:2])}"
-            out.append({"one_liner": one, "sentiment": "分歧", "signals": "宏观; 跨资产; 风险偏好", "related_assets": tickers})
+            out.append({"one_liner": one, "sentiment": "分歧", "signals": "宏观; 跨资产; 风险偏好", "related_assets": rel_assets})
 
         # Ensure at least 2 bullets
         if len(out) < 2:
             one = "关注流更多在复盘‘下跌原因+关键位’，共识偏谨慎：等待确认信号，不追第一根"
-            out.append({"one_liner": one, "sentiment": "分歧", "signals": "关键位; 复盘; 风控", "related_assets": tickers})
+            out.append({"one_liner": one, "sentiment": "分歧", "signals": "关键位; 复盘; 风控", "related_assets": rel_assets})
 
         # Add a trader playbook line (still no quotes)
         if out:
             lv = ", ".join(lvls[:2]) if lvls else "关键位"
             one = f"抓法：等 {lv} 附近出现‘收回/回踩确认’再跟随；无确认则轻仓/快进快出"
-            out.append({"one_liner": one, "sentiment": "中性", "signals": "触发/无效/风控", "related_assets": tickers})
+            out.append({"one_liner": one, "sentiment": "中性", "signals": "触发/无效/风控", "related_assets": rel_assets})
 
         return out[:5]
 
