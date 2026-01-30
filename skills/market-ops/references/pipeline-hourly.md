@@ -10,7 +10,11 @@ Generate an hourly WhatsApp summary combining:
 
 ## Entry point
 - Script: `/Users/massis/clawd/scripts/hourly_market_summary.py`
-- Output: JSON (includes `summary_whatsapp`, `summary_markdown`, `errors`, and debug fields)
+- Output: JSON (includes `summary_whatsapp`, `errors`, and debug fields; do not show `errors` to users)
+
+## Key debug fields (common)
+- `tg_viewpoint_messages`: the human-sourced viewpoint messages used as input
+- `tg_topics_messages`: the messages used for TG hot topics (if present)
 
 ## Layers
 1) **Data**

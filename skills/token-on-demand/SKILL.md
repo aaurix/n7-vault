@@ -20,6 +20,10 @@ This skill covers **interactive** analysis requests (not cron).
 - CA analysis:
   - `python3 /Users/massis/clawd/scripts/analyze_ca.py <CA>`
 
+## Output boundaries
+- No raw quotes unless user asks
+- Prefer risk/tradability + plan-style bullets; avoid generic chatter
+
 ## References
 - CA analysis spec: `references/ca-analysis.md`
 - Perp analysis spec: `references/perp-analysis.md`
