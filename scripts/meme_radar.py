@@ -202,22 +202,60 @@ def detect_candidates(rows: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
     return out
 
 
-def http_json(url: str) -> Any:
-    """HTTP JSON with basic retry/backoff.
+DEX_CACHE_PATH = os.path.join("memory", "meme", "dex_cache.json")
 
-    DexScreener can rate-limit; avoid failing the whole radar.
+
+def _load_dex_cache() -> Dict[str, Any]:
+    try:
+        if os.path.exists(DEX_CACHE_PATH):
+            return json.loads(open(DEX_CACHE_PATH, "r", encoding="utf-8").read())
+    except Exception:
+        pass
+    return {"version": 1, "items": {}}
+
+
+def _save_dex_cache(cache: Dict[str, Any]) -> None:
+    try:
+        os.makedirs(os.path.dirname(DEX_CACHE_PATH), exist_ok=True)
+        open(DEX_CACHE_PATH, "w", encoding="utf-8").write(json.dumps(cache, ensure_ascii=False))
+    except Exception:
+        pass
+
+
+def http_json(url: str, *, cache: Optional[Dict[str, Any]] = None, ttl_s: int = 24 * 3600) -> Any:
+    """HTTP JSON with basic retry/backoff + local cache.
+
+    - DexScreener can rate-limit; cache results to reduce repeated calls.
+    - Cache key is the full URL.
     """
+
     import time
+
+    is_dex = "api.dexscreener.com" in (url or "")
+    now = time.time()
+
+    if is_dex and cache is not None:
+        it = (cache.get("items") or {}).get(url)
+        if isinstance(it, dict):
+            ts = float(it.get("ts") or 0)
+            if ts and (now - ts) <= ttl_s and "data" in it:
+                return it.get("data")
+
     last_err = None
     for i in range(4):
         try:
             req = urlreq.Request(url, headers={"User-Agent": "clawdbot-meme-radar/1.0"})
             with urlreq.urlopen(req, timeout=10) as resp:
-                return json.loads(resp.read().decode("utf-8"))
+                data = json.loads(resp.read().decode("utf-8"))
+
+            if is_dex and cache is not None:
+                cache.setdefault("items", {})
+                cache["items"][url] = {"ts": now, "data": data}
+            return data
         except Exception as e:
             last_err = e
-            # exponential-ish backoff
             time.sleep(0.4 * (2**i))
+
     raise last_err
 
 
@@ -250,11 +288,11 @@ def _pair_to_metrics(best: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def dexscreener_token(addr: str) -> Optional[Dict[str, Any]]:
+def dexscreener_token(addr: str, *, dex_cache: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
     """Fetch token page and return best-pair metrics."""
     url = f"https://api.dexscreener.com/latest/dex/tokens/{addr}"
     try:
-        data = http_json(url)
+        data = http_json(url, cache=dex_cache)
     except Exception:
         return None
     pairs = data.get("pairs") or []
@@ -262,11 +300,11 @@ def dexscreener_token(addr: str) -> Optional[Dict[str, Any]]:
     return _pair_to_metrics(best) if best else None
 
 
-def dexscreener_search(symbol: str) -> List[Dict[str, Any]]:
+def dexscreener_search(symbol: str, *, dex_cache: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
     """Search by query (e.g., ticker). Returns list of pair metrics."""
     url = f"https://api.dexscreener.com/latest/dex/search?q={symbol}"
     try:
-        data = http_json(url)
+        data = http_json(url, cache=dex_cache)
     except Exception:
         return []
     pairs = data.get("pairs") or []
@@ -298,6 +336,8 @@ def main() -> int:
     ap.add_argument("--limit", type=int, default=15)
     args = ap.parse_args()
 
+    dex_cache = _load_dex_cache()
+
     _t = time.perf_counter()
     rows = extract_twitter(hours=args.hours, n=args.tweet_limit)
     perf["extract_twitter"] = round(time.perf_counter() - _t, 3)
@@ -319,7 +359,7 @@ def main() -> int:
         def _fetch_addr(kv):
             key, meta = kv
             addr = key
-            d = dexscreener_token(addr)
+            d = dexscreener_token(addr, dex_cache=dex_cache)
             return (addr, meta, d, key)
 
         # DexScreener rate-limits: keep concurrency low.
@@ -351,7 +391,7 @@ def main() -> int:
             sym = meta.get("symbol")
             if not sym:
                 return None
-            pairs = dexscreener_search(sym)
+            pairs = dexscreener_search(sym, dex_cache=dex_cache)
             return (key, meta, sym, pairs)
 
         # DexScreener rate-limits: keep concurrency low.
@@ -419,6 +459,9 @@ def main() -> int:
     perf["twitter_evidence"] = round(time.perf_counter() - _t, 3)
 
     os.makedirs("memory/meme", exist_ok=True)
+    # Persist cache + output
+    _save_dex_cache(dex_cache)
+
     open("memory/meme/last_candidates.json", "w").write(json.dumps({"generatedAt": dt.datetime.now(SH_TZ).isoformat(), "hours": args.hours, "items": enriched, "perf": perf, "elapsed_s": round(time.perf_counter()-_t0, 3)}, ensure_ascii=False, indent=2))
 
     print(f"链上Meme雷达（过去{args.hours}小时，来源：Following提及 → DexScreener验证）")
