@@ -17,21 +17,16 @@ Note: CoinGecko rate limits; keep calls minimal.
 from __future__ import annotations
 
 import json
-import os
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
+from repo_paths import memory_path
+
 BASE = "https://api.coingecko.com/api/v3"
 
-
-def _repo_root() -> str:
-    here = os.path.abspath(__file__)
-    return os.path.dirname(os.path.dirname(os.path.dirname(here)))
-
-
-def _map_path() -> str:
-    return os.path.join(_repo_root(), "memory", "coingecko_symbol_map.json")
+MAP_PATH: Path = memory_path("coingecko_symbol_map.json")
 
 
 def _get_json(path: str, params: Dict[str, Any], *, timeout: int = 12) -> Any:
@@ -43,10 +38,9 @@ def _get_json(path: str, params: Dict[str, Any], *, timeout: int = 12) -> Any:
 
 
 def _load_map() -> Dict[str, str]:
-    p = _map_path()
     try:
-        if os.path.exists(p):
-            data = json.loads(open(p, "r", encoding="utf-8").read())
+        if MAP_PATH.exists():
+            data = json.loads(MAP_PATH.read_text(encoding="utf-8"))
             return {str(k).upper(): str(v) for k, v in (data or {}).items() if k and v}
     except Exception:
         pass
@@ -54,10 +48,9 @@ def _load_map() -> Dict[str, str]:
 
 
 def _save_map(m: Dict[str, str]) -> None:
-    p = _map_path()
     try:
-        os.makedirs(os.path.dirname(p), exist_ok=True)
-        open(p, "w", encoding="utf-8").write(json.dumps(m, ensure_ascii=False, indent=2))
+        MAP_PATH.parent.mkdir(parents=True, exist_ok=True)
+        MAP_PATH.write_text(json.dumps(m, ensure_ascii=False, indent=2), encoding="utf-8")
     except Exception:
         pass
 

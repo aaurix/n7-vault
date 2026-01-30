@@ -11,6 +11,8 @@ __pycache__/
 # Runtime/cache that should not be versioned
 memory/embeddings_cache.json
 memory/meme/last_candidates.json
+memory/meme/dex_cache.json
+memory/meme/*.json
 memory/hourly_summary_delivery.json
 memory/pill_ack.json
 memory/*.json

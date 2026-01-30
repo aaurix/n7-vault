@@ -10,16 +10,19 @@ from __future__ import annotations
 
 import json
 import subprocess
+from pathlib import Path
 from typing import Any, Dict
 
+from repo_paths import scripts_path
 
-BINANCE_KLINE_SCRIPT = "/Users/massis/clawd/scripts/binance_kline_context.py"
+
+BINANCE_KLINE_SCRIPT: Path = scripts_path("binance_kline_context.py")
 
 
 def run_kline_json(symbol: str, *, interval: str, lookback: int = 80, timeout_s: int = 18) -> Dict[str, Any]:
     cmd = [
         "python3",
-        BINANCE_KLINE_SCRIPT,
+        str(BINANCE_KLINE_SCRIPT),
         symbol,
         "--interval",
         interval,

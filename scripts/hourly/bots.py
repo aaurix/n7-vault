@@ -10,17 +10,19 @@ The denylist is stored in memory/bot_senders.json (user-maintained).
 from __future__ import annotations
 
 import json
-import os
+from pathlib import Path
 from typing import Set
 
+from repo_paths import memory_path
 
-DEFAULT_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "memory", "bot_senders.json")
+
+DEFAULT_PATH: Path = memory_path("bot_senders.json")
 
 
-def load_bot_sender_ids(path: str = DEFAULT_PATH) -> Set[int]:
+def load_bot_sender_ids(path: Path = DEFAULT_PATH) -> Set[int]:
     try:
-        if os.path.exists(path):
-            data = json.loads(open(path, "r", encoding="utf-8").read())
+        if path.exists():
+            data = json.loads(path.read_text(encoding="utf-8"))
             out: Set[int] = set()
             for _k, arr in (data.get("senderIds") or {}).items():
                 for x in (arr or []):

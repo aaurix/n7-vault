@@ -17,13 +17,14 @@ This intentionally avoids complex NLP. It's a lightweight heuristic 'quality' ga
 from __future__ import annotations
 
 import json
-import os
 import re
 import subprocess
-import sys
-from typing import Any, Dict, List, Optional, Tuple
+from pathlib import Path
+from typing import Any, Dict, List, Tuple
 
-STATE_PATH = os.path.expanduser("~/clawd/memory/bankr_watch_state.json")
+from repo_paths import memory_path
+
+STATE_PATH: Path = memory_path("bankr_watch_state.json")
 
 PROMO_KW = re.compile(r"(airdrop|giveaway|join\s+telegram|vip|signal|paid\s+group|link\s+in\s+bio|referral|邀请码)", re.IGNORECASE)
 
@@ -36,15 +37,16 @@ def _run(cmd: List[str], timeout_s: int = 25) -> str:
 
 def load_state() -> Dict[str, Any]:
     try:
-        return json.load(open(STATE_PATH))
+        if STATE_PATH.exists():
+            return json.loads(STATE_PATH.read_text(encoding="utf-8"))
     except Exception:
-        return {"last_seen_id": ""}
+        pass
+    return {"last_seen_id": ""}
 
 
 def save_state(state: Dict[str, Any]) -> None:
-    os.makedirs(os.path.dirname(STATE_PATH), exist_ok=True)
-    with open(STATE_PATH, "w") as f:
-        json.dump(state, f, ensure_ascii=False, indent=2)
+    STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    STATE_PATH.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def bird_user_tweets(handle: str, n: int = 30) -> List[Dict[str, Any]]:

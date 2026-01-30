@@ -22,6 +22,8 @@ import hashlib
 import urllib.request as urlreq
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
+from repo_paths import memory_path
+
 
 def load_openai_api_key() -> Optional[str]:
     k = os.environ.get("OPENAI_API_KEY")
@@ -47,10 +49,7 @@ def _sha1(s: str) -> str:
 
 
 def _default_embed_cache_path() -> str:
-    # repo_root/scripts/hourly/llm_openai.py -> repo_root/memory/embeddings_cache.json
-    here = os.path.abspath(__file__)
-    repo_root = os.path.dirname(os.path.dirname(os.path.dirname(here)))
-    return os.path.join(repo_root, "memory", "embeddings_cache.json")
+    return str(memory_path("embeddings_cache.json"))
 
 
 _EMBED_CACHE: Optional[Dict[str, List[float]]] = None
@@ -180,7 +179,7 @@ def chat_json(
     *,
     system: str,
     user: str,
-    model: str = "gpt-4o-mini",
+    model: str = "openai-codex/gpt-5.2",
     temperature: float = 0.2,
     max_tokens: int = 500,
     timeout: int = 30,
@@ -393,7 +392,7 @@ def summarize_twitter_ca_viewpoints(*, items: List[Dict[str, Any]]) -> Dict[str,
     }
 
     # Prefer a stronger model for reliable JSON + non-empty items.
-    return chat_json(system=system, user=json.dumps(user, ensure_ascii=False), model="gpt-4o", temperature=0.1, max_tokens=700, timeout=45)
+    return chat_json(system=system, user=json.dumps(user, ensure_ascii=False), model="openai-codex/gpt-5.2", temperature=0.1, max_tokens=700, timeout=45)
 
 
 def summarize_overall(
