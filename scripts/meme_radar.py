@@ -203,9 +203,22 @@ def detect_candidates(rows: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
 
 
 def http_json(url: str) -> Any:
-    req = urlreq.Request(url, headers={"User-Agent": "clawdbot-meme-radar/1.0"})
-    with urlreq.urlopen(req, timeout=8) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+    """HTTP JSON with basic retry/backoff.
+
+    DexScreener can rate-limit; avoid failing the whole radar.
+    """
+    import time
+    last_err = None
+    for i in range(4):
+        try:
+            req = urlreq.Request(url, headers={"User-Agent": "clawdbot-meme-radar/1.0"})
+            with urlreq.urlopen(req, timeout=10) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except Exception as e:
+            last_err = e
+            # exponential-ish backoff
+            time.sleep(0.4 * (2**i))
+    raise last_err
 
 
 def _best_pair(pairs: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
@@ -309,7 +322,8 @@ def main() -> int:
             d = dexscreener_token(addr)
             return (addr, meta, d, key)
 
-        with ThreadPoolExecutor(max_workers=8) as ex:
+        # DexScreener rate-limits: keep concurrency low.
+        with ThreadPoolExecutor(max_workers=3) as ex:
             futs = [ex.submit(_fetch_addr, kv) for kv in addr_items]
             for fu in as_completed(futs):
                 try:
@@ -340,7 +354,8 @@ def main() -> int:
             pairs = dexscreener_search(sym)
             return (key, meta, sym, pairs)
 
-        with ThreadPoolExecutor(max_workers=6) as ex:
+        # DexScreener rate-limits: keep concurrency low.
+        with ThreadPoolExecutor(max_workers=3) as ex:
             futs = [ex.submit(_fetch_sym, kv) for kv in ticker_items[:max_ticker_queries]]
             for fu in as_completed(futs):
                 r = None
@@ -386,6 +401,7 @@ def main() -> int:
             ev = twitter_evidence_for_ca(addr, sym, intent="catalyst", window_hours=24, limit=6)
             return (it, ev)
 
+        # Twitter evidence is cheaper than Dex but still keep moderate concurrency.
         with ThreadPoolExecutor(max_workers=6) as ex:
             futs = [ex.submit(_ev_pack, it) for it in enriched[:10]]
             for fu in as_completed(futs):
