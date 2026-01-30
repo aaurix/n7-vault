@@ -511,32 +511,37 @@ def main() -> int:
             continue
 
     ca_twitter_topics: List[Dict[str, Any]] = []
-    # Prefer LLM viewpoint summary (no quotes). Fallback to evidence ratio only.
-    if use_llm and ca_evidence_items and not _over_budget(55.0):
-        try:
-            out = summarize_twitter_ca_viewpoints(items=ca_evidence_items)
-            its = out.get("items") if isinstance(out, dict) else None
-            if isinstance(its, list):
-                for it in its[:5]:
-                    if not isinstance(it, dict):
-                        continue
-                    sym = str(it.get("sym") or "").upper().strip()
-                    ca = str(it.get("ca") or "").strip()
-                    one = str(it.get("one_liner") or "").strip()
-                    sen = str(it.get("sentiment") or "").strip()
-                    sig = it.get("signals")
-                    if isinstance(sig, list):
-                        sig = "; ".join([str(x) for x in sig[:8]])
-                    sig = str(sig or "").strip()
-                    if sym and one:
-                        ca_twitter_topics.append({
-                            "one_liner": f"{sym}: {one}"[:120],
-                            "sentiment": sen,
-                            "signals": (sig or f"CA:{ca[:6]}…; ${sym}"),
-                            "related_assets": [],
-                        })
-        except Exception as e:
-            errors.append(f"tw_ca_viewpoints_llm_failed:{e}")
+    # Prefer LLM viewpoint summary (no quotes). Fallback if skipped/failed.
+    if ca_evidence_items:
+        if not use_llm:
+            errors.append("tw_ca_viewpoints_skipped:no_openai_key")
+        elif _over_budget(65.0):
+            errors.append("tw_ca_viewpoints_skipped:over_budget")
+        else:
+            try:
+                out = summarize_twitter_ca_viewpoints(items=ca_evidence_items)
+                its = out.get("items") if isinstance(out, dict) else None
+                if isinstance(its, list):
+                    for it in its[:5]:
+                        if not isinstance(it, dict):
+                            continue
+                        sym = str(it.get("sym") or "").upper().strip()
+                        ca = str(it.get("ca") or "").strip()
+                        one = str(it.get("one_liner") or "").strip()
+                        sen = str(it.get("sentiment") or "").strip()
+                        sig = it.get("signals")
+                        if isinstance(sig, list):
+                            sig = "; ".join([str(x) for x in sig[:8]])
+                        sig = str(sig or "").strip()
+                        if sym and one:
+                            ca_twitter_topics.append({
+                                "one_liner": f"{sym}: {one}"[:120],
+                                "sentiment": sen,
+                                "signals": (sig or f"CA:{ca[:6]}…; ${sym}"),
+                                "related_assets": [],
+                            })
+            except Exception as e:
+                errors.append(f"tw_ca_viewpoints_llm_failed:{e}")
 
     if not ca_twitter_topics:
         for x in ca_evidence_items[:5]:

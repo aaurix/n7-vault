@@ -388,7 +388,8 @@ def summarize_twitter_ca_viewpoints(*, items: List[Dict[str, Any]]) -> Dict[str,
         "requirements": {"language": "zh", "no_quotes": True, "topN": 5},
     }
 
-    return chat_json(system=system, user=json.dumps(user, ensure_ascii=False), temperature=0.1, max_tokens=520)
+    # Keep it fast to avoid hourly time-budget fallback.
+    return chat_json(system=system, user=json.dumps(user, ensure_ascii=False), temperature=0.1, max_tokens=420, timeout=22)
 
 
 def summarize_overall(
