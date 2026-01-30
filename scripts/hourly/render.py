@@ -178,7 +178,7 @@ def build_summary(
             if pts:
                 out.append(f"   - {pts[0]}")
 
-    out.append(H("Twitter（仅CA+$SYMBOL证据）"))
+    out.append(H("Twitter（CA+$SYMBOL观点Top5）"))
     twitter_topics = (twitter_lines or [])
     if twitter_topics:
         for i, it in enumerate(twitter_topics[:5], 1):

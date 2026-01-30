@@ -362,6 +362,35 @@ def summarize_twitter_topics(*, twitter_items: List[Dict[str, Any]]) -> Dict[str
     return chat_json(system=system, user=json.dumps(user, ensure_ascii=False), temperature=0.1, max_tokens=520)
 
 
+def summarize_twitter_ca_viewpoints(*, items: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Summarize viewpoints for on-chain meme candidates using ONLY CA+$SYMBOL evidence.
+
+    Input items schema (best-effort):
+      [{sym, ca, evidence:{kept,total,snippets}}]
+
+    Output:
+      {items:[{sym, ca, one_liner, sentiment, signals}]}
+    """
+
+    system = (
+        "你是加密交易员助手。输入是若干链上meme候选，每个候选只给：symbol、合约地址、以及Twitter证据片段（通过CA+$SYMBOL搜索得到）。\n"
+        "任务：为每个候选提炼‘市场观点/叙事’的一句话总结，Top5即可。\n"
+        "禁止：引用原文、输出链接、编造没有出现在片段里的事实。\n"
+        "输出JSON：{items:[{sym, ca, one_liner, sentiment, signals}]}\n"
+        "规则：\n"
+        "- sentiment只能是: 偏多/偏空/分歧/中性\n"
+        "- one_liner：20~60字，尽量包含一个可交易锚点（事件/资金/交易所/链/叙事）。\n"
+        "- signals：3~8个短词/短语，用分号连接（例如：Binance Alpha; 加池; CTO; 拉盘; 砸盘）。\n"
+    )
+
+    user = {
+        "items": items[:8],
+        "requirements": {"language": "zh", "no_quotes": True, "topN": 5},
+    }
+
+    return chat_json(system=system, user=json.dumps(user, ensure_ascii=False), temperature=0.1, max_tokens=520)
+
+
 def summarize_overall(
     *,
     token_summaries: List[Dict[str, Any]],

@@ -38,6 +38,7 @@ from hourly.llm_openai import (
     summarize_token_threads_batch,
     summarize_narratives,
     summarize_twitter_topics,
+    summarize_twitter_ca_viewpoints,
     summarize_oi_trading_plans,
     load_openai_api_key,
 )
@@ -482,29 +483,75 @@ def main() -> int:
 
     # --- Twitter (CA + $SYMBOL only) ---
     # User requirement: Twitter section should only show CA + $SYMBOL evidence for meme candidates.
-    ca_twitter_topics: List[Dict[str, Any]] = []
-    for it in radar_items[:20]:
+    # Build CA+$SYMBOL evidence packs for top candidates.
+    ca_evidence_items: List[Dict[str, Any]] = []
+    seen_key = set()
+    for it in radar_items[:25]:
         try:
             dex = (it.get("dex") or {})
             sym = (dex.get("baseSymbol") or "").upper().strip()
-            addr = str(it.get("addr") or "").strip()
+            ca = str(it.get("addr") or "").strip()
             ev = it.get("twitter_evidence") or {}
+            key = f"{sym}|{ca[:12]}"
+            if not sym or not ca or key in seen_key:
+                continue
+            seen_key.add(key)
+            ca_evidence_items.append({
+                "sym": sym,
+                "ca": ca,
+                "evidence": {
+                    "kept": ev.get("kept"),
+                    "total": ev.get("total"),
+                    "snippets": (ev.get("snippets") or [])[:6],
+                },
+            })
+            if len(ca_evidence_items) >= 8:
+                break
+        except Exception:
+            continue
+
+    ca_twitter_topics: List[Dict[str, Any]] = []
+    # Prefer LLM viewpoint summary (no quotes). Fallback to evidence ratio only.
+    if use_llm and ca_evidence_items and not _over_budget(55.0):
+        try:
+            out = summarize_twitter_ca_viewpoints(items=ca_evidence_items)
+            its = out.get("items") if isinstance(out, dict) else None
+            if isinstance(its, list):
+                for it in its[:5]:
+                    if not isinstance(it, dict):
+                        continue
+                    sym = str(it.get("sym") or "").upper().strip()
+                    ca = str(it.get("ca") or "").strip()
+                    one = str(it.get("one_liner") or "").strip()
+                    sen = str(it.get("sentiment") or "").strip()
+                    sig = it.get("signals")
+                    if isinstance(sig, list):
+                        sig = "; ".join([str(x) for x in sig[:8]])
+                    sig = str(sig or "").strip()
+                    if sym and one:
+                        ca_twitter_topics.append({
+                            "one_liner": f"{sym}: {one}"[:120],
+                            "sentiment": sen,
+                            "signals": (sig or f"CA:{ca[:6]}…; ${sym}"),
+                            "related_assets": [],
+                        })
+        except Exception as e:
+            errors.append(f"tw_ca_viewpoints_llm_failed:{e}")
+
+    if not ca_twitter_topics:
+        for x in ca_evidence_items[:5]:
+            sym = x.get("sym")
+            ca = x.get("ca")
+            ev = x.get("evidence") or {}
             kept = ev.get("kept")
             total = ev.get("total")
-            if not sym or not addr:
-                continue
-            # Keep it short; avoid raw snippets here.
             ratio = f"{kept}/{total}" if (kept is not None or total is not None) else "-"
             ca_twitter_topics.append({
                 "one_liner": f"{sym}: CA+$SYMBOL 证据 {ratio}",
                 "sentiment": "",
-                "signals": f"CA:{addr[:6]}…; ${sym}",
+                "signals": f"CA:{str(ca)[:6]}…; ${sym}",
                 "related_assets": [],
             })
-            if len(ca_twitter_topics) >= 5:
-                break
-        except Exception:
-            continue
 
     # Legacy macro/trader twitter topics remain in code, but we will override the output
     # to ONLY show CA+$SYMBOL evidence (see below near the render stage).
