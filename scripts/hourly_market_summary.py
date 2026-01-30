@@ -161,7 +161,8 @@ def main() -> int:
     def _elapsed_s() -> float:
         return (dt.datetime.now(UTC) - t0).total_seconds()
 
-    def _over_budget(limit_s: float = 70.0) -> bool:
+    # Increase global time budget (user request): allow up to 120s before we start skipping steps.
+    def _over_budget(limit_s: float = 120.0) -> bool:
         return _elapsed_s() >= limit_s
 
     since_utc = now_utc - dt.timedelta(minutes=60)
@@ -515,8 +516,8 @@ def main() -> int:
     if ca_evidence_items:
         if not use_llm:
             errors.append("tw_ca_viewpoints_skipped:no_openai_key")
-        elif _over_budget(65.0):
-            errors.append("tw_ca_viewpoints_skipped:over_budget")
+        elif _over_budget(118.0):
+            errors.append(f"tw_ca_viewpoints_skipped:over_budget:{_elapsed_s():.1f}s")
         else:
             try:
                 out = summarize_twitter_ca_viewpoints(items=ca_evidence_items)
@@ -1239,6 +1240,8 @@ def main() -> int:
         "summary_markdown": summary_markdown,
         "summary_markdown_path": tmp_md,
         "errors": errors,
+        "elapsed_s": round(_elapsed_s(), 2),
+        "use_llm": bool(use_llm),
     }
 
     print(json.dumps(out, ensure_ascii=False, indent=2))
