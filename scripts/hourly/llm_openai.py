@@ -199,29 +199,29 @@ def embeddings(
 
 
 def _resolve_chat_endpoint(model: str) -> Tuple[str, str, str]:
-    """Return (base_url, api_key, model_id) for chat.completions."""
+    """Return (base_url, api_key, model_id) for chat.completions.
+
+    Policy:
+    - Script chat calls ALWAYS go through OpenRouter (stable single provider),
+      regardless of OPENAI_API_KEY.
+    - Embeddings remain on OpenAI (see embeddings()).
+
+    You can set OPENROUTER_CHAT_MODEL to override the default model.
+    """
 
     model = (model or "").strip()
 
-    # Explicit OpenRouter model ref
-    if model.startswith("openrouter/"):
-        k = load_openrouter_api_key()
-        if not k:
-            raise RuntimeError("OPENROUTER_API_KEY not found")
-        return "https://openrouter.ai/api/v1", k, model
-
-    # Default OpenAI path
-    k_openai = load_openai_api_key()
-    if k_openai:
-        return "https://api.openai.com/v1", k_openai, model
-
-    # Fallback: if no OpenAI key, but OpenRouter exists, route to OpenRouter and swap model.
     k_or = load_openrouter_api_key()
-    if k_or:
-        fallback_model = os.environ.get("OPENROUTER_CHAT_MODEL") or "openrouter/deepseek/deepseek-v3.2"
-        return "https://openrouter.ai/api/v1", k_or, fallback_model
+    if not k_or:
+        raise RuntimeError("OPENROUTER_API_KEY not found")
 
-    raise RuntimeError("No chat API key found (OPENAI_API_KEY or OPENROUTER_API_KEY)")
+    # If caller already passes an OpenRouter model, keep it.
+    if model.startswith("openrouter/"):
+        return "https://openrouter.ai/api/v1", k_or, model
+
+    # Otherwise, force to configured OpenRouter model.
+    forced_model = os.environ.get("OPENROUTER_CHAT_MODEL") or "openrouter/deepseek/deepseek-v3.2"
+    return "https://openrouter.ai/api/v1", k_or, forced_model
 
 
 def chat_json(
