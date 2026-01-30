@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Any, Dict
+from typing import Any, Dict, List, Tuple
 
 from hourly.market_summary_pipeline import (
     PipelineContext,
@@ -28,6 +28,42 @@ from hourly.market_summary_pipeline import (
     wait_meme_radar,
     merge_tg_addr_candidates_into_radar,
 )
+from hourly.filters import extract_symbols_and_addrs, stance_from_texts
+
+
+def _tg_topics_fallback(texts: List[str], *, limit: int = 5) -> List[Dict[str, Any]]:
+    """Deterministic TG topic extraction fallback (no embeddings/LLM).
+
+    We cluster loosely by mentioned tickers/addresses. This is intentionally simple
+    but ensures we don't emit an empty topics section when LLM is disabled.
+    """
+
+    sym_hits: Dict[str, int] = {}
+    sym_samples: Dict[str, List[str]] = {}
+
+    for t in texts[:800]:
+        syms, _addrs = extract_symbols_and_addrs(t)
+        for s in syms[:3]:
+            sym_hits[s] = sym_hits.get(s, 0) + 1
+            sym_samples.setdefault(s, []).append(t)
+
+    items: List[Dict[str, Any]] = []
+    for sym, cnt in sorted(sym_hits.items(), key=lambda kv: kv[1], reverse=True)[: max(1, limit)]:
+        samples = sym_samples.get(sym, [])[:30]
+        stance = stance_from_texts(samples)
+        one = f"{sym} 讨论升温（提及{cnt}）"
+        tri = "关注关键位/催化/风险"  # placeholder without overfitting rules
+        items.append(
+            {
+                "one_liner": one,
+                "sentiment": stance,
+                "triggers": tri,
+                "related_assets": [sym],
+                "_inferred": True,
+            }
+        )
+
+    return items[:limit]
 
 
 def run_prepare(total_budget_s: float = 240.0) -> Dict[str, Any]:
@@ -46,6 +82,10 @@ def run_prepare(total_budget_s: float = 240.0) -> Dict[str, Any]:
     build_oi(ctx)
     build_viewpoint_threads(ctx)
     build_tg_topics(ctx)
+
+    # Deterministic fallback: build_tg_topics() is LLM-gated, so ctx.narratives can be empty.
+    if not ctx.narratives:
+        ctx.narratives = _tg_topics_fallback(ctx.human_texts, limit=5)
 
     # meme radar join
     wait_meme_radar(ctx, meme_proc)
@@ -73,6 +113,12 @@ def run_prepare(total_budget_s: float = 240.0) -> Dict[str, Any]:
         if len(ca_inputs) >= 8:
             break
 
+    debug = {
+        "human_texts": len(ctx.human_texts or []),
+        "messages_by_chat": {k: len(v or []) for k, v in (ctx.messages_by_chat or {}).items()},
+        "tg_topics_inferred": any(bool(it.get("_inferred")) for it in (ctx.narratives or []) if isinstance(it, dict)),
+    }
+
     return {
         "since": ctx.since,
         "until": ctx.until,
@@ -82,12 +128,14 @@ def run_prepare(total_budget_s: float = 240.0) -> Dict[str, Any]:
         "errors": ctx.errors,
         "prepared": {
             "oi_lines": ctx.oi_lines,
+            "oi_items": ctx.oi_items,
             "oi_plans": ctx.oi_plans,
             "tg_topics": ctx.narratives,
             "threads_strong": ctx.strong_threads,
             "threads_weak": ctx.weak_threads,
             "radar_items": ctx.radar_items[:15],
             "twitter_ca_inputs": ca_inputs,
+            "debug": debug,
         },
     }
 
