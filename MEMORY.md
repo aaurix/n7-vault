@@ -10,6 +10,7 @@
 - **Twitter context filtering**: filter bot/marketing; only enforce explicit symbol for ambiguous bases (e.g., PUMP) to avoid over-filtering.
 - **CCXT**: introduced via `requirements.txt` and a wrapper (`scripts/hourly/exchange_ccxt.py`). Prefer ccxt when supported; fallback to native Binance HTTP.
 - **Git pushes**: default allow commit+push unless the user explicitly says “don’t push”. Don’t repeatedly ask/mention.
+- **Dependency errors**: when cron/scripts fail due to missing tools (e.g., `rg`), prefer installing the dependency / fixing the environment over monkey-patching the script to avoid it.
 
 ## Ops / reminders
 - Pill reminder acknowledgements are tracked locally in `memory/pill_ack.json`.
