@@ -224,8 +224,8 @@ def main() -> int:
         meta["refs"] = tweet_refs.get(h, [])[:3]
         scored.append(meta)
 
-    # produce alerts: score > 60
-    alerts = [x for x in scored if int(x.get("score") or 0) > 60]
+    # produce alerts: score > 50 (threshold controlled by cron message; keep code aligned)
+    alerts = [x for x in scored if int(x.get("score") or 0) > 50]
 
     out = {
         "handle": "bankrbot",
