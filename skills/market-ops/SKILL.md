@@ -1,6 +1,6 @@
 ---
 name: market-ops
-description: Operate and debug the hourly market/meme summary pipeline (TG+Twitter+OI+meme radar) and its WhatsApp delivery via cron: format changes, topic extraction tuning, idempotency, and troubleshooting.
+description: "Operate and debug the hourly market/meme summary pipeline (TG+Twitter+OI+meme radar) and its WhatsApp delivery via cron: format changes, topic extraction tuning, idempotency, and troubleshooting."
 ---
 
 # market-ops

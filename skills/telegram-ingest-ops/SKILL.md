@@ -1,6 +1,6 @@
 ---
 name: telegram-ingest-ops
-description: Maintain HawkFi Telegram ingestion backing the hawkfi-telegram MCP: add/maintain allowlist chat_ids, install/restart/status the launchd daemon, and troubleshoot missing dialogs/messages/search results.
+description: "Maintain HawkFi Telegram ingestion backing the hawkfi-telegram MCP: add/maintain allowlist chat_ids, install/restart/status the launchd daemon, and troubleshoot missing dialogs/messages/search results."
 ---
 
 # telegram-ingest-ops
