@@ -604,50 +604,80 @@ def main() -> int:
             errors.append(f"tw_topics_llm_failed:{e}")
 
     def _heuristic_twitter_topics(lines: List[str]) -> List[Dict[str, Any]]:
-        """Cheap fallback: summarize by keyword buckets + tickers without quoting raw tweets."""
+        """Trader-style fallback summary (no quotes).
+
+        Turn noisy following+lists lines into a few actionable theme sentences.
+        """
 
         # strip handles for analysis
-        texts = []
+        texts: List[str] = []
         for ln in lines:
             s = re.sub(r"^@[^:]{1,50}:\s*", "", ln).strip()
             if s:
                 texts.append(s)
 
-        buckets = {
-            "宏观/政策": ["fed", "rates", "rate", "powell", "fomc", "cpi", "ppi", "shutdown", "treasury", "yields", "dollar"],
-            "去杠杆/清算": ["liquid", "liquidation", "liq", "leverage", "delever", "margin", "stop"],
-            "BTC/主线": ["btc", "bitcoin", "$btc", "etf"],
-            "ETH/山寨": ["eth", "ethereum", "$eth", "alts", "altcoin"],
-            "链上/交易所": ["binance", "coinbase", "okx", "bybit", "hyperliquid", "funding", "oi", "open interest"],
-            "黄金/风险资产": ["gold", "xau", "silver", "spx", "nasdaq", "risk-off", "risk on"],
-        }
-
-        # count hits
-        scored = []
-        for name, kws in buckets.items():
-            c = 0
-            for t in texts[:30]:
-                tl = t.lower()
-                if any(k in tl for k in kws):
-                    c += 1
-            if c:
-                scored.append((name, c))
-        scored.sort(key=lambda x: -x[1])
-
-        # collect top tickers
-        tickers = []
-        for t in texts[:40]:
+        # collect top tickers (cashtags)
+        tickers: List[str] = []
+        for t in texts[:60]:
             for m in re.findall(r"\$[A-Za-z]{2,10}", t):
                 u = m.upper()
                 if u not in tickers:
                     tickers.append(u)
         tickers = tickers[:6]
 
-        out = []
-        for name, c in scored[:4]:
-            extra = f"（讨论度{c}）"
-            out.append({"one_liner": f"{name}{extra}", "sentiment": "中性", "signals": "", "related_assets": tickers})
-        return out
+        # detect numeric levels (e.g., 83000 / 85,000 / 2730)
+        levels: List[str] = []
+        for t in texts[:60]:
+            for m in re.findall(r"\b\d{2,3}[,\.]?\d{3}(?:\.\d+)?\b|\b\d{3,5}(?:\.\d+)?\b", t.replace(",", "")):
+                if m not in levels:
+                    levels.append(m)
+        levels = levels[:4]
+
+        def _count_any(kws: List[str]) -> int:
+            c = 0
+            for t in texts[:40]:
+                tl = t.lower()
+                if any(k in tl for k in kws):
+                    c += 1
+            return c
+
+        # theme intensity
+        c_macro = _count_any(["fed", "rates", "rate", "powell", "fomc", "cpi", "ppi", "shutdown", "treasury", "yields", "dollar"]) + _count_any(["宏观", "降息", "加息", "停摆", "美联储", "利率", "债", "收益率", "美元"])
+        c_liq = _count_any(["liquid", "liquidation", "liq", "leverage", "delever", "margin", "stop"]) + _count_any(["清算", "杠杆", "去杠杆", "爆仓", "止损"])
+        c_flow = _count_any(["etf", "outflow", "inflow", "flows", "flow"]) + _count_any(["etf", "资金流", "流出", "流入"])
+        c_risk = _count_any(["gold", "xau", "silver", "spx", "nasdaq", "risk-off", "risk on"]) + _count_any(["黄金", "纳指", "美股", "风险", "risk"])
+
+        out: List[Dict[str, Any]] = []
+
+        # Build 3 concise trader-like takeaways
+        # 1) Macro / cross-asset
+        if c_macro or c_risk:
+            sigs = []
+            if c_macro:
+                sigs.append("宏观/利率预期")
+            if c_risk:
+                sigs.append("跨资产同波动")
+            one = "市场讨论偏‘宏观驱动+跨资产联动’，风险偏好不稳，先看关键位确认再加仓"
+            if levels:
+                one += f"（关注区间: {', '.join(levels[:2])}）"
+            out.append({"one_liner": one, "sentiment": "分歧", "signals": "; ".join(sigs), "related_assets": tickers})
+
+        # 2) Deleveraging / liquidation
+        if c_liq:
+            one = "讨论集中在‘去杠杆/清算链条’：破位→触发止损/强平→二次下探，反弹更像回补而非趋势反转"
+            out.append({"one_liner": one, "sentiment": "偏空", "signals": "清算; 杠杆收缩; 破位延续", "related_assets": tickers})
+
+        # 3) Flows / ETF / positioning
+        if c_flow:
+            one = "资金流/ETF/仓位变化被反复提及：短线情绪容易被‘流入/流出’放大，策略上等确认再跟随"
+            out.append({"one_liner": one, "sentiment": "中性", "signals": "资金流; ETF; 仓位调整", "related_assets": tickers})
+
+        # Ensure at least 2 lines
+        if len(out) < 2:
+            one = "关注流里主要在复盘‘下跌原因与关键位’，整体更偏谨慎：不追第一根，等回踩/收回再做"
+            out.append({"one_liner": one, "sentiment": "分歧", "signals": "关键位; 复盘; 风控", "related_assets": tickers})
+
+        return out[:5]
 
     # If still empty, fall back to heuristic summary (no raw quotes).
     if not twitter_topics:
