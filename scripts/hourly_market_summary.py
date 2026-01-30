@@ -161,8 +161,8 @@ def main() -> int:
     def _elapsed_s() -> float:
         return (dt.datetime.now(UTC) - t0).total_seconds()
 
-    # Increase global time budget (user request): allow up to 120s before we start skipping steps.
-    def _over_budget(limit_s: float = 120.0) -> bool:
+    # Global time budget: allow longer runs so Twitter meme viewpoint LLM can complete.
+    def _over_budget(limit_s: float = 240.0) -> bool:
         return _elapsed_s() >= limit_s
 
     since_utc = now_utc - dt.timedelta(minutes=60)
@@ -497,15 +497,16 @@ def main() -> int:
             if not sym or not ca or key in seen_key:
                 continue
             seen_key.add(key)
-            ca_evidence_items.append({
+            # CA is optional; treat it as an anchor only when present.
+            pack = {
                 "sym": sym,
-                "ca": ca,
                 "evidence": {
-                    "kept": ev.get("kept"),
-                    "total": ev.get("total"),
                     "snippets": (ev.get("snippets") or [])[:6],
                 },
-            })
+            }
+            if ca:
+                pack["ca"] = ca
+            ca_evidence_items.append(pack)
             if len(ca_evidence_items) >= 8:
                 break
         except Exception:
@@ -544,21 +545,8 @@ def main() -> int:
             except Exception as e:
                 errors.append(f"tw_ca_viewpoints_llm_failed:{e}")
 
-    if not ca_twitter_topics:
-        for x in ca_evidence_items[:5]:
-            sym = x.get("sym")
-            ca = x.get("ca")
-            ev = x.get("evidence") or {}
-            kept = ev.get("kept")
-            total = ev.get("total")
-            # Fallback: do NOT show kept/total; only indicate whether evidence exists.
-            label = "观点不足/讨论稀薄" if not (kept and int(kept) > 0) else "观点待提炼"
-            ca_twitter_topics.append({
-                "one_liner": f"{sym}: {label}",
-                "sentiment": "",
-                "signals": f"CA:{str(ca)[:6]}…; ${sym}",
-                "related_assets": [],
-            })
+    # No fallback: if LLM didn't run or produced no items, show nothing.
+    # (User requirement: fallback items are not meaningful.)
 
     # Legacy macro/trader twitter topics remain in code, but we will override the output
     # to ONLY show CA+$SYMBOL evidence (see below near the render stage).
@@ -860,16 +848,20 @@ def main() -> int:
             out.append(it2)
         return out
 
-    # Override: only expose CA+$SYMBOL evidence topics.
+    # Override: only expose meme viewpoints derived from $SYMBOL/CA evidence.
     twitter_topics = ca_twitter_topics
+    # Disable legacy macro/trader twitter topics entirely.
+    cand = []
 
-    # If still empty, fall back to heuristic summary (no raw quotes).
-    if not twitter_topics:
-        if not cand:
-            errors.append("tw_topics_empty")
-        else:
-            errors.append("tw_topics_no_summary")
-            twitter_topics = _heuristic_twitter_topics(cand)
+    # Legacy macro/trader twitter topics are disabled. No fallback.
+    if False:
+        # If still empty, fall back to heuristic summary (no raw quotes).
+        if not twitter_topics:
+            if not cand:
+                errors.append("tw_topics_empty")
+            else:
+                errors.append("tw_topics_no_summary")
+                twitter_topics = _heuristic_twitter_topics(cand)
 
     # Do not attach related_assets for Twitter topics (entity extraction is noisy).
     twitter_topics = _norm_topics(twitter_topics)
