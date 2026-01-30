@@ -180,9 +180,8 @@ def main() -> int:
 
     errors: List[str] = []
 
-    # LLM policy (user requirement): do NOT use OpenAI Chat/Completions.
-    # Embeddings are allowed elsewhere (e.g., for clustering), but all chat-based summarization is disabled.
-    use_llm = False
+    # LLM availability flag (Codex/OpenAI auth is allowed).
+    use_llm = bool(load_openai_api_key())
 
     if not client.health_ok():
         raise SystemExit("TG service not healthy")
@@ -300,7 +299,11 @@ def main() -> int:
                 continue
             human_texts.append(t[:260])
 
+    # PERF: viewpoint extraction can be a bottleneck; record sizes + time.
+    _t_vp_call = time.perf_counter()
     vp = extract_viewpoint_threads(human_texts, min_heat=3, weak_heat=1)
+    perf["viewpoint_threads_extract"] = round(time.perf_counter() - _t_vp_call, 3)
+    perf["viewpoint_threads_msgs_in"] = float(len(human_texts))
     strong_threads = vp.get("strong") or []
     weak_threads = vp.get("weak") or []
 
@@ -519,16 +522,22 @@ def main() -> int:
             sym = (dex.get("baseSymbol") or "").upper().strip()
             ca = str(it.get("addr") or "").strip()
             ev = it.get("twitter_evidence") or {}
-            key = f"{sym}|{ca[:12]}"
-            if not sym or not ca or key in seen_key:
+            snippets = (ev.get("snippets") or [])[:6]
+            if not sym:
+                continue
+            # Only include items with actual evidence snippets; otherwise LLM has nothing to summarize.
+            if not snippets:
+                continue
+            ca = str(it.get("addr") or "").strip()
+            key = f"{sym}|{ca[:12]}" if ca else f"{sym}|-"
+            if key in seen_key:
                 continue
             seen_key.add(key)
+
             # CA is optional; treat it as an anchor only when present.
             pack = {
                 "sym": sym,
-                "evidence": {
-                    "snippets": (ev.get("snippets") or [])[:6],
-                },
+                "evidence": {"snippets": snippets},
             }
             if ca:
                 pack["ca"] = ca

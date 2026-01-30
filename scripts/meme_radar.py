@@ -274,6 +274,10 @@ def gmgn_link(chain: str, addr: str) -> str:
 
 
 def main() -> int:
+    import time
+    perf = {}
+    _t0 = time.perf_counter()
+
     ap = argparse.ArgumentParser()
     ap.add_argument("--hours", type=int, default=12)
     ap.add_argument("--chains", nargs="+", default=["solana", "bsc", "base"])
@@ -281,43 +285,83 @@ def main() -> int:
     ap.add_argument("--limit", type=int, default=15)
     args = ap.parse_args()
 
+    _t = time.perf_counter()
     rows = extract_twitter(hours=args.hours, n=args.tweet_limit)
+    perf["extract_twitter"] = round(time.perf_counter() - _t, 3)
+
+    _t = time.perf_counter()
     cands = detect_candidates(rows)
+    perf["detect_candidates"] = round(time.perf_counter() - _t, 3)
 
     chain_allow = [c.lower() for c in args.chains]
 
     enriched = []
-    # process address candidates first (cheap)
-    for key, meta in list(cands.items()):
-        if meta.get("kind") == "address":
+
+    # process address candidates first (parallelize dexscreener calls)
+    addr_items = [(k, v) for k, v in cands.items() if v.get("kind") == "address"]
+    _t = time.perf_counter()
+    if addr_items:
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        def _fetch_addr(kv):
+            key, meta = kv
             addr = key
             d = dexscreener_token(addr)
-            if not d:
-                continue
-            chain = (d.get("chainId") or "").lower()
-            if chain and chain not in chain_allow:
-                continue
-            enriched.append({"addr": addr, "mentions": meta["mentions"], "tickers": meta.get("tickers", []), "examples": meta["examples"], "dex": d, "sourceKey": key})
+            return (addr, meta, d, key)
+
+        with ThreadPoolExecutor(max_workers=8) as ex:
+            futs = [ex.submit(_fetch_addr, kv) for kv in addr_items]
+            for fu in as_completed(futs):
+                try:
+                    addr, meta, d, key = fu.result()
+                except Exception:
+                    continue
+                if not d:
+                    continue
+                chain = (d.get("chainId") or "").lower()
+                if chain and chain not in chain_allow:
+                    continue
+                enriched.append({"addr": addr, "mentions": meta.get("mentions", 0), "tickers": meta.get("tickers", []), "examples": meta.get("examples", []), "dex": d, "sourceKey": key})
+    perf["dex_by_addr"] = round(time.perf_counter() - _t, 3)
 
     # ticker-only candidates can be numerous; cap API calls
     ticker_items = [(k, v) for k, v in cands.items() if v.get("kind") == "ticker"]
     ticker_items.sort(key=lambda kv: kv[1].get("mentions", 0), reverse=True)
     max_ticker_queries = 8
-    for key, meta in ticker_items[:max_ticker_queries]:
-        sym = meta.get("symbol")
-        if not sym:
-            continue
-        pairs = dexscreener_search(sym)
-        # Filter to allowed chains and try to avoid obvious false positives by matching baseSymbol
-        pairs = [p for p in pairs if (p.get("chainId") or "").lower() in chain_allow]
-        pairs = [p for p in pairs if (p.get("baseSymbol") or "").upper() == sym]
-        if not pairs:
-            continue
-        best = sorted(pairs, key=lambda p: ((p.get("liquidityUsd") or 0), (p.get("vol24h") or 0)), reverse=True)[0]
-        addr = best.get("baseAddress")
-        if not addr:
-            continue
-        enriched.append({"addr": addr, "mentions": meta["mentions"], "tickers": [sym], "examples": meta["examples"], "dex": best, "sourceKey": key})
+    _t = time.perf_counter()
+    if ticker_items[:max_ticker_queries]:
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        def _fetch_sym(kv):
+            key, meta = kv
+            sym = meta.get("symbol")
+            if not sym:
+                return None
+            pairs = dexscreener_search(sym)
+            return (key, meta, sym, pairs)
+
+        with ThreadPoolExecutor(max_workers=6) as ex:
+            futs = [ex.submit(_fetch_sym, kv) for kv in ticker_items[:max_ticker_queries]]
+            for fu in as_completed(futs):
+                r = None
+                try:
+                    r = fu.result()
+                except Exception:
+                    continue
+                if not r:
+                    continue
+                key, meta, sym, pairs = r
+                pairs = pairs or []
+                pairs = [p for p in pairs if (p.get("chainId") or "").lower() in chain_allow]
+                pairs = [p for p in pairs if (p.get("baseSymbol") or "").upper() == sym]
+                if not pairs:
+                    continue
+                best = sorted(pairs, key=lambda p: ((p.get("liquidityUsd") or 0), (p.get("vol24h") or 0)), reverse=True)[0]
+                addr = best.get("baseAddress")
+                if not addr:
+                    continue
+                enriched.append({"addr": addr, "mentions": meta.get("mentions", 0), "tickers": [sym], "examples": meta.get("examples", []), "dex": best, "sourceKey": key})
+    perf["dex_by_symbol"] = round(time.perf_counter() - _t, 3)
 
     # rank: mentions then liquidity then vol
     def score(x):
@@ -328,25 +372,38 @@ def main() -> int:
     enriched.sort(key=score, reverse=True)
     enriched = enriched[: args.limit]
 
-    # Attach standardized Twitter evidence for memes: CA + $SYMBOL
-    if twitter_evidence_for_ca is not None:
-        for it in enriched[:8]:
-            try:
-                d = it.get("dex") or {}
-                sym = (d.get("baseSymbol") or "").upper().strip()
-                addr = str(it.get("addr") or "").strip()
-                if sym and addr:
-                    ev = twitter_evidence_for_ca(addr, sym, intent="catalyst", window_hours=24, limit=6)
-                    it["twitter_evidence"] = {
-                        "total": ev.get("total"),
-                        "kept": ev.get("kept"),
-                        "snippets": ev.get("snippets"),
-                    }
-            except Exception:
-                continue
+    # Attach standardized Twitter evidence for memes (parallel): CA + $SYMBOL
+    _t = time.perf_counter()
+    if twitter_evidence_for_ca is not None and enriched:
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        def _ev_pack(it):
+            d = it.get("dex") or {}
+            sym = (d.get("baseSymbol") or "").upper().strip()
+            addr = str(it.get("addr") or "").strip()
+            if not sym or not addr:
+                return (it, None)
+            ev = twitter_evidence_for_ca(addr, sym, intent="catalyst", window_hours=24, limit=6)
+            return (it, ev)
+
+        with ThreadPoolExecutor(max_workers=6) as ex:
+            futs = [ex.submit(_ev_pack, it) for it in enriched[:10]]
+            for fu in as_completed(futs):
+                try:
+                    it, ev = fu.result()
+                except Exception:
+                    continue
+                if not ev:
+                    continue
+                it["twitter_evidence"] = {
+                    "total": ev.get("total"),
+                    "kept": ev.get("kept"),
+                    "snippets": ev.get("snippets"),
+                }
+    perf["twitter_evidence"] = round(time.perf_counter() - _t, 3)
 
     os.makedirs("memory/meme", exist_ok=True)
-    open("memory/meme/last_candidates.json", "w").write(json.dumps({"generatedAt": dt.datetime.now(SH_TZ).isoformat(), "hours": args.hours, "items": enriched}, ensure_ascii=False, indent=2))
+    open("memory/meme/last_candidates.json", "w").write(json.dumps({"generatedAt": dt.datetime.now(SH_TZ).isoformat(), "hours": args.hours, "items": enriched, "perf": perf, "elapsed_s": round(time.perf_counter()-_t0, 3)}, ensure_ascii=False, indent=2))
 
     print(f"链上Meme雷达（过去{args.hours}小时，来源：Following提及 → DexScreener验证）")
     if not enriched:
