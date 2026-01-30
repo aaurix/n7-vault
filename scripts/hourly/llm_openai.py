@@ -25,8 +25,8 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 from repo_paths import memory_path
 
 
-def load_openai_api_key() -> Optional[str]:
-    k = os.environ.get("OPENAI_API_KEY")
+def _load_env_key(name: str) -> Optional[str]:
+    k = os.environ.get(name)
     if k:
         return k.strip()
 
@@ -35,13 +35,36 @@ def load_openai_api_key() -> Optional[str]:
     try:
         if os.path.exists(env_path):
             raw = open(env_path, "r", encoding="utf-8").read()
-            m = re.search(r"^OPENAI_API_KEY\s*=\s*(.+)\s*$", raw, re.MULTILINE)
+            m = re.search(rf"^{re.escape(name)}\s*=\s*(.+)\s*$", raw, re.MULTILINE)
             if m:
                 return m.group(1).strip().strip('"').strip("'")
     except Exception:
         pass
 
     return None
+
+
+def load_openai_api_key() -> Optional[str]:
+    """OpenAI key (for OpenAI endpoints, embeddings, etc)."""
+
+    return _load_env_key("OPENAI_API_KEY")
+
+
+def load_openrouter_api_key() -> Optional[str]:
+    """OpenRouter key (OpenAI-compatible endpoint)."""
+
+    return _load_env_key("OPENROUTER_API_KEY")
+
+
+def load_chat_api_key() -> Optional[str]:
+    """Key resolver for *chat* calls.
+
+    Preference:
+    - If OPENAI_API_KEY exists: use OpenAI.
+    - Else if OPENROUTER_API_KEY exists: use OpenRouter.
+    """
+
+    return load_openai_api_key() or load_openrouter_api_key()
 
 
 def _sha1(s: str) -> str:
@@ -175,6 +198,32 @@ def embeddings(
     return [v or [] for v in out]
 
 
+def _resolve_chat_endpoint(model: str) -> Tuple[str, str, str]:
+    """Return (base_url, api_key, model_id) for chat.completions."""
+
+    model = (model or "").strip()
+
+    # Explicit OpenRouter model ref
+    if model.startswith("openrouter/"):
+        k = load_openrouter_api_key()
+        if not k:
+            raise RuntimeError("OPENROUTER_API_KEY not found")
+        return "https://openrouter.ai/api/v1", k, model
+
+    # Default OpenAI path
+    k_openai = load_openai_api_key()
+    if k_openai:
+        return "https://api.openai.com/v1", k_openai, model
+
+    # Fallback: if no OpenAI key, but OpenRouter exists, route to OpenRouter and swap model.
+    k_or = load_openrouter_api_key()
+    if k_or:
+        fallback_model = os.environ.get("OPENROUTER_CHAT_MODEL") or "openrouter/deepseek/deepseek-v3.2"
+        return "https://openrouter.ai/api/v1", k_or, fallback_model
+
+    raise RuntimeError("No chat API key found (OPENAI_API_KEY or OPENROUTER_API_KEY)")
+
+
 def chat_json(
     *,
     system: str,
@@ -184,12 +233,10 @@ def chat_json(
     max_tokens: int = 500,
     timeout: int = 30,
 ) -> Dict[str, Any]:
-    api_key = load_openai_api_key()
-    if not api_key:
-        raise RuntimeError("OPENAI_API_KEY not found")
+    base_url, api_key, model_id = _resolve_chat_endpoint(model)
 
     payload = {
-        "model": model,
+        "model": model_id,
         "temperature": temperature,
         "max_tokens": max_tokens,
         "response_format": {"type": "json_object"},
@@ -200,7 +247,7 @@ def chat_json(
     }
 
     req = urlreq.Request(
-        "https://api.openai.com/v1/chat/completions",
+        f"{base_url}/chat/completions",
         data=json.dumps(payload).encode("utf-8"),
         headers={
             "Authorization": f"Bearer {api_key}",

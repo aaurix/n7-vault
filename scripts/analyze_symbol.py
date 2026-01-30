@@ -37,7 +37,7 @@ from typing import Any, Dict, List, Optional
 sys.path.insert(0, os.path.dirname(__file__))
 
 from analyze_symbol_prepare import normalize_symbol_input, run_prepare  # noqa: E402
-from hourly.llm_openai import chat_json, load_openai_api_key, summarize_oi_trading_plans  # noqa: E402
+from hourly.llm_openai import chat_json, load_chat_api_key, summarize_oi_trading_plans  # noqa: E402
 from hourly.render import split_whatsapp_text  # noqa: E402
 
 
@@ -90,7 +90,7 @@ def _extract_kline_brief(k: Dict[str, Any]) -> Dict[str, Any]:
 def _llm_dashboard(prepared: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """Ask LLM to generate concise bullets for 方案2 (dashboard)."""
 
-    if not load_openai_api_key():
+    if not load_chat_api_key():
         return None
 
     p = prepared.get("prepared") if isinstance(prepared.get("prepared"), dict) else {}
@@ -136,7 +136,7 @@ def _llm_dashboard(prepared: Dict[str, Any]) -> Optional[Dict[str, Any]]:
 def _llm_plan(prepared: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """Ask LLM to generate 方案1 (trade plan)."""
 
-    if not load_openai_api_key():
+    if not load_chat_api_key():
         return None
 
     p = prepared.get("prepared") if isinstance(prepared.get("prepared"), dict) else {}
