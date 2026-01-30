@@ -371,6 +371,31 @@ def _render_dashboard_text(prepared: Dict[str, Any], dash: Dict[str, Any]) -> st
         for s in (struct_lines + ind_bits)[:6]:
             lines.append(f"- {s}")
 
+    # Social detail (no quotes)
+    tw = p.get("twitter") if isinstance(p.get("twitter"), dict) else {}
+    kept = int(tw.get("kept") or 0)
+    total = int(tw.get("total") or 0)
+    ratio = tw.get("kept_ratio")
+    st = tw.get("stats") if isinstance(tw.get("stats"), dict) else {}
+    if total or kept or st:
+        lines.append("*社交明细（无引用）*")
+        if total:
+            r = ratio
+            if not isinstance(r, (int, float)):
+                r = (kept / total) if total else 0.0
+            lines.append(f"- 有效/总量：{kept}/{total} | 比例 {float(r):.2f}")
+        else:
+            lines.append(f"- 有效/总量：{kept}/?")
+        if st:
+            lines.append(
+                "- 词命中：多头{bull} 空头{bear} 交易员话术{talk}".format(
+                    bull=int(st.get("bull_hits") or 0),
+                    bear=int(st.get("bear_hits") or 0),
+                    talk=int(st.get("trader_talk_hits") or 0),
+                )
+            )
+            lines.append(f"- 倾向分：{_fmt_num(st.get('stance_score'))}（-1空/+1多）")
+
     # Score explanation (deterministic, avoid pretending precision)
     exp: List[str] = []
     if trend_s >= 70:
@@ -387,9 +412,6 @@ def _render_dashboard_text(prepared: Dict[str, Any], dash: Dict[str, Any]) -> st
     else:
         exp.append("OI分中：多空博弈/震荡")
 
-    tw = p.get("twitter") if isinstance(p.get("twitter"), dict) else {}
-    kept = int(tw.get("kept") or 0)
-    total = int(tw.get("total") or 0)
     if total and kept <= 1:
         exp.append("社交分低：有效观点偏少")
     elif total and kept >= 4:
