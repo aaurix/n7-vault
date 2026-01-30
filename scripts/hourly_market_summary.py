@@ -588,40 +588,133 @@ def main() -> int:
             continue
 
     ca_twitter_topics: List[Dict[str, Any]] = []
-    # Prefer LLM viewpoint summary (no quotes). Fallback if skipped/failed.
+
+    def _rule_tags(snips: List[str]) -> List[str]:
+        """Extract lightweight 'topic tags' from snippets (no quotes, no LLM)."""
+        import re
+
+        txt = " ".join([(s or "")[:180] for s in (snips or [])])
+        low = txt.lower()
+
+        # cashtags first
+        tags: List[str] = []
+        for m in re.findall(r"\$[A-Za-z0-9]{2,10}", txt):
+            u = m.upper()
+            if u not in tags:
+                tags.append(u)
+        # common meme/crypto keywords
+        kw_map = {
+            "binance": "BINANCE",
+            "alpha": "Binance Alpha",
+            "cto": "CTO",
+            "liquidity": "加池/LP",
+            "lp": "加池/LP",
+            "burn": "销毁",
+            "mint": "增发",
+            "tax": "税",
+            "lock": "锁仓",
+            "renounce": "弃权",
+            "rug": "RUG",
+            "scam": "SCAM",
+            "hack": "Hack",
+            "exploit": "Exploit",
+            "airdrop": "Airdrop",
+            "pump": "Pump",
+            "moon": "Moon",
+            "send": "Send",
+            "dump": "Dump",
+            "sell": "Sell",
+            "buy": "Buy",
+            "whale": "Whale",
+            "mcap": "MCAP",
+            "market cap": "MCAP",
+            "pump.fun": "pump.fun",
+            "raydium": "Raydium",
+            "meteora": "Meteora",
+            "uniswap": "Uniswap",
+            "sol": "Solana",
+            "solana": "Solana",
+            "base": "Base",
+            "bsc": "BSC",
+            "eth": "ETH",
+        }
+        for k, v in kw_map.items():
+            if k in low and v not in tags:
+                tags.append(v)
+        return tags[:10]
+
+    def _rule_sentiment(tags: List[str]) -> str:
+        bear = any(t in tags for t in ["RUG", "SCAM", "Hack", "Exploit", "Dump", "Sell"])
+        bull = any(t in tags for t in ["Pump", "Moon", "Send", "Buy", "Binance Alpha", "加池/LP", "Whale"])
+        if bull and bear:
+            return "分歧"
+        if bull:
+            return "偏多"
+        if bear:
+            return "偏空"
+        return "中性"
+
+    # Base rule-based summary (meaningful, evidence-backed) — always available when snippets exist.
     if ca_evidence_items:
-        if not use_llm:
-            errors.append("tw_ca_viewpoints_skipped:no_openai_key")
-        elif _over_budget(118.0):
-            errors.append(f"tw_ca_viewpoints_skipped:over_budget:{_elapsed_s():.1f}s")
-        else:
+        for x in ca_evidence_items[:5]:
+            sym = str(x.get("sym") or "").upper().strip()
+            ca = str(x.get("ca") or "").strip()
+            snips = ((x.get("evidence") or {}).get("snippets") or [])
+            tags = _rule_tags(snips)
+            sen = _rule_sentiment(tags)
+            # one-liner is NOT a quote; it's a tag summary.
+            if tags:
+                one = f"{sym}: 讨论集中在 {"/".join(tags[:4])}"
+            else:
+                one = f"{sym}: 讨论分散/缺少明确锚点"
+            sig = "; ".join(tags[:8])
+            if ca:
+                sig = (sig + ("; " if sig else "") + f"CA:{ca[:6]}…")
+            sig = (sig + ("; " if sig else "") + f"${sym}")
+            ca_twitter_topics.append({
+                "one_liner": one[:120],
+                "sentiment": sen,
+                "signals": sig[:160],
+                "related_assets": [],
+            })
+
+        # LLM upgrade: if available and within time budget, replace with trader-style viewpoint sentences.
+        if use_llm and not _over_budget(118.0):
             try:
                 out = summarize_twitter_ca_viewpoints(items=ca_evidence_items)
                 its = out.get("items") if isinstance(out, dict) else None
-                if isinstance(its, list):
-                    for it in its[:5]:
-                        if not isinstance(it, dict):
-                            continue
-                        sym = str(it.get("sym") or "").upper().strip()
-                        ca = str(it.get("ca") or "").strip()
-                        one = str(it.get("one_liner") or "").strip()
-                        sen = str(it.get("sentiment") or "").strip()
-                        sig = it.get("signals")
-                        if isinstance(sig, list):
-                            sig = "; ".join([str(x) for x in sig[:8]])
-                        sig = str(sig or "").strip()
-                        if sym and one:
-                            ca_twitter_topics.append({
+                if isinstance(its, list) and its:
+                    # map by sym for replacement
+                    by_sym = {str(it.get("sym") or "").upper().strip(): it for it in its if isinstance(it, dict)}
+                    upgraded: List[Dict[str, Any]] = []
+                    for base_it in ca_twitter_topics[:5]:
+                        m = re.match(r"^([A-Z0-9]{2,12}):", str(base_it.get("one_liner") or ""))
+                        sym = m.group(1) if m else ""
+                        it = by_sym.get(sym)
+                        if it:
+                            one = str(it.get("one_liner") or "").strip()
+                            sen = str(it.get("sentiment") or "").strip()
+                            sig = it.get("signals")
+                            if isinstance(sig, list):
+                                sig = "; ".join([str(x) for x in sig[:8]])
+                            sig = str(sig or base_it.get("signals") or "").strip()
+                            upgraded.append({
                                 "one_liner": f"{sym}: {one}"[:120],
-                                "sentiment": sen,
-                                "signals": (sig or f"CA:{ca[:6]}…; ${sym}"),
+                                "sentiment": sen or base_it.get("sentiment") or "",
+                                "signals": sig[:160],
                                 "related_assets": [],
                             })
+                        else:
+                            upgraded.append(base_it)
+                    ca_twitter_topics = upgraded
+                else:
+                    errors.append("tw_ca_viewpoints_llm_empty")
             except Exception as e:
                 errors.append(f"tw_ca_viewpoints_llm_failed:{e}")
-
-    # No fallback: if LLM didn't run or produced no items, show nothing.
-    # (User requirement: fallback items are not meaningful.)
+        elif use_llm and _over_budget(118.0):
+            errors.append(f"tw_ca_viewpoints_skipped:over_budget:{_elapsed_s():.1f}s")
+        elif not use_llm:
+            errors.append("tw_ca_viewpoints_skipped:no_openai_key")
 
     # Legacy macro/trader twitter topics remain in code, but we will override the output
     # to ONLY show CA+$SYMBOL evidence (see below near the render stage).
