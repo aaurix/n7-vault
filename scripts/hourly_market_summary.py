@@ -704,6 +704,58 @@ def main() -> int:
 
         return out[:5]
 
+    def _norm_asset(x: str) -> str:
+        s = (x or "").strip()
+        if not s:
+            return ""
+        up = s.upper()
+        # map common Chinese/aliases to stable tickers
+        m = {
+            "比特币": "BTC",
+            "BTC": "BTC",
+            "BITCOIN": "BTC",
+            "以太坊": "ETH",
+            "ETH": "ETH",
+            "ETHEREUM": "ETH",
+            "黄金": "GOLD",
+            "GOLD": "GOLD",
+            "美股": "US-STOCKS",
+            "纳指": "NASDAQ",
+            "标普": "SPX",
+            "美元": "USD",
+            "币安": "BINANCE",
+        }
+        if s in m:
+            return m[s]
+        if up in m:
+            return m[up]
+        # normalize cashtags
+        if s.startswith("$") and len(s) <= 12:
+            return s.upper()
+        return up if re.fullmatch(r"[A-Z0-9\-]{2,20}", up) else s
+
+    def _norm_topics(topics: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        out = []
+        for it in topics or []:
+            if not isinstance(it, dict):
+                continue
+            one = str(it.get("one_liner") or "").strip()
+            # normalize common assets inside sentence
+            one = one.replace("比特币", "BTC").replace("以太坊", "ETH")
+            one = one.replace("黄金", "GOLD").replace("美股", "US stocks")
+            rel = it.get("related_assets")
+            rel2 = []
+            if isinstance(rel, list):
+                for x in rel:
+                    nx = _norm_asset(str(x))
+                    if nx and nx not in rel2:
+                        rel2.append(nx)
+            it2 = dict(it)
+            it2["one_liner"] = one
+            it2["related_assets"] = rel2[:6]
+            out.append(it2)
+        return out
+
     # If still empty, fall back to heuristic summary (no raw quotes).
     if not twitter_topics:
         if not cand:
@@ -711,6 +763,8 @@ def main() -> int:
         else:
             errors.append("tw_topics_no_summary")
             twitter_topics = _heuristic_twitter_topics(cand)
+
+    twitter_topics = _norm_topics(twitter_topics)
 
     # NOTE: meme_radar-derived snippets are used in meme section; twitter_topics is independent and summarized.
 

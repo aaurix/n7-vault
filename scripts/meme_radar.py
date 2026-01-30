@@ -4,6 +4,7 @@
 Goal: help 小E produce a meme shortlist by combining:
 - Twitter (bird) mentions (cas/contract addresses, tickers)
 - DexScreener token metrics (liq/vol/price change)
+- Standardized Twitter evidence for meme tokens: CA + $SYMBOL (via hourly.twitter_context)
 - (Optional) GMGN.ai links for further manual confirmation
 
 This is an MVP: it does NOT scrape GMGN (site can change); it emits GMGN links.
@@ -25,6 +26,13 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
+
+# Unified twitter evidence for memes (CA + $SYMBOL)
+try:
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ""))
+    from hourly.twitter_context import twitter_evidence_for_ca  # type: ignore
+except Exception:
+    twitter_evidence_for_ca = None
 
 from zoneinfo import ZoneInfo
 
@@ -320,6 +328,23 @@ def main() -> int:
     enriched.sort(key=score, reverse=True)
     enriched = enriched[: args.limit]
 
+    # Attach standardized Twitter evidence for memes: CA + $SYMBOL
+    if twitter_evidence_for_ca is not None:
+        for it in enriched[:8]:
+            try:
+                d = it.get("dex") or {}
+                sym = (d.get("baseSymbol") or "").upper().strip()
+                addr = str(it.get("addr") or "").strip()
+                if sym and addr:
+                    ev = twitter_evidence_for_ca(addr, sym, intent="catalyst", window_hours=24, limit=6)
+                    it["twitter_evidence"] = {
+                        "total": ev.get("total"),
+                        "kept": ev.get("kept"),
+                        "snippets": ev.get("snippets"),
+                    }
+            except Exception:
+                continue
+
     os.makedirs("memory/meme", exist_ok=True)
     open("memory/meme/last_candidates.json", "w").write(json.dumps({"generatedAt": dt.datetime.now(SH_TZ).isoformat(), "hours": args.hours, "items": enriched}, ensure_ascii=False, indent=2))
 
@@ -352,6 +377,13 @@ def main() -> int:
             h = ex.get("handle") or ""
             tx = ex.get("text") or ""
             print(f"   引用: @{h} {tx[:140]}")
+
+        tev = it.get("twitter_evidence") if isinstance(it, dict) else None
+        if isinstance(tev, dict):
+            kept = tev.get("kept")
+            total = tev.get("total")
+            if kept is not None or total is not None:
+                print(f"   Twitter证据: {kept}/{total} (CA+$SYMBOL)")
 
     return 0
 
