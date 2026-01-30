@@ -480,10 +480,34 @@ def main() -> int:
             "text": txt,
         })
 
-    # --- Twitter topics (热点Top5) ---
-    # Definition (per user): summarize what the user-followed accounts are talking about.
-    # Sources (C): Macro list + NB traders list + home/following.
-    twitter_topics: List[Dict[str, Any]] = []
+    # --- Twitter (CA + $SYMBOL only) ---
+    # User requirement: Twitter section should only show CA + $SYMBOL evidence for meme candidates.
+    ca_twitter_topics: List[Dict[str, Any]] = []
+    for it in radar_items[:20]:
+        try:
+            dex = (it.get("dex") or {})
+            sym = (dex.get("baseSymbol") or "").upper().strip()
+            addr = str(it.get("addr") or "").strip()
+            ev = it.get("twitter_evidence") or {}
+            kept = ev.get("kept")
+            total = ev.get("total")
+            if not sym or not addr:
+                continue
+            # Keep it short; avoid raw snippets here.
+            ratio = f"{kept}/{total}" if (kept is not None or total is not None) else "-"
+            ca_twitter_topics.append({
+                "one_liner": f"{sym}: CA+$SYMBOL 证据 {ratio}",
+                "sentiment": "",
+                "signals": f"CA:{addr[:6]}…; ${sym}",
+                "related_assets": [],
+            })
+            if len(ca_twitter_topics) >= 5:
+                break
+        except Exception:
+            continue
+
+    # Legacy macro/trader twitter topics remain in code, but we will override the output
+    # to ONLY show CA+$SYMBOL evidence (see below near the render stage).
 
     def _bird_plain(cmd: List[str], *, timeout_s: int = 25) -> List[str]:
         """Return compact per-tweet lines from bird --plain.
@@ -782,6 +806,9 @@ def main() -> int:
             out.append(it2)
         return out
 
+    # Override: only expose CA+$SYMBOL evidence topics.
+    twitter_topics = ca_twitter_topics
+
     # If still empty, fall back to heuristic summary (no raw quotes).
     if not twitter_topics:
         if not cand:
@@ -790,7 +817,11 @@ def main() -> int:
             errors.append("tw_topics_no_summary")
             twitter_topics = _heuristic_twitter_topics(cand)
 
+    # Do not attach related_assets for Twitter topics (entity extraction is noisy).
     twitter_topics = _norm_topics(twitter_topics)
+    for it in twitter_topics:
+        if isinstance(it, dict):
+            it["related_assets"] = []
 
     # NOTE: meme_radar-derived snippets are used in meme section; twitter_topics is independent and summarized.
 

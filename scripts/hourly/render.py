@@ -178,15 +178,14 @@ def build_summary(
             if pts:
                 out.append(f"   - {pts[0]}")
 
-    out.append(H("Twitter热点Top5（提炼）"))
+    out.append(H("Twitter（仅CA+$SYMBOL证据）"))
     twitter_topics = (twitter_lines or [])
     if twitter_topics:
         for i, it in enumerate(twitter_topics[:5], 1):
             one = it.get("one_liner") if isinstance(it, dict) else str(it)
             sen = it.get("sentiment") if isinstance(it, dict) else ""
             sig = it.get("signals") if isinstance(it, dict) else ""
-            rel = it.get("related_assets") if isinstance(it, dict) else []
-            rel_s = (" | 关联: " + ", ".join(rel)) if isinstance(rel, list) and rel else ""
+            rel_s = ""  # do not show related_assets for Twitter topics
             if sen:
                 out.append(f"{i}) {one}（{sen}）{rel_s}")
             else:
