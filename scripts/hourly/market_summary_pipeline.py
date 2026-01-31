@@ -115,6 +115,7 @@ class PipelineContext:
     budget: TimeBudget
 
     errors: List[str] = field(default_factory=list)
+    llm_failures: List[str] = field(default_factory=list)
     perf: Dict[str, float] = field(default_factory=dict)
 
     # intermediate
@@ -376,6 +377,31 @@ def build_viewpoint_threads(ctx: PipelineContext) -> None:
     done()
 
 
+_PII_RE = re.compile(r"([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}|\+?\d[\d\-\s()]{7,}\d)")
+_NOISE_RE = re.compile(
+    r"(airdrop|giveaway|join\s+telegram|vip|signal|paid\s+group|link\s+in\s+bio|邀请码|私信|\bdm\b|抽奖|返佣)",
+    re.IGNORECASE,
+)
+
+
+def _strip_pii(text: str) -> str:
+    return _PII_RE.sub(" ", text or "")
+
+
+def _clean_evidence_snippet(text: str, *, max_len: int = 80) -> str:
+    t = _clean_snippet_text(text)
+    if not t:
+        return ""
+    t = _strip_pii(t)
+    t = _NOISE_RE.sub(" ", t)
+    t = re.sub(r"\s+", " ", t).strip()
+    if len(t) < 6:
+        return ""
+    if len(t) > max_len:
+        t = t[:max_len]
+    return t
+
+
 def _clean_snippet_text(text: str) -> str:
     t = re.sub(r"https?://\S+", " ", text or "")
     t = re.sub(r"\s+", " ", t).strip()
@@ -456,27 +482,47 @@ def _normalize_actionables(raw_items: List[Dict[str, Any]]) -> List[Dict[str, An
     out: List[Dict[str, Any]] = []
     seen: set[str] = set()
 
-    def _trim(s: str, n: int) -> str:
-        return (s or "").strip()[:n]
+    def _norm_text(val: Any, n: int) -> str:
+        s = str(val or "")
+        s = re.sub(r"\s+", " ", s).strip()
+        return s[:n] if len(s) > n else s
 
-    for it in raw_items:
-        if not isinstance(it, dict):
-            continue
-        asset = str(it.get("asset_name") or it.get("asset") or it.get("symbol") or it.get("token") or "").strip()
-        why_buy = str(it.get("why_buy") or it.get("buy") or "").strip()
-        why_not = str(it.get("why_not_buy") or it.get("why_not") or it.get("not_buy") or "").strip()
-        trigger = str(it.get("trigger") or it.get("triggers") or "").strip()
-        risk = str(it.get("risk") or it.get("risks") or "").strip()
-
-        ev = it.get("evidence_snippets") or it.get("evidence") or it.get("snippets") or []
+    def _norm_evidence(ev: Any) -> List[str]:
         if isinstance(ev, str):
             ev_list = [x.strip() for x in re.split(r"[;；\n]", ev) if x.strip()]
         elif isinstance(ev, list):
             ev_list = [str(x).strip() for x in ev if str(x).strip()]
         else:
             ev_list = []
-        ev_list = [_clean_snippet_text(x)[:80] for x in ev_list if _clean_snippet_text(x)]
-        ev_list = ev_list[:2]
+        cleaned: List[str] = []
+        seen_ev: set[str] = set()
+        for x in ev_list:
+            t = _clean_evidence_snippet(x, max_len=80)
+            if not t:
+                continue
+            k = t.lower()[:80]
+            if k in seen_ev:
+                continue
+            seen_ev.add(k)
+            cleaned.append(t)
+            if len(cleaned) >= 2:
+                break
+        return cleaned
+
+    for it in raw_items:
+        if not isinstance(it, dict):
+            continue
+        asset = _norm_text(
+            it.get("asset_name") or it.get("asset") or it.get("symbol") or it.get("token") or "",
+            18,
+        )
+        why_buy = _norm_text(it.get("why_buy") or it.get("buy") or "", 42)
+        why_not = _norm_text(it.get("why_not_buy") or it.get("why_not") or it.get("not_buy") or "", 42)
+        trigger = _norm_text(it.get("trigger") or it.get("triggers") or "", 42)
+        risk = _norm_text(it.get("risk") or it.get("risks") or "", 42)
+
+        ev = it.get("evidence_snippets") or it.get("evidence") or it.get("snippets") or []
+        ev_list = _norm_evidence(ev)
 
         if not asset and ev_list:
             syms, _addrs = extract_symbols_and_addrs(ev_list[0])
@@ -492,11 +538,6 @@ def _normalize_actionables(raw_items: List[Dict[str, Any]]) -> List[Dict[str, An
             continue
         seen.add(asset)
 
-        why_buy = _trim(why_buy, 42)
-        why_not = _trim(why_not, 42)
-        trigger = _trim(trigger, 42)
-        risk = _trim(risk, 42)
-
         out.append(
             {
                 "asset_name": asset,
@@ -511,6 +552,48 @@ def _normalize_actionables(raw_items: List[Dict[str, Any]]) -> List[Dict[str, An
         )
 
     return out
+
+
+def self_check_actionables() -> Dict[str, Any]:
+    """Lightweight self-check for actionable normalization (no LLM)."""
+
+    sample_raw = [
+        {
+            "asset_name": "TESTCOINLONGNAMEEXCEED",
+            "why_buy": "价格突破前高，资金净流入明显，交易所新增交易对，走势强势" * 2,
+            "why_not_buy": "有解锁压力，社群分歧较大" * 2,
+            "trigger": "突破前高并回踩确认",
+            "risk": "消息噪音/情绪盘",
+            "evidence_snippets": [
+                "Testcoin to the moon! contact me at alpha@example.com",
+                "Join telegram airdrop now!!!",
+                "TEST 上所传闻升温，成交量放大",
+            ],
+        },
+        {
+            "asset": "DEMO",
+            "buy": "资金关注",
+            "not_buy": "",
+            "trigger": "",
+            "risk": "",
+            "snippets": "DEMO 讨论升温；telegram群拉人",
+        },
+    ]
+
+    normalized = _normalize_actionables(sample_raw)
+
+    ok = True
+    for it in normalized:
+        if len(str(it.get("asset_name") or "")) > 18:
+            ok = False
+        for k in ["why_buy", "why_not_buy", "trigger", "risk"]:
+            if len(str(it.get(k) or "")) > 42:
+                ok = False
+        ev = it.get("evidence_snippets") or []
+        if len(ev) > 2 or any(len(str(x)) > 80 for x in ev):
+            ok = False
+
+    return {"ok": ok, "items": normalized}
 
 
 def _fallback_actionables_from_texts(texts: List[str], *, limit: int = 5) -> List[Dict[str, Any]]:
@@ -529,7 +612,8 @@ def _fallback_actionables_from_texts(texts: List[str], *, limit: int = 5) -> Lis
         stance = stance_from_texts(samples)
         why_buy = "聊天偏多" if stance == "偏多" else ("多空分歧" if stance == "分歧" else "")
         why_not = "聊天偏空" if stance == "偏空" else ""
-        ev = [_clean_snippet_text(s)[:80] for s in samples if _clean_snippet_text(s)]
+        ev = [_clean_evidence_snippet(s, max_len=80) for s in samples]
+        ev = [x for x in ev if x]
         items.append(
             {
                 "asset_name": sym,
@@ -558,7 +642,8 @@ def _fallback_actionables_from_radar(items: List[Dict[str, Any]], *, limit: int 
         if not asset or asset in seen:
             continue
         ev = (it.get("twitter_evidence") or {}).get("snippets") or []
-        ev2 = [_clean_snippet_text(str(s))[:80] for s in ev if _clean_snippet_text(str(s))][:2]
+        ev2 = [_clean_evidence_snippet(str(s), max_len=80) for s in ev]
+        ev2 = [x for x in ev2 if x][:2]
         if not ev2:
             continue
         out.append(
@@ -579,6 +664,16 @@ def _fallback_actionables_from_radar(items: List[Dict[str, Any]], *, limit: int 
     return out
 
 
+def _log_llm_failure(ctx: PipelineContext, tag: str, *, raw: str = "", exc: Optional[BaseException] = None) -> None:
+    ctx.errors.append(tag)
+    detail = tag
+    if exc is not None:
+        detail += f":{type(exc).__name__}:{exc}"
+    if raw:
+        detail += f":raw_len={len(raw)}:raw_sha1={_sha1(raw)[:10]}"
+    ctx.llm_failures.append(detail)
+
+
 def build_tg_topics(ctx: PipelineContext) -> None:
     done = _measure(ctx.perf, "tg_topics_pipeline")
 
@@ -591,12 +686,18 @@ def build_tg_topics(ctx: PipelineContext) -> None:
         try:
             out = summarize_tg_actionables(tg_snippets=snippets)
             raw_items = out.get("items") if isinstance(out, dict) else None
+            parse_failed = bool(isinstance(out, dict) and out.get("_parse_failed"))
+            raw = str(out.get("raw") or "") if isinstance(out, dict) else ""
+            if parse_failed:
+                _log_llm_failure(ctx, "tg_actionables_llm_parse_failed", raw=raw)
             if isinstance(raw_items, list):
                 items = _normalize_actionables(raw_items)
-            if not items:
-                ctx.errors.append("tg_actionables_llm_empty")
+            elif isinstance(out, dict) and not parse_failed:
+                _log_llm_failure(ctx, "tg_actionables_llm_schema_invalid", raw=raw)
+            if not items and not parse_failed:
+                _log_llm_failure(ctx, "tg_actionables_llm_empty", raw=raw)
         except Exception as e:
-            ctx.errors.append(f"tg_actionables_llm_failed:{e}")
+            _log_llm_failure(ctx, "tg_actionables_llm_failed", exc=e)
 
     if not items:
         items = _fallback_actionables_from_texts(ctx.human_texts, limit=5)
@@ -666,12 +767,18 @@ def build_twitter_ca_topics(ctx: PipelineContext) -> None:
         try:
             out = summarize_twitter_actionables(twitter_snippets=snippets)
             raw_items = out.get("items") if isinstance(out, dict) else None
+            parse_failed = bool(isinstance(out, dict) and out.get("_parse_failed"))
+            raw = str(out.get("raw") or "") if isinstance(out, dict) else ""
+            if parse_failed:
+                _log_llm_failure(ctx, "twitter_actionables_llm_parse_failed", raw=raw)
             if isinstance(raw_items, list):
                 items = _normalize_actionables(raw_items)
-            if not items:
-                ctx.errors.append("twitter_actionables_llm_empty")
+            elif isinstance(out, dict) and not parse_failed:
+                _log_llm_failure(ctx, "twitter_actionables_llm_schema_invalid", raw=raw)
+            if not items and not parse_failed:
+                _log_llm_failure(ctx, "twitter_actionables_llm_empty", raw=raw)
         except Exception as e:
-            ctx.errors.append(f"twitter_actionables_llm_failed:{e}")
+            _log_llm_failure(ctx, "twitter_actionables_llm_failed", exc=e)
 
     if not items:
         items = _fallback_actionables_from_radar(ctx.radar_items, limit=5)
@@ -1031,6 +1138,7 @@ def render(ctx: PipelineContext) -> Dict[str, Any]:
         "summary_markdown": summary_markdown,
         "summary_markdown_path": tmp_md_path,
         "errors": ctx.errors,
+        "llm_failures": ctx.llm_failures,
         "elapsed_s": round(ctx.budget.elapsed_s(), 2),
         "perf": ctx.perf,
         "use_llm": bool(ctx.use_llm),
@@ -1087,6 +1195,7 @@ def run_pipeline(*, total_budget_s: float = 240.0) -> Dict[str, Any]:
                 "summary_markdown": "",
                 "summary_markdown_path": "",
                 "errors": ctx.errors + [f"fatal_render:{type(e2).__name__}:{e2}"],
+                "llm_failures": ctx.llm_failures,
                 "elapsed_s": round(ctx.budget.elapsed_s(), 2),
                 "perf": ctx.perf,
                 "use_llm": bool(ctx.use_llm),

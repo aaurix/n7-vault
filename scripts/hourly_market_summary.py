@@ -49,6 +49,7 @@ def main() -> int:
                 "summary_markdown": "",
                 "summary_markdown_path": "",
                 "errors": [f"fatal_wrapper:{type(e).__name__}:{e}"],
+                "llm_failures": [],
                 "elapsed_s": 0.0,
                 "perf": {},
                 "use_llm": False,

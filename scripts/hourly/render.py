@@ -95,6 +95,76 @@ def split_whatsapp_text(text: str, *, max_chars: int = 950) -> List[str]:
     return [x for x in out2 if x and len(x) <= max_chars]
 
 
+_WA_MAX_CHARS = 1400
+
+
+def _is_whatsapp_header(line: str) -> bool:
+    t = (line or "").strip()
+    return t.startswith("*") and t.endswith("*") and len(t) <= 60
+
+
+def _section_priority(header: str) -> int:
+    h = (header or "").strip("*")
+    if "社媒补充" in h:
+        return 5
+    if "关注" in h or "情绪" in h or "弱信号" in h:
+        return 4
+    if "Telegram可交易标的" in h or "叙事/事件" in h or "叙事" in h:
+        return 3
+    if "二级山寨" in h:
+        return 2
+    return 0
+
+
+def _apply_whatsapp_budget(lines: List[str], *, max_chars: int = _WA_MAX_CHARS) -> List[str]:
+    if not lines:
+        return []
+    joined = "\n".join(lines)
+    if len(joined) <= max_chars:
+        return lines
+
+    sections: List[Dict[str, Any]] = []
+    cur: List[str] = []
+    for line in lines:
+        if _is_whatsapp_header(line):
+            if cur:
+                sections.append({"lines": cur})
+            cur = [line]
+        else:
+            if not cur:
+                cur = [line]
+            else:
+                cur.append(line)
+    if cur:
+        sections.append({"lines": cur})
+
+    for idx, sec in enumerate(sections):
+        header = sec["lines"][0] if sec["lines"] else ""
+        sec["priority"] = _section_priority(header)
+        if idx == 0:
+            sec["min_keep"] = len(sec["lines"])
+        else:
+            sec["min_keep"] = 2 if len(sec["lines"]) > 1 else len(sec["lines"])
+
+    def _total_len() -> int:
+        all_lines = [ln for sec in sections for ln in sec["lines"]]
+        return sum(len(ln) for ln in all_lines) + max(0, len(all_lines) - 1)
+
+    guard = 0
+    while _total_len() > max_chars and guard < 2000:
+        guard += 1
+        candidates = [sec for sec in sections if len(sec["lines"]) > int(sec["min_keep"])]
+        if not candidates:
+            break
+        sec = max(candidates, key=lambda s: int(s.get("priority", 0)))
+        sec["lines"].pop()
+
+    out: List[str] = []
+    for sec in sections:
+        out.extend(sec["lines"])
+    return out
+
+
 def _cn_num(x: Any) -> str:
     if x is None:
         return "?"
@@ -382,9 +452,9 @@ def build_summary(
                 if pts:
                     out.append(f"   - {pts[0]}")
 
-    out.append(H("社媒补充（X Top3）"))
+    out.append(H("社媒补充（X Top2）"))
     twitter_topics = (twitter_lines or [])
-    tw_limit = 2 if actionable_mode else 3
+    tw_limit = 2
     if twitter_topics:
         for i, it in enumerate(twitter_topics[:tw_limit], 1):
             if _is_actionable(it):
@@ -435,7 +505,11 @@ def build_summary(
     else:
         out.append("- 无")
 
-    txt = "\n".join(out).strip()
-    if len(txt) > 1400:
-        txt = txt[:1390] + "…"
+    lines = out
+    if whatsapp:
+        lines = _apply_whatsapp_budget(out, max_chars=_WA_MAX_CHARS)
+
+    txt = "\n".join(lines).strip()
+    if whatsapp and len(txt) > _WA_MAX_CHARS:
+        txt = txt[: (_WA_MAX_CHARS - 10)].rstrip() + "…"
     return txt

@@ -19,6 +19,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import time
 import hashlib
 import urllib.request as urlreq
 from typing import Any, Dict, List, Optional, Sequence, Tuple
@@ -239,6 +240,8 @@ def chat_json(
     temperature: float = 0.2,
     max_tokens: int = 500,
     timeout: int = 30,
+    retry_on_parse_fail: bool = False,
+    retry_delay_s: float = 0.8,
 ) -> Dict[str, Any]:
     base_url, api_key, model_id = _resolve_chat_endpoint(model)
 
@@ -256,21 +259,24 @@ def chat_json(
     if "api.openai.com" in base_url:
         payload["response_format"] = {"type": "json_object"}
 
-    req = urlreq.Request(
-        f"{base_url}/chat/completions",
-        data=json.dumps(payload).encode("utf-8"),
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-            "User-Agent": "clawdbot-hourly/1.0",
-        },
-        method="POST",
-    )
+    def _call_once() -> str:
+        req = urlreq.Request(
+            f"{base_url}/chat/completions",
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+                "User-Agent": "clawdbot-hourly/1.0",
+            },
+            method="POST",
+        )
 
-    with urlreq.urlopen(req, timeout=timeout) as resp:
-        data = json.loads(resp.read().decode("utf-8"))
+        with urlreq.urlopen(req, timeout=timeout) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
 
-    content = (((data.get("choices") or [{}])[0].get("message") or {}).get("content") or "{}").strip()
+        return (((data.get("choices") or [{}])[0].get("message") or {}).get("content") or "{}").strip()
+
+    content = _call_once()
 
     def _try_parse_json(s: str) -> Optional[Dict[str, Any]]:
         if not s:
@@ -310,8 +316,16 @@ def chat_json(
     if parsed is not None:
         return parsed
 
+    if retry_on_parse_fail:
+        time.sleep(max(0.1, float(retry_delay_s)))
+        content2 = _call_once()
+        parsed2 = _try_parse_json(content2)
+        if parsed2 is not None:
+            return parsed2
+        return {"raw": content2, "_parse_failed": True, "_retry_used": True}
+
     # Return as best-effort
-    return {"raw": content}
+    return {"raw": content, "_parse_failed": True}
 
 
 def summarize_token_thread(
@@ -414,7 +428,8 @@ def summarize_tg_actionables(*, tg_snippets: List[str]) -> Dict[str, Any]:
     system = (
         "你是加密交易员助手。输入是过去1小时的Telegram观点短片段（已预处理/去重）。\n"
         "请输出Top5可交易标的。输出JSON：{items:[{asset_name,why_buy,why_not_buy,trigger,risk,evidence_snippets}]}。\n"
-        "只用输入信息，不要编造；字段没有就给空字符串/空数组；evidence_snippets 取1-2个短片段，去链接。"
+        "只用输入信息，不要编造；字段没有就给空字符串/空数组；evidence_snippets 取1-2个短片段，去链接。\n"
+        "字段长度限制：asset_name<=18字；why_buy/why_not_buy/trigger/risk<=42字；evidence_snippets<=80字/条。"
     )
 
     user = {
@@ -422,7 +437,14 @@ def summarize_tg_actionables(*, tg_snippets: List[str]) -> Dict[str, Any]:
         "requirements": {"language": "zh", "no_quotes": True},
     }
 
-    return chat_json(system=system, user=json.dumps(user, ensure_ascii=False), temperature=0.1, max_tokens=720)
+    return chat_json(
+        system=system,
+        user=json.dumps(user, ensure_ascii=False),
+        temperature=0.1,
+        max_tokens=720,
+        retry_on_parse_fail=True,
+        retry_delay_s=0.9,
+    )
 
 
 def summarize_twitter_actionables(*, twitter_snippets: List[str]) -> Dict[str, Any]:
@@ -431,7 +453,8 @@ def summarize_twitter_actionables(*, twitter_snippets: List[str]) -> Dict[str, A
     system = (
         "你是加密交易员助手。输入是过去2小时的Twitter/X短片段（已预处理/去重）。\n"
         "请输出Top5可交易标的。输出JSON：{items:[{asset_name,why_buy,why_not_buy,trigger,risk,evidence_snippets}]}。\n"
-        "只用输入信息，不要编造；字段没有就给空字符串/空数组；evidence_snippets 取1-2个短片段，去链接。"
+        "只用输入信息，不要编造；字段没有就给空字符串/空数组；evidence_snippets 取1-2个短片段，去链接。\n"
+        "字段长度限制：asset_name<=18字；why_buy/why_not_buy/trigger/risk<=42字；evidence_snippets<=80字/条。"
     )
 
     user = {
@@ -439,7 +462,14 @@ def summarize_twitter_actionables(*, twitter_snippets: List[str]) -> Dict[str, A
         "requirements": {"language": "zh", "no_quotes": True},
     }
 
-    return chat_json(system=system, user=json.dumps(user, ensure_ascii=False), temperature=0.1, max_tokens=720)
+    return chat_json(
+        system=system,
+        user=json.dumps(user, ensure_ascii=False),
+        temperature=0.1,
+        max_tokens=720,
+        retry_on_parse_fail=True,
+        retry_delay_s=0.9,
+    )
 
 
 def summarize_narratives(*, tg_messages: List[str]) -> Dict[str, Any]:
