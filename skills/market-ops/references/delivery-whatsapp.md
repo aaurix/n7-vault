@@ -5,7 +5,7 @@
 - Split by section boundaries and newlines.
 
 ## Idempotency
-- State file: `/Users/massis/clawd/memory/hourly_summary_delivery.json`
+- State file: `/Users/massis/clawd/state/hourly_summary_delivery.json`
 - Keyed by `hourKey + summaryHash`.
 - Track `whatsappSent` boolean.
 

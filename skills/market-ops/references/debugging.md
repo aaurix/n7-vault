@@ -1,7 +1,7 @@
 # Debugging checklist (hourly)
 
 ## Symptom: cron says ok but no WhatsApp message
-- Check idempotency file: `/Users/massis/clawd/memory/hourly_summary_delivery.json`
+- Check idempotency file: `/Users/massis/clawd/state/hourly_summary_delivery.json`
 - Confirm it didn’t mark whatsappSent=true already for that hourKey.
 
 ## Symptom: tg_viewpoint_msgs = 0

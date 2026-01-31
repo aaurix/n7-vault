@@ -24,7 +24,7 @@ import hashlib
 import urllib.request as urlreq
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-from repo_paths import memory_path
+from repo_paths import state_path
 
 
 def _load_env_key(name: str) -> Optional[str]:
@@ -72,7 +72,7 @@ def _sha1(s: str) -> str:
 
 
 def _default_embed_cache_path() -> str:
-    return str(memory_path("embeddings_cache.json"))
+    return str(state_path("embeddings_cache.json"))
 
 
 _EMBED_CACHE: Optional[Dict[str, List[float]]] = None

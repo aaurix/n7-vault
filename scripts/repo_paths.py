@@ -33,3 +33,7 @@ def scripts_path(*parts: str) -> Path:
 
 def memory_path(*parts: str) -> Path:
     return repo_path("memory", *parts)
+
+
+def state_path(*parts: str) -> Path:
+    return repo_path("state", *parts)

@@ -11,6 +11,7 @@ Design goals:
 
 from __future__ import annotations
 
+import time
 from typing import Any, Dict, List
 
 from .dex import enrich_symbol, resolve_addr_symbol
@@ -64,15 +65,33 @@ def extract_viewpoint_threads(
 
     clusters: Dict[str, List[str]] = {}
 
+    resolve_cache: Dict[str, str | None] = {}
+    enrich_cache: Dict[str, Dict[str, Any] | None] = {}
+    resolve_calls = 0
+    enrich_calls = 0
+    max_resolve_calls = 40
+    max_enrich_calls = 30
+    t0 = time.perf_counter()
+    time_budget_s = 22.0
+
     for t in human_texts:
+        if time.perf_counter() - t0 > time_budget_s:
+            break
         t = (t or "").strip()
         if not t:
             continue
 
         syms, addrs = extract_symbols_and_addrs(t)
-        # Resolve CA -> symbol
+        # Resolve CA -> symbol (budgeted + cached)
         for a in addrs[:2]:
-            rs = resolve_addr_symbol(a)
+            if a in resolve_cache:
+                rs = resolve_cache[a]
+            else:
+                if resolve_calls >= max_resolve_calls:
+                    continue
+                rs = resolve_addr_symbol(a)
+                resolve_cache[a] = rs
+                resolve_calls += 1
             if rs and rs not in GENERIC_TOKENS:
                 syms.append(rs)
 
@@ -88,6 +107,8 @@ def extract_viewpoint_threads(
     weak: List[Dict[str, Any]] = []
 
     for sym, msgs in clusters.items():
+        if time.perf_counter() - t0 > time_budget_s:
+            break
         c = len(msgs)
         if c < weak_heat:
             continue
@@ -100,7 +121,14 @@ def extract_viewpoint_threads(
             else:
                 pts = []
 
-        dex = enrich_symbol(sym)
+        if sym in enrich_cache:
+            dex = enrich_cache[sym]
+        else:
+            if enrich_calls >= max_enrich_calls:
+                continue
+            dex = enrich_symbol(sym)
+            enrich_cache[sym] = dex
+            enrich_calls += 1
         if not dex:
             continue
 

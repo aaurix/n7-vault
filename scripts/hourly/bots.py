@@ -4,7 +4,7 @@
 """Bot sender_id filtering.
 
 We prefer sender_id allow/deny decisions over text heuristics.
-The denylist is stored in memory/bot_senders.json (user-maintained).
+The denylist is stored in state/bot_senders.json (user-maintained).
 """
 
 from __future__ import annotations
@@ -13,10 +13,10 @@ import json
 from pathlib import Path
 from typing import Set
 
-from repo_paths import memory_path
+from repo_paths import state_path
 
 
-DEFAULT_PATH: Path = memory_path("bot_senders.json")
+DEFAULT_PATH: Path = state_path("bot_senders.json")
 
 
 def load_bot_sender_ids(path: Path = DEFAULT_PATH) -> Set[int]:

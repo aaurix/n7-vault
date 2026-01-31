@@ -25,7 +25,7 @@ import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from repo_paths import memory_path
+from repo_paths import state_path
 from hourly.twitter_context import twitter_evidence_for_ca
 
 from zoneinfo import ZoneInfo
@@ -47,7 +47,7 @@ TICKER_EXCLUDE = {
 }
 
 # Resolve repo paths so cron CWD does not affect file IO.
-_MEME_DIR: Path = memory_path("meme")
+_MEME_DIR: Path = state_path("meme")
 DEX_CACHE_PATH: Path = _MEME_DIR / "dex_cache.json"
 OUTPUT_PATH: Path = _MEME_DIR / "last_candidates.json"
 

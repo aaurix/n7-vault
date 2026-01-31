@@ -22,11 +22,11 @@ from typing import Any, Dict, List, Optional
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-from repo_paths import memory_path
+from repo_paths import state_path
 
 BASE = "https://api.coingecko.com/api/v3"
 
-MAP_PATH: Path = memory_path("coingecko_symbol_map.json")
+MAP_PATH: Path = state_path("coingecko_symbol_map.json")
 
 
 def _get_json(path: str, params: Dict[str, Any], *, timeout: int = 12) -> Any:

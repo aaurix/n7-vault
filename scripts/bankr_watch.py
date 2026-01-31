@@ -22,9 +22,9 @@ import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
-from repo_paths import memory_path
+from repo_paths import state_path
 
-STATE_PATH: Path = memory_path("bankr_watch_state.json")
+STATE_PATH: Path = state_path("bankr_watch_state.json")
 
 PROMO_KW = re.compile(r"(airdrop|giveaway|join\s+telegram|vip|signal|paid\s+group|link\s+in\s+bio|referral|邀请码)", re.IGNORECASE)
 

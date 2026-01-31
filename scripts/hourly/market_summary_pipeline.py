@@ -25,7 +25,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 from zoneinfo import ZoneInfo
 
-from repo_paths import memory_path, scripts_path
+from repo_paths import state_path, scripts_path
 
 from hourly.bots import load_bot_sender_ids
 from hourly.dex import enrich_addr, enrich_symbol, resolve_addr_symbol
@@ -213,7 +213,7 @@ def spawn_meme_radar(ctx: PipelineContext) -> Optional[subprocess.Popen[str]]:
 
 
 def _load_meme_radar_output(ctx: PipelineContext) -> Dict[str, Any]:
-    path = memory_path("meme", "last_candidates.json")
+    path = state_path("meme", "last_candidates.json")
     try:
         if not path.exists():
             ctx.errors.append("meme_radar_empty:no_output_file")
