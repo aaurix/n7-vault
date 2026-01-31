@@ -116,12 +116,20 @@ def _section_priority(header: str) -> int:
     return 0
 
 
-def _apply_whatsapp_budget(lines: List[str], *, max_chars: int = _WA_MAX_CHARS) -> List[str]:
+def _is_x_section(header: str) -> bool:
+    t = (header or "").strip()
+    if t.startswith("*") and t.endswith("*"):
+        t = t.strip("*").strip()
+    elif t.startswith("## "):
+        t = t[3:].strip()
+    return "社媒补充" in t and "X" in t
+
+
+def _apply_whatsapp_budget(
+    lines: List[str], *, max_chars: int = _WA_MAX_CHARS, exclude_x: bool = False
+) -> List[str]:
     if not lines:
         return []
-    joined = "\n".join(lines)
-    if len(joined) <= max_chars:
-        return lines
 
     sections: List[Dict[str, Any]] = []
     cur: List[str] = []
@@ -141,19 +149,34 @@ def _apply_whatsapp_budget(lines: List[str], *, max_chars: int = _WA_MAX_CHARS) 
     for idx, sec in enumerate(sections):
         header = sec["lines"][0] if sec["lines"] else ""
         sec["priority"] = _section_priority(header)
+        sec["is_x"] = _is_x_section(header)
         if idx == 0:
             sec["min_keep"] = len(sec["lines"])
         else:
             sec["min_keep"] = 2 if len(sec["lines"]) > 1 else len(sec["lines"])
 
-    def _total_len() -> int:
-        all_lines = [ln for sec in sections for ln in sec["lines"]]
+    def _total_len(include_x: bool = True) -> int:
+        all_lines = [
+            ln
+            for sec in sections
+            for ln in sec["lines"]
+            if include_x or (not sec.get("is_x"))
+        ]
         return sum(len(ln) for ln in all_lines) + max(0, len(all_lines) - 1)
 
+    budget_len = _total_len(include_x=not exclude_x)
+    if budget_len <= max_chars:
+        return lines
+
     guard = 0
-    while _total_len() > max_chars and guard < 2000:
+    while _total_len(include_x=not exclude_x) > max_chars and guard < 2000:
         guard += 1
-        candidates = [sec for sec in sections if len(sec["lines"]) > int(sec["min_keep"])]
+        candidates = [
+            sec
+            for sec in sections
+            if len(sec["lines"]) > int(sec["min_keep"])
+            and (not exclude_x or not sec.get("is_x"))
+        ]
         if not candidates:
             break
         sec = max(candidates, key=lambda s: int(s.get("priority", 0)))
@@ -506,10 +529,11 @@ def build_summary(
         out.append("- 无")
 
     lines = out
+    has_x_section = whatsapp and any(_is_x_section(ln) for ln in out if _is_whatsapp_header(ln))
     if whatsapp:
-        lines = _apply_whatsapp_budget(out, max_chars=_WA_MAX_CHARS)
+        lines = _apply_whatsapp_budget(out, max_chars=_WA_MAX_CHARS, exclude_x=has_x_section)
 
     txt = "\n".join(lines).strip()
-    if whatsapp and len(txt) > _WA_MAX_CHARS:
+    if whatsapp and len(txt) > _WA_MAX_CHARS and not has_x_section:
         txt = txt[: (_WA_MAX_CHARS - 10)].rstrip() + "…"
     return txt
