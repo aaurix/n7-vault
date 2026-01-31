@@ -51,14 +51,19 @@ Inputs to ask user for:
 
 Steps:
 1) `metadata_token` for each token if missing metadata
-2) `deploy_v2_workflow_plan` (read-only)
-3) Execute returned actions in order:
-   - `gateway_token_add` / `gateway_pool_add` / approvals
+2) **Approvals (per Deploy V2 UI):**
+   - Tokens = base+quote from `trading_pair`.
+   - Spenders = `connector_name` (if gateway) + `router_connector` (if `auto_swap_enabled` and gateway).
+   - Call `gateway_allowances` with `{network_id, address: wallet_address, tokens, spender}`.
+   - Treat allowance >= 1e10 as "unlimited"; if not, call `gateway_approve` for each missing token+spender.
+3) `deploy_v2_workflow_plan` (read-only)
+4) Execute returned actions in order:
+   - `gateway_token_add` / `gateway_pool_add`
    - `gateway_restart` when instructed
-4) Re-run `deploy_v2_workflow_plan` to confirm `blockers=[]`
-5) Deploy:
+5) Re-run `deploy_v2_workflow_plan` to confirm `blockers=[]`
+6) Deploy:
    - `bot_deploy_v2_controllers` or `bot_deploy_v2_script`
-6) Start bot: `bot_start`
+7) Start bot: `bot_start`
 
 ### B) Run an existing strategy instance
 1) `bot_instances` (confirm it exists)
