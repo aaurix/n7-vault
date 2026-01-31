@@ -34,7 +34,7 @@ from hourly.kline_fetcher import run_kline_json
 from hourly.perp_dashboard import build_perp_dash_inputs
 from hourly.llm_openai import (
     embeddings,
-    load_openai_api_key,
+    load_chat_api_key,
     summarize_narratives,
     summarize_oi_trading_plans,
     summarize_token_threads_batch,
@@ -45,6 +45,7 @@ from hourly.oi_plan_pipeline import build_oi_items, build_oi_plans
 from hourly.render import build_summary, split_whatsapp_text
 from hourly.tg_client import TgClient, msg_text, sender_id
 from hourly.topic_pipeline import build_topics
+from hourly.tg_topics_fallback import tg_topics_fallback
 from hourly.viewpoints import extract_viewpoint_threads
 
 
@@ -168,7 +169,7 @@ def build_context(*, total_budget_s: float = 240.0) -> PipelineContext:
     since = _iso_z(since_utc)
     until = _iso_z(now_utc)
 
-    use_llm = bool(load_openai_api_key())
+    use_llm = bool(load_chat_api_key())
 
     return PipelineContext(
         now_sh=now_sh,
@@ -295,7 +296,7 @@ def build_human_texts(ctx: PipelineContext) -> None:
             t = msg_text(m)
             if not t or is_botish_text(t):
                 continue
-            out.append(t[:260])
+            out.append(t[:360])
 
     ctx.human_texts = out
     ctx.perf["viewpoint_threads_msgs_in"] = float(len(out))
@@ -430,6 +431,9 @@ def build_tg_topics(ctx: PipelineContext) -> None:
                     "_inferred": False,
                 }
             )
+
+    if not items:
+        items = tg_topics_fallback(ctx.human_texts, limit=5)
 
     # Replace contract addresses with resolved symbols when possible.
     if items:

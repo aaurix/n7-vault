@@ -485,8 +485,8 @@ def summarize_twitter_ca_viewpoints(*, items: List[Dict[str, Any]]) -> Dict[str,
         "requirements": {"language": "zh", "no_quotes": True, "topN": 5},
     }
 
-    # Prefer a stronger model for reliable JSON + non-empty items.
-    return chat_json(system=system, user=json.dumps(user, ensure_ascii=False), model="openai-codex/gpt-5.2", temperature=0.1, max_tokens=700, timeout=45)
+    # Use default OpenRouter chat model (no hard-coded override).
+    return chat_json(system=system, user=json.dumps(user, ensure_ascii=False), temperature=0.1, max_tokens=700, timeout=45)
 
 
 def summarize_overall(

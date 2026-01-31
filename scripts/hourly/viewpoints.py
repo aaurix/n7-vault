@@ -58,8 +58,8 @@ def extract_viewpoint_threads(
     - resolvable token/CA -> symbol
     - DexScreener match (real market)
 
-    Note: when heat is low (1-2), we allow a generic point even if no clear trigger words,
-    to satisfy the user's request to output heat>=1.
+    Note: when heat is high, we allow a generic point even if no clear trigger words,
+    to avoid dropping otherwise strong threads.
     """
 
     clusters: Dict[str, List[str]] = {}
@@ -95,10 +95,10 @@ def extract_viewpoint_threads(
         pts = _points_of(msgs)
         if not pts:
             # For low-heat threads, allow empty points (avoid repetitive filler text).
-            # For strong threads, still require some concrete points.
             if c >= min_heat:
-                continue
-            pts = []
+                pts = ["热度升温：讨论集中但共识不强，注意节奏与风险"]
+            else:
+                pts = []
 
         dex = enrich_symbol(sym)
         if not dex:

@@ -9,8 +9,8 @@ import re
 from typing import List, Tuple, Set
 
 
-TICKER_DOLLAR_RE = re.compile(r"\$[A-Za-z]{2,10}")
-TICKER_UPPER_RE = re.compile(r"\b[A-Z]{2,10}\b")
+TICKER_DOLLAR_RE = re.compile(r"\$[A-Za-z0-9]{2,10}")
+TICKER_UPPER_RE = re.compile(r"\b[A-Z0-9]{3,10}\b")
 BASE58_RE = re.compile(r"\b[1-9A-HJ-NP-Za-km-z]{32,44}\b")
 EVM_ADDR_RE = re.compile(r"\b0x[a-fA-F0-9]{40}\b")
 
@@ -49,7 +49,7 @@ def is_botish_text(s: str) -> bool:
     s2 = s.strip()
 
     # Very long templated alerts
-    if len(s2) > 260:
+    if len(s2) > 420:
         return True
 
     # Box drawing / template markers
@@ -57,7 +57,7 @@ def is_botish_text(s: str) -> bool:
         return True
 
     # Obvious stat blocks / bot commerce copy
-    if any(x in s2 for x in ["📊", "📈", "Stats", "交易信息", "开盘时间", "MC", "FDV", "LP", "Vol", "ATH", "Sup", "DEX Paid"]):
+    if any(x in s2 for x in ["📊", "📈", "Stats", "交易信息", "开盘时间", "DEX Paid"]):
         return True
 
     # CA dumps can be human too
@@ -66,15 +66,23 @@ def is_botish_text(s: str) -> bool:
             return False
         return True
 
-    # Links: short human messages may include 1 link
-    if re.search(r"https?://", s2):
-        if len(s2) <= 140:
-            return False
-        return True
+    # Links: allow 1-2 links in human-length messages
+    links = re.findall(r"https?://\S+", s2)
+    if links:
+        if len(links) <= 2 and len(s2) <= 360:
+            pass
+        elif len(links) <= 1 and len(s2) <= 420:
+            pass
+        else:
+            return True
 
-    # Bot footer
-    if any(x in s2 for x in ["dexscreener", "geckoterminal", "solscan", "defined.fi", "axiom.trade", "photon-sol", "trojan"]):
-        return True
+    # Bot footer (allow if there's real commentary)
+    lower = s2.lower()
+    if any(x in lower for x in ["dexscreener", "geckoterminal", "solscan", "defined.fi", "axiom.trade", "photon-sol", "trojan"]):
+        stripped = re.sub(r"https?://\S+", " ", s2)
+        stripped = re.sub(r"\s+", " ", stripped).strip()
+        if len(stripped) <= 12:
+            return True
 
     return False
 
@@ -83,12 +91,14 @@ def extract_symbols_and_addrs(text: str) -> Tuple[List[str], List[str]]:
     """Extract tickers and base58 addresses from a message."""
 
     syms = [x[1:].upper() for x in TICKER_DOLLAR_RE.findall(text)]
+    syms = [s for s in syms if any(ch.isalpha() for ch in s)]
 
     # If no $TICKER, fall back to uppercase sequences even inside CJK.
     # IMPORTANT: to avoid false positives (e.g. usernames like "ed"), require length>=3 here.
     # 2-letter symbols are only accepted when explicitly written as $XX.
-    if not syms and len(text) <= 260:
-        syms = [x.upper() for x in re.findall(r"[A-Z]{3,10}", text)]
+    if not syms and len(text) <= 360:
+        syms = [x.upper() for x in TICKER_UPPER_RE.findall(text)]
+        syms = [s for s in syms if any(ch.isalpha() for ch in s)]
 
     syms = [
         s

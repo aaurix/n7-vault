@@ -17,3 +17,7 @@
 - Ensure deterministic prefilter is enabled.
 - Ensure postfilter drops non-anchor items.
 - Prefer outputting 0-2 topics over 5 low-quality.
+
+## Quick smoke
+- Deterministic prep (no LLM): `HOURLY_PREP_USE_LLM=0 python3 /Users/massis/clawd/scripts/hourly_prepare.py > /tmp/hourly_prepare.json`
+- Full hourly JSON: `python3 /Users/massis/clawd/scripts/hourly_market_summary.py > /tmp/hourly_summary.json`
