@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""OpenAI API helper for LLM-based summarization.
+"""OpenAI/OpenRouter API helper for LLM-based summarization.
 
 This module is ONLY used by the hourly summarization pipeline when explicitly enabled.
-It uses OPENAI_API_KEY (env) or reads ~/.clawdbot/.env as a fallback.
+- Chat completions: OpenRouter (OPENROUTER_API_KEY, optional ~/.clawdbot/.env fallback).
+- Embeddings: OpenAI (OPENAI_API_KEY).
 
 We keep calls minimal:
 - 1 telegram narratives summary (top 5)
@@ -57,14 +58,12 @@ def load_openrouter_api_key() -> Optional[str]:
 
 
 def load_chat_api_key() -> Optional[str]:
-    """Key resolver for *chat* calls.
+    """Key resolver for *chat* calls (OpenRouter only).
 
-    Preference:
-    - If OPENAI_API_KEY exists: use OpenAI.
-    - Else if OPENROUTER_API_KEY exists: use OpenRouter.
+    Chat completions are routed through OpenRouter; embeddings stay on OpenAI.
     """
 
-    return load_openai_api_key() or load_openrouter_api_key()
+    return load_openrouter_api_key()
 
 
 def _sha1(s: str) -> str:
@@ -462,19 +461,20 @@ def summarize_twitter_ca_viewpoints(*, items: List[Dict[str, Any]]) -> Dict[str,
     and use CA only as an additional disambiguation anchor when available.
 
     Input items schema (best-effort):
-      [{sym, ca?, evidence:{snippets}}]
+      [{id?, sym, ca?, evidence:{snippets}}]
 
     Output:
-      {items:[{sym, ca?, one_liner, sentiment, signals}]}
+      {items:[{id?, sym, ca?, one_liner, sentiment, signals}]}
     """
 
     system = (
-        "你是加密交易员助手。输入是若干候选token，每个候选给：symbol、(可选)合约地址、以及Twitter证据片段(去噪后的短句)。\n"
+        "你是加密交易员助手。输入是若干候选token，每个候选给：id(可选)、symbol、(可选)合约地址、以及Twitter证据片段(去噪后的短句)。\n"
         "任务：为每个候选提炼‘当前社交讨论在说什么’的一句话观点总结，最多Top5。\n"
         "硬约束：不能引用原文句子；不能输出链接；不能编造未出现的事实。\n"
         "非常重要：只要某个候选的snippets非空，就必须为它产出一条items（即使只能给出‘共识不足/分歧点’也要写清楚主要争论点）。\n"
-        "输出JSON：{items:[{sym, ca?, one_liner, sentiment, signals}]}\n"
+        "输出JSON：{items:[{id?, sym, ca?, one_liner, sentiment, signals}]}\n"
         "规则：\n"
+        "- 如果输入含id，输出必须原样带回同一id（用于匹配）。\n"
         "- sentiment只能是: 偏多/偏空/分歧/中性\n"
         "- one_liner：20~60字，写‘讨论的主张/分歧’，避免只报数字。\n"
         "- signals：3~8个短词/短语（用分号连接），只从snippets里抽象，不要扩展新概念。\n"

@@ -1,6 +1,6 @@
 ---
 name: market-ops
-description: "Operate and debug the hourly market/meme summary pipeline (TG+Twitter+OI+meme radar) and its WhatsApp delivery via cron: format changes, topic extraction tuning, idempotency, and troubleshooting."
+description: "Operate and debug the hourly market/meme summary pipeline (Telegram-first + OI + meme radar; Twitter secondary) and its WhatsApp delivery via cron: format changes, topic extraction tuning, idempotency, and troubleshooting."
 ---
 
 # market-ops
@@ -10,7 +10,7 @@ This skill is the **runbook** for the hourly summary pipeline in this repo.
 ## Use this skill when
 - Changing the hourly summary content/format (Top3/Top5, sections, wording)
 - Debugging hourly cron failures, missing deliveries, idempotency issues
-- Tuning TG/Twitter topic extraction, filtering, or summary quality
+- Tuning TG topic extraction (Twitter is secondary), filtering, or summary quality
 - Adjusting meme radar merge behavior inside the hourly summary
 
 ## Quick start (most common)

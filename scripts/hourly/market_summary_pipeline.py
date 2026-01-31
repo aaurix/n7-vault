@@ -522,7 +522,13 @@ def merge_tg_addr_candidates_into_radar(ctx: PipelineContext) -> None:
 
 
 def build_twitter_ca_topics(ctx: PipelineContext) -> None:
-    """Twitter section: ONLY CA+$SYMBOL evidence for meme candidates."""
+    """Twitter CA topics (aux only).
+
+    Stages (brief):
+    1) collect CA evidence from meme radar (TG+Dex candidates)
+    2) rule-based one-liners/tags/sentiment (deterministic)
+    3) optional LLM rewrite within remaining budget
+    """
 
     done = _measure(ctx.perf, "twitter_ca_topics")
 
@@ -544,7 +550,8 @@ def build_twitter_ca_topics(ctx: PipelineContext) -> None:
                 continue
             seen_key.add(key)
 
-            pack: Dict[str, Any] = {"sym": sym, "evidence": {"snippets": snippets}}
+            map_id = f"{sym}:{ca[:6]}" if ca else sym
+            pack: Dict[str, Any] = {"id": map_id, "sym": sym, "evidence": {"snippets": snippets}}
             if ca:
                 pack["ca"] = ca
             ca_evidence_items.append(pack)
@@ -674,6 +681,7 @@ def build_twitter_ca_topics(ctx: PipelineContext) -> None:
     for x in ca_evidence_items[:5]:
         sym = str(x.get("sym") or "").upper().strip()
         ca = str(x.get("ca") or "").strip()
+        map_id = str(x.get("id") or "").strip() or sym
         snips = ((x.get("evidence") or {}).get("snippets") or [])
         tags = _rule_tags(snips, sym=sym)
         sen = _rule_sentiment(tags)
@@ -681,7 +689,9 @@ def build_twitter_ca_topics(ctx: PipelineContext) -> None:
         sig = "; ".join(tags[:8])
         if ca:
             sig = (sig + ("; " if sig else "") + f"CA:{ca[:6]}…")
-        topics.append({"one_liner": one[:120], "sentiment": sen, "signals": sig[:160], "related_assets": []})
+        topics.append(
+            {"id": map_id, "sym": sym, "one_liner": one[:120], "sentiment": sen, "signals": sig[:160], "related_assets": []}
+        )
 
     # Optional LLM upgrade (replace one-liners/signals), within remaining budget.
     if ctx.use_llm and (not ctx.budget.over(reserve_s=120.0)):
@@ -689,17 +699,22 @@ def build_twitter_ca_topics(ctx: PipelineContext) -> None:
             out = summarize_twitter_ca_viewpoints(items=ca_evidence_items)
             its = out.get("items") if isinstance(out, dict) else None
             if isinstance(its, list) and its:
-                by_sym: Dict[str, Dict[str, Any]] = {
-                    str(it.get("sym") or "").upper().strip(): it
-                    for it in its
-                    if isinstance(it, dict) and it.get("sym")
-                }
+                by_key: Dict[str, Dict[str, Any]] = {}
+                for it in its:
+                    if not isinstance(it, dict):
+                        continue
+                    map_id = str(it.get("id") or "").strip()
+                    sym = str(it.get("sym") or "").upper().strip()
+                    if map_id:
+                        by_key[map_id] = it
+                    elif sym:
+                        by_key[sym] = it
+
                 upgraded: List[Dict[str, Any]] = []
                 for base_it in topics[:5]:
-                    # base one_liner already contains 'SYM: ...'
-                    base_one = str(base_it.get("one_liner") or "")
-                    sym = base_one.split(":", 1)[0].strip().upper() if ":" in base_one else ""
-                    it = by_sym.get(sym)
+                    map_id = str(base_it.get("id") or "").strip()
+                    sym = str(base_it.get("sym") or "").upper().strip()
+                    it = by_key.get(map_id) or (by_key.get(sym) if sym else None)
                     if not it:
                         upgraded.append(base_it)
                         continue
@@ -712,6 +727,8 @@ def build_twitter_ca_topics(ctx: PipelineContext) -> None:
                         sig2 = str(sig or base_it.get("signals") or "")
                     upgraded.append(
                         {
+                            "id": map_id or sym,
+                            "sym": sym,
                             "one_liner": f"{sym}: {one2}"[:120] if sym else one2[:120],
                             "sentiment": sen2,
                             "signals": sig2[:160],

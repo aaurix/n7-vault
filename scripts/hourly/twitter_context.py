@@ -75,6 +75,13 @@ def _has_crypto_context(low: str) -> bool:
     return any(k in low for k in _CONTEXT_KW)
 
 
+def _is_contract_alias(al: str) -> bool:
+    s = (al or "").strip()
+    if not s:
+        return False
+    return s.startswith("0x") or (len(s) >= 32 and re.fullmatch(r"[1-9A-HJ-NP-Za-km-z]{32,44}", s))
+
+
 def _alias_hit(raw: str, *, aliases: List[str], base: str = "") -> bool:
     """Check if raw text hits any alias safely (used even when base is unknown).
 
@@ -96,7 +103,7 @@ def _alias_hit(raw: str, *, aliases: List[str], base: str = "") -> bool:
             continue
 
         # Contract address / long base58: match literally
-        if al.startswith("0x") or (len(al) >= 32 and re.fullmatch(r"[1-9A-HJ-NP-Za-km-z]{32,44}", al)):
+        if _is_contract_alias(al):
             if al.lower() in low:
                 return True
             continue
@@ -182,7 +189,7 @@ def _run_bird_search(query: str, *, n: int = 30, timeout_s: int = 18) -> List[Di
         return []
 
 
-def _is_good_snippet(text: str, *, symbol: str, base: str) -> bool:
+def _is_good_snippet(text: str, *, symbol: str, base: str, require_symbol: bool = True) -> bool:
     t = (text or "").strip()
     if not t:
         return False
@@ -198,8 +205,9 @@ def _is_good_snippet(text: str, *, symbol: str, base: str) -> bool:
 
     # Symbol relevance (keep relatively loose across all symbols).
     # Accept if it mentions the explicit futures symbol OR the base (plain or $base).
-    if sym_l not in low and base_l not in low and (f"${base_l}" not in low):
-        return False
+    if require_symbol and (sym_l or base_l):
+        if sym_l not in low and base_l not in low and (f"${base_l}" not in low):
+            return False
 
     # violent/off-topic
     if any(k in low for k in ["rpg", "rocket", "grenade", "shooting", "killed", "dead", "bomb"]):
@@ -320,6 +328,7 @@ def twitter_evidence(spec: TwitterQuerySpec) -> Dict[str, Any]:
 
     # Derive base ticker from aliases (best-effort)
     base = _derive_base_from_aliases(spec.aliases)
+    has_ca = any(_is_contract_alias(a or "") for a in (spec.aliases or []))
 
     snippets: List[str] = []
     seen = set()
@@ -340,12 +349,16 @@ def twitter_evidence(spec: TwitterQuerySpec) -> Dict[str, Any]:
                 dropped["irrelevant"] += 1
                 continue
             # Reuse existing strong filters (promo/bot/trader-ish heuristics)
-            if not _is_good_snippet(raw, symbol=base, base=base):
+            if not _is_good_snippet(raw, symbol=base, base=base, require_symbol=(not has_ca)):
                 dropped["irrelevant"] += 1
                 continue
         else:
             # No base derived (e.g. CA-based meme search): require at least one alias hit.
             if not _alias_hit(raw, aliases=spec.aliases):
+                dropped["irrelevant"] += 1
+                continue
+            # Keep strict spam filters even without a symbol anchor when CA is present.
+            if has_ca and (not _is_good_snippet(raw, symbol="", base="", require_symbol=False)):
                 dropped["irrelevant"] += 1
                 continue
 
@@ -381,7 +394,8 @@ def twitter_evidence_for_ca(ca: str, symbol: str, *, intent: str = "catalyst", w
     """Standard evidence for on-chain meme tokens.
 
     Unified rule:
-    - Query anchors: CA + $SYMBOL (do not rely on bare SYMBOL).
+    - Query anchors: CA + $SYMBOL when available (avoid bare SYMBOL).
+    - Evidence relevance allows CA-only (symbol optional) while keeping strict spam filters.
     """
 
     ca = (ca or "").strip()

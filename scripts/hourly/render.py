@@ -212,7 +212,7 @@ def build_summary(
                             parts.append("无明确多空观点")
 
                         tail = f"（{kept}/{total}）" if (kept is not None or total is not None) else ""
-                        out.append(f"   - Twitter：{' | '.join(parts)}{tail}")
+                        out.append(f"   - 社媒补充：{' | '.join(parts)}{tail}")
 
     # Fallback to the legacy oi_lines when dashboards are unavailable.
     elif plans:
@@ -288,7 +288,7 @@ def build_summary(
                         parts.append("无明确多空观点")
 
                     tail = f"（{kept}/{total}）" if (kept is not None or total is not None) else ""
-                    out.append(f"   - Twitter：{' | '.join(parts)}{tail}")
+                    out.append(f"   - 社媒补充：{' | '.join(parts)}{tail}")
 
     else:
         out.append(H("二级山寨（趋势观点：1H+4H）"))
@@ -345,10 +345,10 @@ def build_summary(
             if pts:
                 out.append(f"   - {pts[0]}")
 
-    out.append(H("Twitter（$SYMBOL/CA观点Top5）"))
+    out.append(H("社媒补充（X/CA Top3）"))
     twitter_topics = (twitter_lines or [])
     if twitter_topics:
-        for i, it in enumerate(twitter_topics[:5], 1):
+        for i, it in enumerate(twitter_topics[:3], 1):
             one = it.get("one_liner") if isinstance(it, dict) else str(it)
             sen = it.get("sentiment") if isinstance(it, dict) else ""
             sig = it.get("signals") if isinstance(it, dict) else ""
@@ -357,7 +357,7 @@ def build_summary(
                 out.append(f"{i}) {one}（{sen}）{rel_s}")
             else:
                 out.append(f"{i}) {one}{rel_s}")
-            if sig:
+            if sig and i == 1:
                 out.append(f"   - 信号：{sig}")
     else:
         out.append("- 无")
