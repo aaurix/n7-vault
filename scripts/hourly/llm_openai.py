@@ -8,8 +8,8 @@ This module is ONLY used by the hourly summarization pipeline when explicitly en
 - Embeddings: OpenAI (OPENAI_API_KEY).
 
 We keep calls minimal:
-- 1 telegram narratives summary (top 5)
-- 1 twitter topics summary (top 5)
+- 1 telegram actionables summary (top 5)
+- 1 twitter actionables summary (top 5)
 - 1 OI+Kline trading plan summary (top 3)
 - optional: 1 token-thread batch summary (top 3, only on strong hours)
 """
@@ -406,6 +406,40 @@ def summarize_oi_trading_plans(*, items: List[Dict[str, Any]]) -> Dict[str, Any]
     }
 
     return chat_json(system=system, user=json.dumps(user, ensure_ascii=False), temperature=0.1, max_tokens=780)
+
+
+def summarize_tg_actionables(*, tg_snippets: List[str]) -> Dict[str, Any]:
+    """Extract trader-actionable items from Telegram snippets (ONE call)."""
+
+    system = (
+        "你是加密交易员助手。输入是过去1小时的Telegram观点短片段（已预处理/去重）。\n"
+        "请输出Top5可交易标的。输出JSON：{items:[{asset_name,why_buy,why_not_buy,trigger,risk,evidence_snippets}]}。\n"
+        "只用输入信息，不要编造；字段没有就给空字符串/空数组；evidence_snippets 取1-2个短片段，去链接。"
+    )
+
+    user = {
+        "telegram_snippets": tg_snippets[:120],
+        "requirements": {"language": "zh", "no_quotes": True},
+    }
+
+    return chat_json(system=system, user=json.dumps(user, ensure_ascii=False), temperature=0.1, max_tokens=720)
+
+
+def summarize_twitter_actionables(*, twitter_snippets: List[str]) -> Dict[str, Any]:
+    """Extract trader-actionable items from Twitter snippets (ONE call)."""
+
+    system = (
+        "你是加密交易员助手。输入是过去2小时的Twitter/X短片段（已预处理/去重）。\n"
+        "请输出Top5可交易标的。输出JSON：{items:[{asset_name,why_buy,why_not_buy,trigger,risk,evidence_snippets}]}。\n"
+        "只用输入信息，不要编造；字段没有就给空字符串/空数组；evidence_snippets 取1-2个短片段，去链接。"
+    )
+
+    user = {
+        "twitter_snippets": twitter_snippets[:120],
+        "requirements": {"language": "zh", "no_quotes": True},
+    }
+
+    return chat_json(system=system, user=json.dumps(user, ensure_ascii=False), temperature=0.1, max_tokens=720)
 
 
 def summarize_narratives(*, tg_messages: List[str]) -> Dict[str, Any]:

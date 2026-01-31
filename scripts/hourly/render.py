@@ -297,68 +297,131 @@ def build_summary(
         else:
             out.append("- 无明确 OI/Price 异动信号")
 
-    out.append(H("Telegram热点Top5（提炼）"))
-    if narratives:
-        for i, it in enumerate((narratives or [])[:5], 1):
-            one = it.get("one_liner") or ""
-            sen = it.get("sentiment") or "中性"
-            tri = it.get("triggers") or ""
-            rel = it.get("related_assets") or []
-            inferred = bool(it.get("_inferred"))
-            if isinstance(rel, list) and rel:
-                prefix = "（推断）" if inferred else ""
-                rel_s = " | 关联" + prefix + ": " + ", ".join(rel)
-            else:
-                rel_s = ""
-            out.append(f"{i}) {one}（{sen}）{rel_s}")
-            if tri:
-                out.append(f"   - 触发：{tri}")
+    def _is_actionable(it: Any) -> bool:
+        return isinstance(it, dict) and bool(it.get("asset_name") or it.get("why_buy") or it.get("why_not_buy"))
+
+    actionable_mode = bool(narratives and any(_is_actionable(it) for it in narratives))
+
+    if actionable_mode:
+        out.append(H("Telegram交易线索Top5"))
+        if narratives:
+            for i, it in enumerate((narratives or [])[:5], 1):
+                if not isinstance(it, dict):
+                    continue
+                asset = str(it.get("asset_name") or it.get("asset") or it.get("symbol") or "").strip()
+                if not asset:
+                    continue
+                why_buy = str(it.get("why_buy") or "").strip()
+                why_not = str(it.get("why_not_buy") or "").strip()
+                trigger = str(it.get("trigger") or "").strip()
+                risk = str(it.get("risk") or "").strip()
+                ev = it.get("evidence_snippets") if isinstance(it.get("evidence_snippets"), list) else []
+                line = f"{i}) {asset}"
+                parts: List[str] = []
+                if why_buy:
+                    parts.append(f"买:{why_buy}")
+                if why_not:
+                    parts.append(f"不买:{why_not}")
+                if parts:
+                    line += "（" + " | ".join(parts) + "）"
+                out.append(line)
+                if trigger:
+                    out.append(f"   - 触发：{trigger}")
+                if risk:
+                    out.append(f"   - 风险：{risk}")
+                if ev:
+                    out.append("   - 证据：" + " | ".join([str(x) for x in ev[:2] if x]))
+        else:
+            out.append("- 无明显交易线索")
     else:
-        out.append("- 无明显叙事（观点分散/多为零散聊天）")
-
-    out.append(H("Telegram可交易标的Top5（LLM提炼）"))
-    if threads:
-        for i, th in enumerate(threads[:5], 1):
-            out.append(f"{i}) {th.get('title')}（{th.get('stance')}，热度{th.get('count')}）")
-            # Prefer LLM fields if present
-            if th.get("thesis"):
-                out.append(f"   - 叙事：{th.get('thesis')}")
-            if th.get("drivers"):
-                out.append(f"   - 驱动：{th.get('drivers')}")
-            if th.get("risks"):
-                out.append(f"   - 风险：{th.get('risks')}")
-            if th.get("trade_implication"):
-                out.append(f"   - 交易含义：{th.get('trade_implication')}")
-            else:
-                # If we have no LLM fields and no meaningful points, avoid repetitive filler.
-                pts = [p for p in (th.get("points") or []) if p and "缺少明确事件/结构点" not in str(p)]
-                for p in pts[:3]:
-                    out.append(f"   - {p}")
-    else:
-        out.append("- 本小时未出现热度≥1的可交易标的讨论")
-
-    if (not threads) and weak_threads:
-        out.append(H("弱信号候选（热度=2，仅供观察）"))
-        for i, th in enumerate(weak_threads[:3], 1):
-            out.append(f"{i}) {th.get('title')}（{th.get('stance')}）")
-            pts = th.get("points") or []
-            if pts:
-                out.append(f"   - {pts[0]}")
-
-    out.append(H("社媒补充（X/CA Top3）"))
-    twitter_topics = (twitter_lines or [])
-    if twitter_topics:
-        for i, it in enumerate(twitter_topics[:3], 1):
-            one = it.get("one_liner") if isinstance(it, dict) else str(it)
-            sen = it.get("sentiment") if isinstance(it, dict) else ""
-            sig = it.get("signals") if isinstance(it, dict) else ""
-            rel_s = ""  # do not show related_assets for Twitter topics
-            if sen:
+        out.append(H("Telegram热点Top5（提炼）"))
+        if narratives:
+            for i, it in enumerate((narratives or [])[:5], 1):
+                one = it.get("one_liner") or ""
+                sen = it.get("sentiment") or "中性"
+                tri = it.get("triggers") or ""
+                rel = it.get("related_assets") or []
+                inferred = bool(it.get("_inferred"))
+                if isinstance(rel, list) and rel:
+                    prefix = "（推断）" if inferred else ""
+                    rel_s = " | 关联" + prefix + ": " + ", ".join(rel)
+                else:
+                    rel_s = ""
                 out.append(f"{i}) {one}（{sen}）{rel_s}")
+                if tri:
+                    out.append(f"   - 触发：{tri}")
+        else:
+            out.append("- 无明显叙事（观点分散/多为零散聊天）")
+
+        out.append(H("Telegram可交易标的Top5（观点提炼）"))
+        if threads:
+            for i, th in enumerate(threads[:5], 1):
+                out.append(f"{i}) {th.get('title')}（{th.get('stance')}，热度{th.get('count')}）")
+                # Prefer LLM fields if present
+                if th.get("thesis"):
+                    out.append(f"   - 叙事：{th.get('thesis')}")
+                if th.get("drivers"):
+                    out.append(f"   - 驱动：{th.get('drivers')}")
+                if th.get("risks"):
+                    out.append(f"   - 风险：{th.get('risks')}")
+                if th.get("trade_implication"):
+                    out.append(f"   - 交易含义：{th.get('trade_implication')}")
+                else:
+                    # If we have no LLM fields and no meaningful points, avoid repetitive filler.
+                    pts = [p for p in (th.get("points") or []) if p and "缺少明确事件/结构点" not in str(p)]
+                    for p in pts[:3]:
+                        out.append(f"   - {p}")
+        else:
+            out.append("- 本小时未出现热度≥1的可交易标的讨论")
+
+        if (not threads) and weak_threads:
+            out.append(H("弱信号候选（热度=2，仅供观察）"))
+            for i, th in enumerate(weak_threads[:3], 1):
+                out.append(f"{i}) {th.get('title')}（{th.get('stance')}）")
+                pts = th.get("points") or []
+                if pts:
+                    out.append(f"   - {pts[0]}")
+
+    out.append(H("社媒补充（X Top3）"))
+    twitter_topics = (twitter_lines or [])
+    tw_limit = 2 if actionable_mode else 3
+    if twitter_topics:
+        for i, it in enumerate(twitter_topics[:tw_limit], 1):
+            if _is_actionable(it):
+                asset = str(it.get("asset_name") or it.get("asset") or it.get("symbol") or "").strip()
+                if not asset:
+                    continue
+                why_buy = str(it.get("why_buy") or "").strip()
+                why_not = str(it.get("why_not_buy") or "").strip()
+                trigger = str(it.get("trigger") or "").strip()
+                risk = str(it.get("risk") or "").strip()
+                ev = it.get("evidence_snippets") if isinstance(it.get("evidence_snippets"), list) else []
+                line = f"{i}) {asset}"
+                parts: List[str] = []
+                if why_buy:
+                    parts.append(f"买:{why_buy}")
+                if why_not:
+                    parts.append(f"不买:{why_not}")
+                if parts:
+                    line += "（" + " | ".join(parts) + "）"
+                out.append(line)
+                if trigger:
+                    out.append(f"   - 触发：{trigger}")
+                if risk:
+                    out.append(f"   - 风险：{risk}")
+                if ev:
+                    out.append("   - 证据：" + " | ".join([str(x) for x in ev[:2] if x]))
             else:
-                out.append(f"{i}) {one}{rel_s}")
-            if sig and i == 1:
-                out.append(f"   - 信号：{sig}")
+                one = it.get("one_liner") if isinstance(it, dict) else str(it)
+                sen = it.get("sentiment") if isinstance(it, dict) else ""
+                sig = it.get("signals") if isinstance(it, dict) else ""
+                rel_s = ""  # do not show related_assets for Twitter topics
+                if sen:
+                    out.append(f"{i}) {one}（{sen}）{rel_s}")
+                else:
+                    out.append(f"{i}) {one}{rel_s}")
+                if sig and i == 1:
+                    out.append(f"   - 信号：{sig}")
     else:
         out.append("- 无")
 

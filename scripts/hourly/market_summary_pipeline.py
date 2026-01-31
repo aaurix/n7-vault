@@ -17,6 +17,7 @@ from __future__ import annotations
 import datetime as dt
 import hashlib
 import json
+import re
 import subprocess
 import time
 from dataclasses import dataclass, field
@@ -28,24 +29,20 @@ from repo_paths import memory_path, scripts_path
 
 from hourly.bots import load_bot_sender_ids
 from hourly.dex import enrich_addr, enrich_symbol, resolve_addr_symbol
-from hourly.embed_cluster import greedy_cluster
-from hourly.filters import extract_symbols_and_addrs, is_botish_text
+from hourly.filters import extract_symbols_and_addrs, is_botish_text, stance_from_texts
 from hourly.kline_fetcher import run_kline_json
 from hourly.perp_dashboard import build_perp_dash_inputs
 from hourly.llm_openai import (
-    embeddings,
     load_chat_api_key,
-    summarize_narratives,
     summarize_oi_trading_plans,
     summarize_token_threads_batch,
-    summarize_twitter_ca_viewpoints,
+    summarize_tg_actionables,
+    summarize_twitter_actionables,
 )
 from hourly.oi import parse_oi_signals
 from hourly.oi_plan_pipeline import build_oi_items, build_oi_plans
 from hourly.render import build_summary, split_whatsapp_text
 from hourly.tg_client import TgClient, msg_text, sender_id
-from hourly.topic_pipeline import build_topics
-from hourly.tg_topics_fallback import tg_topics_fallback
 from hourly.viewpoints import extract_viewpoint_threads
 
 
@@ -132,6 +129,7 @@ class PipelineContext:
     weak_threads: List[Dict[str, Any]] = field(default_factory=list)
 
     narratives: List[Dict[str, Any]] = field(default_factory=list)
+    tg_actionables_attempted: bool = False
 
     radar: Dict[str, Any] = field(default_factory=dict)
     radar_items: List[Dict[str, Any]] = field(default_factory=list)
@@ -378,96 +376,230 @@ def build_viewpoint_threads(ctx: PipelineContext) -> None:
     done()
 
 
+def _clean_snippet_text(text: str) -> str:
+    t = re.sub(r"https?://\S+", " ", text or "")
+    t = re.sub(r"\s+", " ", t).strip()
+    return t
+
+
+def _prep_tg_snippets(texts: List[str], *, limit: int = 120) -> List[str]:
+    out: List[str] = []
+    seen: set[str] = set()
+    for t in texts[:800]:
+        t = _clean_snippet_text(t)
+        if not t:
+            continue
+        syms, addrs = extract_symbols_and_addrs(t)
+        anchor = ""
+        if syms:
+            anchor = syms[0]
+        elif addrs:
+            a = addrs[0]
+            anchor = (a[:6] + "…" + a[-4:]) if len(a) >= 12 else a
+        if anchor and not t.startswith(anchor):
+            t = f"{anchor} | {t}"
+        if len(t) > 220:
+            t = t[:220]
+        k = t.lower()[:120]
+        if k in seen:
+            continue
+        seen.add(k)
+        out.append(t)
+        if len(out) >= limit:
+            break
+    return out
+
+
+def _prep_twitter_snippets(items: List[Dict[str, Any]], *, limit: int = 120) -> List[str]:
+    out: List[str] = []
+    seen: set[str] = set()
+    for it in items[:40]:
+        ev = it.get("twitter_evidence") or {}
+        snippets = ev.get("snippets") or []
+        dex = it.get("dex") or {}
+        sym = str(dex.get("baseSymbol") or it.get("symbol") or it.get("sym") or "").upper().strip()
+        addr = str(it.get("addr") or "").strip()
+        anchor = sym
+        if not anchor and addr:
+            anchor = (addr[:6] + "…" + addr[-4:]) if len(addr) >= 12 else addr
+        for s in snippets[:6]:
+            t = _clean_snippet_text(str(s))
+            if not t:
+                continue
+            if anchor and not t.startswith(anchor):
+                t = f"{anchor} | {t}"
+            if len(t) > 220:
+                t = t[:220]
+            k = t.lower()[:120]
+            if k in seen:
+                continue
+            seen.add(k)
+            out.append(t)
+            if len(out) >= limit:
+                break
+        if len(out) >= limit:
+            break
+    return out
+
+
+def _sentiment_from_actionable(*, why_buy: str, why_not: str) -> str:
+    if why_buy and why_not:
+        return "分歧"
+    if why_buy:
+        return "偏多"
+    if why_not:
+        return "偏空"
+    return "中性"
+
+
+def _normalize_actionables(raw_items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    out: List[Dict[str, Any]] = []
+    seen: set[str] = set()
+
+    def _trim(s: str, n: int) -> str:
+        return (s or "").strip()[:n]
+
+    for it in raw_items:
+        if not isinstance(it, dict):
+            continue
+        asset = str(it.get("asset_name") or it.get("asset") or it.get("symbol") or it.get("token") or "").strip()
+        why_buy = str(it.get("why_buy") or it.get("buy") or "").strip()
+        why_not = str(it.get("why_not_buy") or it.get("why_not") or it.get("not_buy") or "").strip()
+        trigger = str(it.get("trigger") or it.get("triggers") or "").strip()
+        risk = str(it.get("risk") or it.get("risks") or "").strip()
+
+        ev = it.get("evidence_snippets") or it.get("evidence") or it.get("snippets") or []
+        if isinstance(ev, str):
+            ev_list = [x.strip() for x in re.split(r"[;；\n]", ev) if x.strip()]
+        elif isinstance(ev, list):
+            ev_list = [str(x).strip() for x in ev if str(x).strip()]
+        else:
+            ev_list = []
+        ev_list = [_clean_snippet_text(x)[:80] for x in ev_list if _clean_snippet_text(x)]
+        ev_list = ev_list[:2]
+
+        if not asset and ev_list:
+            syms, _addrs = extract_symbols_and_addrs(ev_list[0])
+            if syms:
+                asset = syms[0]
+
+        asset = asset.lstrip("$").strip()
+        if not asset:
+            continue
+        if len(asset) > 18:
+            asset = asset[:18]
+        if asset in seen:
+            continue
+        seen.add(asset)
+
+        why_buy = _trim(why_buy, 42)
+        why_not = _trim(why_not, 42)
+        trigger = _trim(trigger, 42)
+        risk = _trim(risk, 42)
+
+        out.append(
+            {
+                "asset_name": asset,
+                "why_buy": why_buy,
+                "why_not_buy": why_not,
+                "trigger": trigger,
+                "risk": risk,
+                "evidence_snippets": ev_list,
+                "sentiment": _sentiment_from_actionable(why_buy=why_buy, why_not=why_not),
+                "related_assets": [asset],
+            }
+        )
+
+    return out
+
+
+def _fallback_actionables_from_texts(texts: List[str], *, limit: int = 5) -> List[Dict[str, Any]]:
+    sym_hits: Dict[str, int] = {}
+    sym_samples: Dict[str, List[str]] = {}
+
+    for t in texts[:800]:
+        syms, _addrs = extract_symbols_and_addrs(t)
+        for s in syms[:2]:
+            sym_hits[s] = sym_hits.get(s, 0) + 1
+            sym_samples.setdefault(s, []).append(t)
+
+    items: List[Dict[str, Any]] = []
+    for sym, _cnt in sorted(sym_hits.items(), key=lambda kv: kv[1], reverse=True)[: max(1, limit)]:
+        samples = sym_samples.get(sym, [])[:6]
+        stance = stance_from_texts(samples)
+        why_buy = "聊天偏多" if stance == "偏多" else ("多空分歧" if stance == "分歧" else "")
+        why_not = "聊天偏空" if stance == "偏空" else ""
+        ev = [_clean_snippet_text(s)[:80] for s in samples if _clean_snippet_text(s)]
+        items.append(
+            {
+                "asset_name": sym,
+                "why_buy": why_buy,
+                "why_not_buy": why_not,
+                "trigger": "关注关键位/催化",
+                "risk": "消息噪音/情绪盘",
+                "evidence_snippets": ev[:2],
+                "sentiment": stance,
+                "related_assets": [sym],
+            }
+        )
+    return items[:limit]
+
+
+def _fallback_actionables_from_radar(items: List[Dict[str, Any]], *, limit: int = 5) -> List[Dict[str, Any]]:
+    out: List[Dict[str, Any]] = []
+    seen: set[str] = set()
+    for it in items[:25]:
+        dex = it.get("dex") or {}
+        sym = str(dex.get("baseSymbol") or it.get("symbol") or it.get("sym") or "").upper().strip()
+        addr = str(it.get("addr") or "").strip()
+        asset = sym
+        if not asset and addr:
+            asset = (addr[:6] + "…" + addr[-4:]) if len(addr) >= 12 else addr
+        if not asset or asset in seen:
+            continue
+        ev = (it.get("twitter_evidence") or {}).get("snippets") or []
+        ev2 = [_clean_snippet_text(str(s))[:80] for s in ev if _clean_snippet_text(str(s))][:2]
+        if not ev2:
+            continue
+        out.append(
+            {
+                "asset_name": asset,
+                "why_buy": "",
+                "why_not_buy": "",
+                "trigger": "",
+                "risk": "",
+                "evidence_snippets": ev2,
+                "sentiment": "中性",
+                "related_assets": [asset],
+            }
+        )
+        seen.add(asset)
+        if len(out) >= limit:
+            break
+    return out
+
+
 def build_tg_topics(ctx: PipelineContext) -> None:
     done = _measure(ctx.perf, "tg_topics_pipeline")
 
-    def _tg_topic_postfilter(it: Dict[str, Any]) -> bool:
-        one = str(it.get("one_liner") or "")
-        if not one.strip():
-            return False
-        bad = ["某个", "某些", "一些", "不明", "有人", "群友", "大家", "市场参与者", "投资者", "用户"]
-        return not any(x in one for x in bad)
-
     items: List[Dict[str, Any]] = []
-    if ctx.use_llm and (not ctx.budget.over(reserve_s=85.0)):
-        topics = build_topics(
-            texts=ctx.human_texts,
-            embeddings_fn=embeddings,
-            cluster_fn=greedy_cluster,
-            llm_summarizer=summarize_narratives,
-            llm_items_key="items",
-            prefilter=None,
-            postfilter=_tg_topic_postfilter,
-            max_clusters=10,
-            threshold=0.82,
-            embed_timeout=30,
-            time_budget_ok=lambda lim: (not ctx.budget.over(reserve_s=lim)),
-            budget_embed_s=55.0,
-            budget_llm_s=65.0,
-            llm_arg_name="tg_messages",
-            errors=ctx.errors,
-            tag="tg_topics",
-        )
+    snippets = _prep_tg_snippets(ctx.human_texts, limit=120)
+    ctx.perf["tg_snippets"] = float(len(snippets))
 
-        for it in (topics or [])[:5]:
-            if not isinstance(it, dict):
-                continue
-            one = it.get("one_liner") or ""
-            sen = it.get("sentiment") or "中性"
-            tri = it.get("triggers") or ""
-            rel = it.get("related_assets")
-            if isinstance(sen, list):
-                sen = sen[0] if sen else "中性"
-            if isinstance(tri, list):
-                tri = "；".join([str(x) for x in tri[:5]])
-            if not isinstance(rel, list):
-                rel = []
-            items.append(
-                {
-                    "one_liner": str(one).strip(),
-                    "sentiment": str(sen).strip(),
-                    "triggers": str(tri).strip(),
-                    "related_assets": [str(x) for x in rel[:6]],
-                    "_inferred": False,
-                }
-            )
+    if ctx.use_llm and snippets and (not ctx.budget.over(reserve_s=70.0)):
+        ctx.tg_actionables_attempted = True
+        try:
+            out = summarize_tg_actionables(tg_snippets=snippets)
+            raw_items = out.get("items") if isinstance(out, dict) else None
+            if isinstance(raw_items, list):
+                items = _normalize_actionables(raw_items)
+            if not items:
+                ctx.errors.append("tg_actionables_llm_empty")
+        except Exception as e:
+            ctx.errors.append(f"tg_actionables_llm_failed:{e}")
 
     if not items:
-        items = tg_topics_fallback(ctx.human_texts, limit=5)
-
-    # Replace contract addresses with resolved symbols when possible.
-    if items:
-        import re
-
-        addr_re = re.compile(r"\b0x[a-fA-F0-9]{40}\b|\b[1-9A-HJ-NP-Za-km-z]{32,44}\b")
-        cache: Dict[str, Optional[str]] = {}
-
-        def _sub(text: str) -> str:
-            if not text:
-                return text
-
-            def repl(m: re.Match[str]) -> str:
-                a = m.group(0)
-                if a in cache:
-                    s = cache[a]
-                else:
-                    s = resolve_addr_symbol(a)
-                    cache[a] = s
-                if s:
-                    return s
-                # Keep a short anchor instead of deleting the address (prevents anchorless one-liners).
-                return (a[:6] + "…" + a[-4:]) if len(a) >= 12 else a
-
-            t2 = addr_re.sub(repl, text)
-            t2 = re.sub(r"\s{2,}", " ", t2).strip()
-            return t2
-
-        for it in items:
-            try:
-                it["one_liner"] = _sub(str(it.get("one_liner") or ""))
-                it["triggers"] = _sub(str(it.get("triggers") or ""))
-            except Exception:
-                pass
+        items = _fallback_actionables_from_texts(ctx.human_texts, limit=5)
 
     ctx.narratives = items
     done()
@@ -522,226 +654,29 @@ def merge_tg_addr_candidates_into_radar(ctx: PipelineContext) -> None:
 
 
 def build_twitter_ca_topics(ctx: PipelineContext) -> None:
-    """Twitter CA topics (aux only).
-
-    Stages (brief):
-    1) collect CA evidence from meme radar (TG+Dex candidates)
-    2) rule-based one-liners/tags/sentiment (deterministic)
-    3) optional LLM rewrite within remaining budget
-    """
+    """Twitter actionables (aux supplement)."""
 
     done = _measure(ctx.perf, "twitter_ca_topics")
 
-    ca_evidence_items: List[Dict[str, Any]] = []
-    seen_key: set[str] = set()
+    items: List[Dict[str, Any]] = []
+    snippets = _prep_twitter_snippets(ctx.radar_items, limit=120)
+    ctx.perf["twitter_snippets"] = float(len(snippets))
 
-    for it in ctx.radar_items[:25]:
+    if ctx.use_llm and snippets and (not ctx.budget.over(reserve_s=95.0)):
         try:
-            dex = it.get("dex") or {}
-            sym = str(dex.get("baseSymbol") or "").upper().strip()
-            ca = str(it.get("addr") or "").strip()
-            ev = it.get("twitter_evidence") or {}
-            snippets = (ev.get("snippets") or [])[:6]
-            if not sym or not snippets:
-                continue
-
-            key = f"{sym}|{ca[:12]}" if ca else f"{sym}|-"
-            if key in seen_key:
-                continue
-            seen_key.add(key)
-
-            map_id = f"{sym}:{ca[:6]}" if ca else sym
-            pack: Dict[str, Any] = {"id": map_id, "sym": sym, "evidence": {"snippets": snippets}}
-            if ca:
-                pack["ca"] = ca
-            ca_evidence_items.append(pack)
-            if len(ca_evidence_items) >= 8:
-                break
-        except Exception:
-            continue
-
-    if not ca_evidence_items:
-        ctx.twitter_topics = []
-        done()
-        return
-
-    def _rule_one_liner(snips: List[str], *, sym: str) -> str:
-        import re
-
-        text = "\n".join([(s or "")[:240] for s in (snips or [])]).lower()
-        text = re.sub(r"https?://\S+", " ", text)
-        text = re.sub(r"\$\d+(?:\.\d+)?(?:[mk])?\b", " ", text)
-
-        if any(k in text for k in ["rug", "scam", "hacked", "hack", "exploit"]):
-            return f"{sym}: 有人质疑安全/诈骗风险，争论点集中在是否RUG/被黑"[:120]
-        if any(k in text for k in ["rebrand", "rename", "changed name"]):
-            return f"{sym}: 讨论集中在改名/品牌重塑，市场在评估是否利好注意力"[:120]
-        if any(k in text for k in ["launch", "live", "listing", "binance", "alpha"]):
-            return f"{sym}: 讨论集中在上线/上所/活动预期，情绪偏事件驱动"[:120]
-        if any(k in text for k in ["lp", "liquidity", "add liquidity", "pool"]):
-            return f"{sym}: 讨论集中在加池/流动性变化与短线拉砸博弈"[:120]
-        if any(k in text for k in ["buy", "sell", "pump", "dump", "moon"]):
-            return f"{sym}: 讨论以情绪/短线交易为主（追涨/砸盘分歧），缺少统一叙事"[:120]
-        return f"{sym}: 社交讨论分散，未形成可复述的一致观点"[:120]
-
-    def _rule_tags(snips: List[str], *, sym: str) -> List[str]:
-        import re
-        from collections import Counter
-
-        txt = " ".join([(s or "")[:180] for s in (snips or [])])
-        low = txt.lower()
-        low = re.sub(r"https?://\S+", " ", low)
-        low = re.sub(r"\$\d+(?:\.\d+)?(?:[mk])?\b", " ", low)
-
-        tags: List[str] = []
-        sym_u = (sym or "").upper().lstrip("$")
-        if sym_u:
-            tags.append(f"${sym_u}")
-
-        kws = [
-            ("binance alpha", "Binance Alpha"),
-            ("cto", "CTO"),
-            ("airdrop", "Airdrop"),
-            ("rug", "RUG"),
-            ("scam", "SCAM"),
-            ("hack", "Hack"),
-            ("exploit", "Exploit"),
-            ("lp", "LP"),
-            ("liquidity", "LP"),
-            ("pump.fun", "pump.fun"),
-            ("raydium", "Raydium"),
-            ("uniswap", "Uniswap"),
-        ]
-        for k, v in kws:
-            if k in low and v not in tags:
-                tags.append(v)
-
-        words = re.findall(r"[a-z]{3,}", low)
-        stop = {
-            "this",
-            "that",
-            "with",
-            "from",
-            "they",
-            "them",
-            "have",
-            "just",
-            "like",
-            "will",
-            "your",
-            "youre",
-            "dont",
-            "does",
-            "about",
-            "what",
-            "when",
-            "then",
-            "into",
-            "over",
-            "been",
-            "much",
-            "more",
-            "very",
-            "only",
-            "still",
-            "than",
-            "also",
-            "here",
-            "there",
-            "bull",
-            "bear",
-            "long",
-            "short",
-            "buy",
-            "sell",
-            "pump",
-            "dump",
-        }
-        c = Counter([w for w in words if w not in stop])
-        for w, _ in c.most_common(6):
-            if w not in tags:
-                tags.append(w)
-            if len(tags) >= 6:
-                break
-
-        return tags[:6]
-
-    def _rule_sentiment(tags: List[str]) -> str:
-        bear = any(t in tags for t in ["RUG", "SCAM", "Hack", "Exploit"])  # type: ignore[truthy-bool]
-        bull = any(t in tags for t in ["Binance Alpha", "Airdrop", "LP", "pump.fun"])  # type: ignore[truthy-bool]
-        if bull and bear:
-            return "分歧"
-        if bull:
-            return "偏多"
-        if bear:
-            return "偏空"
-        return "中性"
-
-    topics: List[Dict[str, Any]] = []
-    for x in ca_evidence_items[:5]:
-        sym = str(x.get("sym") or "").upper().strip()
-        ca = str(x.get("ca") or "").strip()
-        map_id = str(x.get("id") or "").strip() or sym
-        snips = ((x.get("evidence") or {}).get("snippets") or [])
-        tags = _rule_tags(snips, sym=sym)
-        sen = _rule_sentiment(tags)
-        one = _rule_one_liner(snips, sym=sym)
-        sig = "; ".join(tags[:8])
-        if ca:
-            sig = (sig + ("; " if sig else "") + f"CA:{ca[:6]}…")
-        topics.append(
-            {"id": map_id, "sym": sym, "one_liner": one[:120], "sentiment": sen, "signals": sig[:160], "related_assets": []}
-        )
-
-    # Optional LLM upgrade (replace one-liners/signals), within remaining budget.
-    if ctx.use_llm and (not ctx.budget.over(reserve_s=120.0)):
-        try:
-            out = summarize_twitter_ca_viewpoints(items=ca_evidence_items)
-            its = out.get("items") if isinstance(out, dict) else None
-            if isinstance(its, list) and its:
-                by_key: Dict[str, Dict[str, Any]] = {}
-                for it in its:
-                    if not isinstance(it, dict):
-                        continue
-                    map_id = str(it.get("id") or "").strip()
-                    sym = str(it.get("sym") or "").upper().strip()
-                    if map_id:
-                        by_key[map_id] = it
-                    elif sym:
-                        by_key[sym] = it
-
-                upgraded: List[Dict[str, Any]] = []
-                for base_it in topics[:5]:
-                    map_id = str(base_it.get("id") or "").strip()
-                    sym = str(base_it.get("sym") or "").upper().strip()
-                    it = by_key.get(map_id) or (by_key.get(sym) if sym else None)
-                    if not it:
-                        upgraded.append(base_it)
-                        continue
-                    one2 = str(it.get("one_liner") or "").strip()
-                    sen2 = str(it.get("sentiment") or "").strip() or str(base_it.get("sentiment") or "")
-                    sig = it.get("signals")
-                    if isinstance(sig, list):
-                        sig2 = "; ".join([str(x) for x in sig[:8]])
-                    else:
-                        sig2 = str(sig or base_it.get("signals") or "")
-                    upgraded.append(
-                        {
-                            "id": map_id or sym,
-                            "sym": sym,
-                            "one_liner": f"{sym}: {one2}"[:120] if sym else one2[:120],
-                            "sentiment": sen2,
-                            "signals": sig2[:160],
-                            "related_assets": [],
-                        }
-                    )
-                topics = upgraded
-            else:
-                ctx.errors.append("tw_ca_viewpoints_llm_empty")
+            out = summarize_twitter_actionables(twitter_snippets=snippets)
+            raw_items = out.get("items") if isinstance(out, dict) else None
+            if isinstance(raw_items, list):
+                items = _normalize_actionables(raw_items)
+            if not items:
+                ctx.errors.append("twitter_actionables_llm_empty")
         except Exception as e:
-            ctx.errors.append(f"tw_ca_viewpoints_llm_failed:{e}")
+            ctx.errors.append(f"twitter_actionables_llm_failed:{e}")
 
-    ctx.twitter_topics = topics[:5]
+    if not items:
+        items = _fallback_actionables_from_radar(ctx.radar_items, limit=5)
+
+    ctx.twitter_topics = items[:5]
     done()
 
 
@@ -755,7 +690,13 @@ def build_token_thread_summaries(ctx: PipelineContext) -> None:
 
     llm_threads: List[Dict[str, Any]] = []
 
-    should_llm = bool(ctx.use_llm and token_threads and strong and (not ctx.budget.over(reserve_s=70.0)))
+    actionable_mode = bool(
+        ctx.tg_actionables_attempted
+        or (ctx.narratives and any(isinstance(it, dict) and it.get("asset_name") for it in ctx.narratives))
+    )
+    should_llm = bool(
+        ctx.use_llm and token_threads and strong and (not ctx.budget.over(reserve_s=70.0)) and (not actionable_mode)
+    )
     if should_llm:
         batch_in: List[Dict[str, Any]] = []
         for th in token_threads[:3]:
@@ -812,6 +753,16 @@ def infer_narrative_assets_from_tg(ctx: PipelineContext) -> None:
     """Best-effort asset linking for TG narratives, using TG-only token contexts."""
 
     done = _measure(ctx.perf, "narrative_asset_infer")
+
+    # If we're in actionable mode, asset_name already anchors the item.
+    if ctx.narratives and any(isinstance(it, dict) and it.get("asset_name") for it in ctx.narratives):
+        for it in ctx.narratives:
+            asset = str(it.get("asset_name") or "").strip()
+            if asset:
+                it["related_assets"] = [asset]
+                it["_inferred"] = False
+        done()
+        return
 
     # Candidate universe: Telegram token threads only.
     tg_syms: List[str] = [str(t.get("sym") or "").upper().strip() for t in (ctx.threads or []) if t.get("sym")]
@@ -956,13 +907,23 @@ def compute_sentiment_and_watch(ctx: PipelineContext) -> None:
             return -1
         return 0
 
+    def _item_score(it: Any) -> int:
+        if not isinstance(it, dict):
+            return 0
+        s = str(it.get("sentiment") or "").strip()
+        if s:
+            return _sent_score(s)
+        buy = str(it.get("why_buy") or "").strip()
+        not_buy = str(it.get("why_not_buy") or "").strip()
+        return _sent_score(_sentiment_from_actionable(why_buy=buy, why_not=not_buy))
+
     sc = 0
     n = 0
     for it in (ctx.narratives or [])[:5]:
-        sc += _sent_score(it.get("sentiment"))
+        sc += _item_score(it)
         n += 1
     for it in (ctx.twitter_topics or [])[:5]:
-        sc += _sent_score(it.get("sentiment"))
+        sc += _item_score(it)
         n += 1
 
     sentiment = "分歧"
@@ -992,6 +953,9 @@ def compute_sentiment_and_watch(ctx: PipelineContext) -> None:
 
     # Then pinned assets from narratives
     for it in (ctx.narratives or [])[:5]:
+        asset = str(it.get("asset_name") or "").strip()
+        if asset and asset not in watch:
+            watch.append(asset)
         rel = it.get("related_assets")
         if isinstance(rel, list):
             for x in rel[:3]:
