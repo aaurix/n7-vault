@@ -60,6 +60,50 @@ def _fmt_num(x: Any, *, digits: int = 4) -> str:
         return str(x)
 
 
+def _fmt_usd(x: Any) -> str:
+    v = _as_num(x)
+    if v is None:
+        return "?"
+    try:
+        if abs(v) >= 1e12:
+            return f"${v/1e12:.2f}T"
+        if abs(v) >= 1e9:
+            return f"${v/1e9:.2f}B"
+        if abs(v) >= 1e6:
+            return f"${v/1e6:.2f}M"
+        if abs(v) >= 1e3:
+            return f"${v/1e3:.1f}K"
+        return f"${v:.0f}"
+    except Exception:
+        return str(x)
+
+
+def _pick_market_cap_fdv(it: Dict[str, Any]) -> Tuple[Optional[float], Optional[float]]:
+    def _pick_top(*keys: str) -> Optional[float]:
+        for k in keys:
+            v = _as_num(it.get(k))
+            if v is not None:
+                return v
+        return None
+
+    mc = _pick_top("market_cap", "marketCap", "mcap")
+    fdv = _pick_top("fdv", "fully_diluted_valuation")
+
+    market = it.get("market") if isinstance(it.get("market"), dict) else {}
+    if mc is None:
+        mc = _as_num(market.get("market_cap") or market.get("marketCap") or market.get("mcap"))
+    if fdv is None:
+        fdv = _as_num(market.get("fdv") or market.get("fully_diluted_valuation"))
+
+    dex = it.get("dex") if isinstance(it.get("dex"), dict) else {}
+    if mc is None:
+        mc = _as_num(dex.get("marketCap") or dex.get("fdv"))
+    if fdv is None:
+        fdv = _as_num(dex.get("fdv"))
+
+    return mc, fdv
+
+
 def flow_label(*, px_chg: Optional[float], oi_chg: Optional[float]) -> str:
     """Price/OI quadrant label (deterministic heuristic).
 
@@ -185,12 +229,15 @@ def build_perp_dash_inputs(*, oi_items: List[Dict[str, Any]], max_n: int = 3) ->
         k1 = it.get("kline_1h") if isinstance(it.get("kline_1h"), dict) else {}
         k4 = it.get("kline_4h") if isinstance(it.get("kline_4h"), dict) else {}
 
+        px_now = _as_num(it.get("price_now"))
         px1 = _as_num(it.get("price_1h"))
         px4 = _as_num(it.get("price_4h"))
         px24 = _as_num(it.get("price_24h"))
         oi1 = _as_num(it.get("oi_1h"))
         oi4 = _as_num(it.get("oi_4h"))
         oi24 = _as_num(it.get("oi_24h"))
+
+        mc, fdv = _pick_market_cap_fdv(it)
 
         # Prefer 4h quadrant; fallback to 1h.
         flow = flow_label(px_chg=px4 if px4 is not None else px1, oi_chg=oi4 if oi4 is not None else oi1)
@@ -221,6 +268,9 @@ def build_perp_dash_inputs(*, oi_items: List[Dict[str, Any]], max_n: int = 3) ->
         out.append(
             {
                 "symbol": sym,
+                "price_now": px_now,
+                "market_cap": mc,
+                "fdv": fdv,
                 "price_chg": {"1h_pct": px1, "4h_pct": px4, "24h_pct": px24},
                 "oi_chg": {"1h_pct": oi1, "4h_pct": oi4, "24h_pct": oi24},
                 "structure": {
@@ -277,13 +327,32 @@ def render_perp_dashboards_mini(perp_dash_inputs: List[Dict[str, Any]], *, top_n
         s4 = st.get("4h") if isinstance(st.get("4h"), dict) else {}
         lv = d.get("key_levels") if isinstance(d.get("key_levels"), dict) else {}
 
+        price_now = _as_num(d.get("price_now"))
+        mc = _as_num(d.get("market_cap"))
+        fdv = _as_num(d.get("fdv"))
+        if (mc is None or fdv is None) and isinstance(d.get("market"), dict):
+            market = d.get("market")
+            if mc is None:
+                mc = _as_num(market.get("market_cap") or market.get("marketCap") or market.get("mcap"))
+            if fdv is None:
+                fdv = _as_num(market.get("fdv") or market.get("fully_diluted_valuation"))
+
         flow = str(d.get("flow_label") or "资金方向不明").strip()
         bias = str(d.get("bias_hint") or "观望").strip() or "观望"
 
         # Line 1: change dashboard (no raw quotes)
-        out.append(
-            f"{i}) {sym}（{bias}）价1h{_fmt_pct(px.get('1h_pct'))} 4h{_fmt_pct(px.get('4h_pct'))} | OI1h{_fmt_pct(oi.get('1h_pct'))} 4h{_fmt_pct(oi.get('4h_pct'))}"
-        )
+        line1 = f"{i}) {sym}（{bias}）"
+        if price_now is not None:
+            line1 += f"现价{_fmt_num(price_now)} "
+        line1 += f"价1h{_fmt_pct(px.get('1h_pct'))} 4h{_fmt_pct(px.get('4h_pct'))} | OI1h{_fmt_pct(oi.get('1h_pct'))} 4h{_fmt_pct(oi.get('4h_pct'))}"
+        mc_bits: List[str] = []
+        if mc is not None:
+            mc_bits.append(f"MC{_fmt_usd(mc)}")
+        if fdv is not None:
+            mc_bits.append(f"FDV{_fmt_usd(fdv)}")
+        if mc_bits:
+            line1 += " | " + "/".join(mc_bits)
+        out.append(line1)
 
         # Line 2: 1H structure
         rsi1 = _as_num(s1.get("rsi14"))
