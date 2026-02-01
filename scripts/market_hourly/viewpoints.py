@@ -93,6 +93,7 @@ def extract_viewpoint_threads(
     except Exception:
         time_budget_s = 25.0
 
+    t_parse_start = time.perf_counter()
     parsed: List[tuple[str, List[str], List[str]]] = []
     addr_counts: Dict[str, int] = {}
 
@@ -110,7 +111,10 @@ def extract_viewpoint_threads(
             addr_counts[a] = addr_counts.get(a, 0) + 1
         parsed.append((text, syms, addrs))
 
+    parse_s = time.perf_counter() - t_parse_start
+
     # Resolve CA -> symbol (batch + cached, prioritize most-mentioned)
+    t_resolve_start = time.perf_counter()
     for addr, _cnt in sorted(addr_counts.items(), key=lambda kv: kv[1], reverse=True):
         if resolve_calls >= max_resolve_calls:
             break
@@ -120,6 +124,9 @@ def extract_viewpoint_threads(
         resolve_cache[addr] = rs
         resolve_calls += 1
 
+    resolve_s = time.perf_counter() - t_resolve_start
+
+    t_cluster_start = time.perf_counter()
     for text, syms, addrs in parsed:
         if time.perf_counter() - t0 > time_budget_s:
             break
@@ -138,9 +145,12 @@ def extract_viewpoint_threads(
         sym = sym_list[0]
         clusters.setdefault(sym, []).append(text)
 
+    cluster_s = time.perf_counter() - t_cluster_start
+
     strong: List[Dict[str, Any]] = []
     weak: List[Dict[str, Any]] = []
 
+    t_enrich_start = time.perf_counter()
     for sym, msgs in sorted(clusters.items(), key=lambda kv: len(kv[1]), reverse=True):
         if time.perf_counter() - t0 > time_budget_s:
             break
@@ -192,7 +202,31 @@ def extract_viewpoint_threads(
 
     strong.sort(key=lambda x: -int(x.get("count") or 0))
     weak.sort(key=lambda x: -int(x.get("count") or 0))
-    return {"strong": strong, "weak": weak}
+
+    enrich_s = time.perf_counter() - t_enrich_start
+    total_s = time.perf_counter() - t0
+    debug = {
+        "timing_s": {
+            "parse": round(parse_s, 3),
+            "resolve": round(resolve_s, 3),
+            "cluster": round(cluster_s, 3),
+            "enrich": round(enrich_s, 3),
+            "total": round(total_s, 3),
+        },
+        "counts": {
+            "human_texts": len(human_texts),
+            "parsed": len(parsed),
+            "addr_candidates": len(addr_counts),
+            "clusters": len(clusters),
+            "resolve_calls": resolve_calls,
+            "enrich_calls": enrich_calls,
+            "strong": len(strong),
+            "weak": len(weak),
+        },
+        "budget_s": time_budget_s,
+    }
+
+    return {"strong": strong, "weak": weak, "_debug": debug}
 
 
 def _cn_num(x: Any) -> str:

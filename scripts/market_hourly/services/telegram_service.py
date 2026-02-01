@@ -139,4 +139,20 @@ def build_viewpoint_threads(ctx: PipelineContext) -> None:
     ctx.perf["viewpoint_threads_extract"] = round(time.perf_counter() - t0, 3)
     ctx.strong_threads = list(vp.get("strong") or [])
     ctx.weak_threads = list(vp.get("weak") or [])
+
+    dbg = vp.get("_debug") if isinstance(vp, dict) else None
+    if isinstance(dbg, dict):
+        timing = dbg.get("timing_s") if isinstance(dbg.get("timing_s"), dict) else {}
+        counts = dbg.get("counts") if isinstance(dbg.get("counts"), dict) else {}
+        for k, v in timing.items():
+            try:
+                ctx.perf[f"viewpoint_{k}_s"] = float(v)
+            except Exception:
+                pass
+        for k, v in counts.items():
+            try:
+                ctx.perf[f"viewpoint_{k}"] = float(v)
+            except Exception:
+                pass
+
     done()
