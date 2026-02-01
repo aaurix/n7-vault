@@ -93,6 +93,8 @@ class PipelineContext:
     radar_items: List[Dict[str, Any]] = field(default_factory=list)
 
     twitter_topics: List[Dict[str, Any]] = field(default_factory=list)
+    twitter_following: Dict[str, Any] = field(default_factory=dict)
+    twitter_following_summary: Dict[str, Any] = field(default_factory=dict)
     social_cards: List[SocialCard] = field(default_factory=list)
 
     threads: List[Dict[str, Any]] = field(default_factory=list)

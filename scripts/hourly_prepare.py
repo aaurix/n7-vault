@@ -32,6 +32,7 @@ from hourly.services.oi_service import build_oi, build_oi_plans_step
 from hourly.services.telegram_service import build_human_texts, build_viewpoint_threads, fetch_tg_messages
 from hourly.services.tg_topics import build_tg_topics
 from hourly.services.social_cards import build_social_cards
+from hourly.services.twitter_following import build_twitter_following_summary
 from hourly.perp_dashboard import build_perp_dash_inputs
 from hourly.tg_topics_fallback import tg_topics_fallback
 
@@ -48,6 +49,7 @@ _STEP_ORDER = [
     "viewpoint_threads",
     "tg_topics",
     "tg_topics_fallback",
+    "twitter_following",
     "meme_wait",
     "tg_addr_merge",
     "social_cards",
@@ -67,6 +69,7 @@ _STEP_GROUPS: Dict[str, Set[str]] = {
     },
     "oi": {"oi_items", "oi_plans"},
     "meme": {"meme_spawn", "meme_wait", "tg_addr_merge"},
+    "twitter": {"twitter_following"},
 }
 
 
@@ -262,6 +265,8 @@ def run_prepare(
     if not ctx.narratives and not ctx.perf.get("tg_topics_fallback_used"):
         runner.run("tg_topics_fallback", lambda: setattr(ctx, "narratives", tg_topics_fallback(ctx.human_texts, limit=5)))
 
+    runner.run("twitter_following", lambda: build_twitter_following_summary(ctx, allow_llm=False))
+
     # meme radar join
     runner.run("meme_wait", lambda: wait_meme_radar(ctx, meme_proc), enabled=meme_proc is not None)
     runner.run("tg_addr_merge", lambda: merge_tg_addr_candidates_into_radar(ctx), enabled=meme_proc is not None)
@@ -327,6 +332,8 @@ def run_prepare(
             "tg_topics": ctx.narratives,
             "threads_strong": ctx.strong_threads,
             "threads_weak": ctx.weak_threads,
+            "twitter_following": ctx.twitter_following,
+            "twitter_following_summary": ctx.twitter_following_summary,
             "radar_items": ctx.radar_items[:15],
             "twitter_ca_inputs": ca_inputs,
             "social_cards": ctx.social_cards[:6],

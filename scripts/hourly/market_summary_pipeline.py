@@ -22,6 +22,7 @@ from .services.telegram_service import build_human_texts, build_viewpoint_thread
 from .services.tg_topics import build_tg_topics
 from .services.token_threads import build_token_thread_summaries
 from .services.twitter_topics import build_twitter_ca_topics
+from .services.twitter_following import build_twitter_following_summary
 
 
 def run_pipeline(*, total_budget_s: float = DEFAULT_TOTAL_BUDGET_S) -> Dict[str, Any]:
@@ -39,6 +40,7 @@ def run_pipeline(*, total_budget_s: float = DEFAULT_TOTAL_BUDGET_S) -> Dict[str,
         build_oi_plans_step(ctx)
         build_viewpoint_threads(ctx)
         build_tg_topics(ctx)
+        build_twitter_following_summary(ctx)
 
         wait_meme_radar(ctx, meme_proc)
         merge_tg_addr_candidates_into_radar(ctx)

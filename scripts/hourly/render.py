@@ -107,6 +107,8 @@ def _section_priority(header: str) -> int:
     h = (header or "").strip("*")
     if "社媒补充" in h:
         return 5
+    if "Twitter" in h or "跟随时间线" in h:
+        return 4
     if "关注" in h or "情绪" in h or "弱信号" in h:
         return 4
     if "Telegram可交易标的" in h or "叙事/事件" in h or "叙事" in h:
@@ -249,6 +251,7 @@ def build_summary(
     threads: Optional[List[Dict[str, Any]]] = None,
     weak_threads: Optional[List[Dict[str, Any]]] = None,
     social_cards: Optional[List[Dict[str, Any]]] = None,
+    twitter_following_summary: Optional[Dict[str, Any]] = None,
     overlap_syms: Optional[List[str]] = None,
     sentiment: str = "",
     watch: Optional[List[str]] = None,
@@ -509,6 +512,31 @@ def build_summary(
                 pts = th.get("points") or []
                 if pts:
                     out.append(f"   - {pts[0]}")
+
+    tw = twitter_following_summary if isinstance(twitter_following_summary, dict) else {}
+    tw_narratives = tw.get("narratives") if isinstance(tw.get("narratives"), list) else []
+    tw_events = tw.get("events") if isinstance(tw.get("events"), list) else []
+    tw_sent = str(tw.get("sentiment") or "").strip()
+
+    def _fmt_tw_list(items: List[Any]) -> str:
+        out_items: List[str] = []
+        for it in items:
+            s = str(it).strip().lstrip("- ")
+            if not s:
+                continue
+            if len(s) > 80:
+                s = s[:80]
+            if s in out_items:
+                continue
+            out_items.append(s)
+            if len(out_items) >= 3:
+                break
+        return "；".join(out_items) if out_items else "无明显"
+
+    out.append(H("Twitter跟随时间线（近1小时）"))
+    out.append(f"- 叙事：{_fmt_tw_list(tw_narratives)}")
+    out.append(f"- 情绪：{tw_sent or '中性'}")
+    out.append(f"- 重大事件：{_fmt_tw_list(tw_events)}")
 
     out.append(H("社媒补充（TG/X信号卡Top2）"))
     cards = social_cards or []

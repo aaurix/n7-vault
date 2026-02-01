@@ -17,15 +17,17 @@
    - Spawn async meme radar → load output → merge TG address candidates.
 6. **Twitter supplement**
    - Build signal cards from radar evidence (LLM optional).
-7. **Social cards**
+7. **Twitter following timeline**
+   - Pull following timeline via bird (last 60 min) → summarize narratives/sentiment/major events.
+8. **Social cards**
    - Unify TG actionables + Twitter cards into a shared schema.
    - Enrich price/MC where available via shared resolver/Dex client.
-8. **Threads + assets**
+9. **Threads + assets**
    - Token thread summaries (LLM optional).
    - Infer related assets for narratives.
-9. **Sentiment + watchlist**
+10. **Sentiment + watchlist**
    - Combine TG + Twitter cues → watchlist.
-10. **Render**
+11. **Render**
    - Build WhatsApp + Markdown summary + hash.
 
 ## State inputs

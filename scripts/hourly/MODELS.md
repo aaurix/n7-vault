@@ -7,8 +7,8 @@ Key fields:
 - **time window**: `since`, `until`, `hour_key`, `now_sh`, `now_utc`
 - **services**: `client` (Telegram), `state` (`HourlyStateManager`)
 - **budget**: `TimeBudget` (deadline-based)
-- **inputs**: `messages_by_chat`, `human_texts`, `oi_items`, `radar_items`
-- **outputs**: `narratives`, `threads`, `twitter_topics`, `social_cards`, `sentiment`, `watch`
+- **inputs**: `messages_by_chat`, `human_texts`, `oi_items`, `radar_items`, `twitter_following`
+- **outputs**: `narratives`, `threads`, `twitter_topics`, `twitter_following_summary`, `social_cards`, `sentiment`, `watch`
 - **diagnostics**: `perf`, `errors`, `llm_failures`, `tg_topics_fallback_reason`
 
 ## `TimeBudget`

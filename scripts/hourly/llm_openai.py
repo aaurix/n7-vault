@@ -472,6 +472,33 @@ def summarize_twitter_actionables(*, twitter_snippets: List[str]) -> Dict[str, A
     )
 
 
+def summarize_twitter_following(*, twitter_snippets: List[str]) -> Dict[str, Any]:
+    """Summarize following timeline into narratives/sentiment/events."""
+
+    system = (
+        "你是加密交易员助手。输入是过去1小时来自following时间线的X短句（已清洗/去重）。\n"
+        "请输出三部分：叙事、情绪、重大事件。输出JSON：{narratives:[...], sentiment, events:[...]}。\n"
+        "硬性要求：\n"
+        "- narratives/events每条<=50字，最多3条；没有则输出空数组。\n"
+        "- sentiment必须包含: 偏多/偏空/分歧/中性 之一，可附10字内原因。\n"
+        "- 只基于输入，不要编造；不要引用原文；不要输出链接。\n"
+    )
+
+    user = {
+        "twitter_snippets": twitter_snippets[:140],
+        "requirements": {"language": "zh", "no_quotes": True},
+    }
+
+    return chat_json(
+        system=system,
+        user=json.dumps(user, ensure_ascii=False),
+        temperature=0.1,
+        max_tokens=420,
+        retry_on_parse_fail=True,
+        retry_delay_s=0.9,
+    )
+
+
 def summarize_narratives(*, tg_messages: List[str]) -> Dict[str, Any]:
     system = (
         "你是加密交易员助手。输入是过去1小时的Telegram观点源人类聊天（已过滤机器人）。\n"
