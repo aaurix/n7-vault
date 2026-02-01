@@ -43,29 +43,39 @@ def run_prepare(total_budget_s: float = DEFAULT_TOTAL_BUDGET_S) -> Dict[str, Any
     if not ctx.client.health_ok():
         raise RuntimeError("TG service not healthy")
 
-    meme_proc = spawn_meme_radar(ctx)
+    skip_tg = os.environ.get("HOURLY_PREP_SKIP_TG") in {"1", "true", "True"}
+    skip_meme = os.environ.get("HOURLY_PREP_SKIP_MEME") in {"1", "true", "True"}
+    skip_oi = os.environ.get("HOURLY_PREP_SKIP_OI") in {"1", "true", "True"}
 
-    fetch_tg_messages(ctx)
-    build_human_texts(ctx)
-    build_oi(ctx)
+    meme_proc = None if skip_meme else spawn_meme_radar(ctx)
+
+    if not skip_tg:
+        fetch_tg_messages(ctx)
+        build_human_texts(ctx)
+
+    if not skip_oi:
+        build_oi(ctx)
 
     # LLM-based OI plans (optional, budgeted)
-    if ctx.use_llm:
+    if ctx.use_llm and not skip_oi:
         build_oi_plans_step(ctx)
 
-    build_viewpoint_threads(ctx)
-    build_tg_topics(ctx)
+    if not skip_tg:
+        build_viewpoint_threads(ctx)
+        build_tg_topics(ctx)
 
     # Deterministic fallback: build_tg_topics() is LLM-gated, so ctx.narratives can be empty.
-    if not ctx.narratives:
+    if not skip_tg and not ctx.narratives:
         ctx.narratives = tg_topics_fallback(ctx.human_texts, limit=5)
 
     # meme radar join
-    wait_meme_radar(ctx, meme_proc)
-    merge_tg_addr_candidates_into_radar(ctx)
+    if not skip_meme and meme_proc is not None:
+        wait_meme_radar(ctx, meme_proc)
+        merge_tg_addr_candidates_into_radar(ctx)
 
     # Unified social cards (TG + Twitter)
-    build_social_cards(ctx)
+    if not skip_tg:
+        build_social_cards(ctx)
 
     # Build twitter evidence packs for the agent (one token per pack)
     ca_inputs = []
