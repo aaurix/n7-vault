@@ -11,7 +11,8 @@ import subprocess
 from typing import Any, Dict, List, Optional
 
 from ..config import SH_TZ, UTC
-from ..llm_openai import summarize_twitter_following
+from ..embed_cluster import greedy_cluster
+from ..llm_openai import embeddings, summarize_twitter_following
 from ..models import PipelineContext
 from .evidence_cleaner import _clean_evidence_snippet
 from .llm_failures import _log_llm_failure
@@ -45,6 +46,30 @@ _BEAR_KWS = [
     "破位",
     "砸盘",
 ]
+
+_RT_PREFIX_RE = re.compile(r"^RT @\w+:\s*", re.IGNORECASE)
+
+_LIGHT_NOISE = {
+    "gm",
+    "gn",
+    "gm gm",
+    "good morning",
+    "good night",
+    "wagmi",
+    "ngmi",
+    "lfg",
+}
+
+_EVENT_PATTERNS: List[Dict[str, Any]] = [
+    {"label": "上所/上架", "kws": ["上线", "上所", "上架", "list", "listing", "binance", "coinbase", "okx", "bybit"]},
+    {"label": "解锁/释放", "kws": ["unlock", "解锁", "释放", "vesting"]},
+    {"label": "黑客/安全", "kws": ["hack", "exploit", "漏洞", "被盗", "攻击", "黑客"]},
+    {"label": "清算/爆仓", "kws": ["liquidation", "清算", "爆仓"]},
+    {"label": "监管/诉讼", "kws": ["sec", "监管", "诉讼", "court", "delist", "下架"]},
+    {"label": "融资/投资", "kws": ["融资", "投资", "funding", "raise", "round"]},
+]
+
+_SYMBOL_RE = re.compile(r"\$[A-Za-z0-9]{2,10}")
 
 
 def _run_bird_home_following(n: int, *, timeout_s: int = 35) -> str:
@@ -144,24 +169,38 @@ def _fetch_following_rows(*, hours: int, limit: int, now_sh: dt.datetime) -> Lis
 
 
 def _clean_following_text(text: str) -> str:
-    return _clean_evidence_snippet(text, max_len=160)
+    t = _RT_PREFIX_RE.sub("", text or "").strip()
+    return _clean_evidence_snippet(t, max_len=160)
 
 
-def _prep_snippets(rows: List[Dict[str, Any]], *, limit: int = 120) -> List[str]:
-    out: List[str] = []
+def _is_light_noise(text: str) -> bool:
+    if not text:
+        return True
+    t = text.strip()
+    if not t:
+        return True
+    if t.lower() in _LIGHT_NOISE:
+        return True
+    if re.fullmatch(r"[\W_]+", t):
+        return True
+    return False
+
+
+def _prep_snippets(rows: List[Dict[str, Any]], *, limit: int = 140) -> List[Dict[str, str]]:
+    out: List[Dict[str, str]] = []
     seen: set[str] = set()
     for r in rows:
         text = _clean_following_text(r.get("text") or "")
-        if not text:
+        if not text or _is_light_noise(text):
             continue
         handle = (r.get("handle") or "").strip()
         snippet = f"{handle} | {text}" if handle else text
         snippet = re.sub(r"\s+", " ", snippet).strip()
-        k = snippet.lower()[:120]
-        if k in seen:
+        key = text.lower()[:140]
+        if key in seen:
             continue
-        seen.add(k)
-        out.append(snippet)
+        seen.add(key)
+        out.append({"text": text, "snippet": snippet, "handle": handle})
         if len(out) >= limit:
             break
     return out
@@ -187,6 +226,51 @@ def _guess_sentiment(snippets: List[str]) -> str:
     if bear:
         return "偏空"
     return "中性"
+
+
+def _extract_symbol_hint(text: str) -> str:
+    m = _SYMBOL_RE.search(text or "")
+    if not m:
+        return ""
+    return m.group(0)[1:].upper()
+
+
+def _detect_events(snippets: List[str], *, max_items: int = 3) -> List[str]:
+    out: List[str] = []
+    for s in snippets:
+        low = s.lower()
+        matched = None
+        for pat in _EVENT_PATTERNS:
+            if any(k in low for k in pat["kws"]):
+                matched = pat
+                break
+        if not matched:
+            continue
+        sym = _extract_symbol_hint(s)
+        label = matched["label"]
+        ev = f"{sym}{label}" if sym else f"{label}相关讨论"
+        if ev in out:
+            continue
+        out.append(ev)
+        if len(out) >= max_items:
+            break
+    return out
+
+
+def _pick_narratives(snippets: List[str], *, max_items: int = 3) -> List[str]:
+    out: List[str] = []
+    for s in snippets:
+        s = str(s).strip().lstrip("- ")
+        if not s:
+            continue
+        if len(s) > 50:
+            s = s[:50]
+        if s in out:
+            continue
+        out.append(s)
+        if len(out) >= max_items:
+            break
+    return out
 
 
 def _normalize_list(val: Any, *, max_items: int = 3) -> List[str]:
@@ -219,13 +303,55 @@ def _normalize_sentiment(val: Any, *, fallback: str) -> str:
     return fallback
 
 
-def _fallback_summary(snippets: List[str], *, total: int, kept: int) -> Dict[str, Any]:
+def _fallback_summary(snippets: List[str], *, total: int, kept: int, clusters: int) -> Dict[str, Any]:
     return {
-        "narratives": [],
+        "narratives": _pick_narratives(snippets, max_items=3),
         "sentiment": _guess_sentiment(snippets),
-        "events": [],
-        "meta": {"total": total, "kept": kept},
+        "events": _detect_events(snippets, max_items=3),
+        "meta": {"total": total, "kept": kept, "clusters": clusters},
     }
+
+
+def _cluster_snippets(
+    items: List[Dict[str, str]],
+    *,
+    ctx: PipelineContext,
+    max_clusters: int = 12,
+    threshold: float = 0.82,
+    embed_timeout: int = 26,
+    allow_embeddings: bool = True,
+) -> List[Dict[str, Any]]:
+    if not items:
+        return []
+    if len(items) <= max_clusters:
+        return list(items)
+    if not allow_embeddings:
+        return list(items)
+    if ctx.budget.over(reserve_s=45.0):
+        ctx.errors.append("twitter_following_embed_skipped:budget")
+        return list(items)
+
+    try:
+        vecs = embeddings(texts=[(it.get("text") or "")[:240] for it in items], timeout=embed_timeout)
+        reps = greedy_cluster(items, vecs, max_clusters=max_clusters, threshold=threshold)
+        return [it for it in reps if isinstance(it, dict)]
+    except Exception as e:
+        ctx.errors.append(f"twitter_following_embed_failed:{type(e).__name__}:{e}")
+        return list(items)
+
+
+def _build_llm_inputs(reps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    out: List[Dict[str, Any]] = []
+    for it in reps:
+        if not isinstance(it, dict):
+            continue
+        text = str(it.get("text") or it.get("snippet") or "").strip()
+        if not text:
+            continue
+        out.append({"text": text[:180], "count": int(it.get("_cluster_size") or 1)})
+        if len(out) >= 120:
+            break
+    return out
 
 
 def build_twitter_following_summary(
@@ -238,28 +364,41 @@ def build_twitter_following_summary(
     done = measure(ctx.perf, "twitter_following")
     try:
         rows = _fetch_following_rows(hours=hours, limit=tweet_limit, now_sh=ctx.now_sh)
-        snippets = _prep_snippets(rows, limit=120)
+        items = _prep_snippets(rows, limit=140)
+        snippets = [it.get("snippet") or it.get("text") or "" for it in items]
 
         total = len(rows)
         kept = len(snippets)
+
+        allow_embeddings = bool(allow_llm and ctx.use_llm)
+        reps = _cluster_snippets(items, ctx=ctx, max_clusters=12, threshold=0.82, embed_timeout=26, allow_embeddings=allow_embeddings)
+        rep_texts = [str(it.get("text") or it.get("snippet") or "").strip() for it in reps if it]
+        rep_texts = [t for t in rep_texts if t]
+        cluster_count = len(reps) if reps else 0
+
         ctx.twitter_following = {
             "total": total,
             "kept": kept,
+            "clusters": cluster_count,
             "snippets": snippets,
+            "clustered_snippets": [it.get("snippet") or it.get("text") for it in reps if it] if reps else [],
         }
 
-        summary = _fallback_summary(snippets, total=total, kept=kept)
+        summary = _fallback_summary(rep_texts or snippets, total=total, kept=kept, clusters=cluster_count)
 
         llm_budget_over = ctx.budget.over(reserve_s=50.0)
-        if allow_llm and ctx.use_llm and snippets and (not llm_budget_over):
+        if allow_llm and ctx.use_llm and rep_texts and (not llm_budget_over):
             try:
-                out = summarize_twitter_following(twitter_snippets=snippets)
+                llm_inputs = _build_llm_inputs(reps)
+                out = summarize_twitter_following(twitter_snippets=llm_inputs or rep_texts)
                 if isinstance(out, dict):
+                    narratives = _normalize_list(out.get("narratives"), max_items=3) or summary.get("narratives")
+                    events = _normalize_list(out.get("events"), max_items=3) or summary.get("events")
                     summary = {
-                        "narratives": _normalize_list(out.get("narratives"), max_items=3),
+                        "narratives": narratives,
                         "sentiment": _normalize_sentiment(out.get("sentiment"), fallback=summary["sentiment"]),
-                        "events": _normalize_list(out.get("events"), max_items=3),
-                        "meta": {"total": total, "kept": kept},
+                        "events": events,
+                        "meta": {"total": total, "kept": kept, "clusters": cluster_count},
                     }
                 else:
                     _log_llm_failure(ctx, "twitter_following_llm_parse_failed", raw=str(out))
@@ -269,12 +408,12 @@ def build_twitter_following_summary(
         ctx.twitter_following_summary = summary
     except Exception as e:
         ctx.errors.append(f"twitter_following_failed:{type(e).__name__}:{e}")
-        ctx.twitter_following = {"total": 0, "kept": 0, "snippets": []}
+        ctx.twitter_following = {"total": 0, "kept": 0, "clusters": 0, "snippets": [], "clustered_snippets": []}
         ctx.twitter_following_summary = {
             "narratives": [],
             "sentiment": "中性",
             "events": [],
-            "meta": {"total": 0, "kept": 0},
+            "meta": {"total": 0, "kept": 0, "clusters": 0},
         }
     done()
 
@@ -285,8 +424,9 @@ def self_check_twitter_following() -> str:
         {"handle": "beta", "text": "SOL 遇阻回落，短线偏空", "createdAt": "2025-01-01T00:02:00+08:00"},
         {"handle": "gamma", "text": "ETH 上所传闻暂无证实", "createdAt": "2025-01-01T00:03:00+08:00"},
     ]
-    snippets = _prep_snippets(sample_rows, limit=10)
-    summary = _fallback_summary(snippets, total=len(sample_rows), kept=len(snippets))
+    items = _prep_snippets(sample_rows, limit=10)
+    snippets = [it.get("text") or it.get("snippet") or "" for it in items]
+    summary = _fallback_summary(snippets, total=len(sample_rows), kept=len(snippets), clusters=len(items))
     if not snippets:
         return "self_check_twitter_following:fail:empty_snippets"
     if summary.get("sentiment") not in _ALLOWED_SENTIMENTS:
