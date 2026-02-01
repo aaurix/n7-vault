@@ -39,6 +39,7 @@ def render(ctx: PipelineContext) -> Dict[str, Any]:
         watch=ctx.watch,
         perp_dash_inputs=perp_dash_inputs,
         whatsapp=True,
+        show_twitter_metrics=False,
     )
 
     summary_markdown = build_summary(
@@ -55,6 +56,7 @@ def render(ctx: PipelineContext) -> Dict[str, Any]:
         watch=ctx.watch,
         perp_dash_inputs=perp_dash_inputs,
         whatsapp=False,
+        show_twitter_metrics=True,
     )
 
     tmp_md_path: str = ""

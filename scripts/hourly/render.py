@@ -257,6 +257,7 @@ def build_summary(
     watch: Optional[List[str]] = None,
     perp_dash_inputs: Optional[List[Dict[str, Any]]] = None,
     whatsapp: bool = True,
+    show_twitter_metrics: bool = False,
 ) -> str:
     def H(s: str) -> str:
         return f"*{s}*" if whatsapp else f"## {s}"
@@ -533,10 +534,45 @@ def build_summary(
                 break
         return "；".join(out_items) if out_items else "无明显"
 
+    def _fmt_pct(val: Any) -> str:
+        if val is None:
+            return ""
+        try:
+            v = float(val)
+        except Exception:
+            return ""
+        if v < 0:
+            return ""
+        if v <= 1.2:
+            return f"{v * 100:.0f}%"
+        return f"{v:.0f}%"
+
     out.append(H("Twitter跟随时间线（近1小时）"))
     out.append(f"- 叙事：{_fmt_tw_list(tw_narratives)}")
     out.append(f"- 情绪：{tw_sent or '中性'}")
     out.append(f"- 重大事件：{_fmt_tw_list(tw_events)}")
+
+    if show_twitter_metrics:
+        tw_meta = tw.get("meta") if isinstance(tw.get("meta"), dict) else {}
+        tw_metrics = tw_meta.get("metrics") if isinstance(tw_meta.get("metrics"), dict) else {}
+        if not tw_metrics and isinstance(tw.get("metrics"), dict):
+            tw_metrics = tw.get("metrics")
+        if isinstance(tw_metrics, dict) and tw_metrics:
+            noise_rate = _fmt_pct(tw_metrics.get("noise_drop_rate"))
+            dedupe_rate = _fmt_pct(tw_metrics.get("dedupe_rate"))
+            clusters = tw_metrics.get("clusters")
+            if clusters is None:
+                clusters = tw_meta.get("clusters")
+            parts: List[str] = []
+            if noise_rate:
+                parts.append(f"噪声↓{noise_rate}")
+            if dedupe_rate:
+                parts.append(f"去重率{dedupe_rate}")
+            if clusters is not None:
+                parts.append(f"聚类{clusters}")
+            if parts:
+                out.append("- 质量：" + " | ".join(parts))
+
 
     out.append(H("社媒补充（TG/X信号卡Top2）"))
     cards = social_cards or []

@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from ..config import SH_TZ, UTC
 from ..embed_cluster import greedy_cluster
 from ..filters import extract_symbols_and_addrs
-from ..llm_openai import embeddings, summarize_twitter_following
+from ..llm_openai import embeddings, detect_twitter_following_events, summarize_twitter_following
 from ..models import PipelineContext
 from .evidence_cleaner import _clean_evidence_snippet
 from .llm_failures import _log_llm_failure
@@ -216,24 +216,107 @@ def _is_light_noise(text: str) -> bool:
     return False
 
 
-def _prep_snippets(rows: List[Dict[str, Any]], *, limit: int = 140) -> List[Dict[str, str]]:
+def _prep_snippets(rows: List[Dict[str, Any]], *, limit: int = 140) -> Tuple[List[Dict[str, str]], Dict[str, int]]:
     out: List[Dict[str, str]] = []
     seen: set[str] = set()
+    noise_dropped = 0
+    exact_dupe_dropped = 0
+    candidates = 0
+    capped = 0
+
     for r in rows:
         text = _clean_following_text(r.get("text") or "")
         if not text or _is_light_noise(text):
+            noise_dropped += 1
             continue
+
+        candidates += 1
         handle = (r.get("handle") or "").strip()
         snippet = f"{handle} | {text}" if handle else text
         snippet = re.sub(r"\s+", " ", snippet).strip()
         key = text.lower()[:140]
         if key in seen:
+            exact_dupe_dropped += 1
             continue
         seen.add(key)
-        out.append({"text": text, "snippet": snippet, "handle": handle})
-        if len(out) >= limit:
-            break
-    return out
+
+        if len(out) < limit:
+            out.append({"text": text, "snippet": snippet, "handle": handle})
+        else:
+            capped += 1
+
+    metrics = {
+        "noise_dropped": noise_dropped,
+        "exact_dedupe_dropped": exact_dupe_dropped,
+        "candidates": candidates,
+        "capped": capped,
+    }
+    return out, metrics
+
+
+def _semantic_dedupe_items(
+    items: List[Dict[str, str]],
+    *,
+    ctx: PipelineContext,
+    threshold: float = 0.92,
+    embed_timeout: int = 18,
+    allow_embeddings: bool = True,
+) -> Tuple[List[Dict[str, str]], Dict[str, Any]]:
+    if not items or len(items) <= 1:
+        return items, {"semantic_dedupe_dropped": 0}
+    if not allow_embeddings:
+        return items, {"semantic_dedupe_dropped": 0}
+    if ctx.budget.over(reserve_s=45.0):
+        ctx.errors.append("twitter_following_semantic_dedupe_skipped:budget")
+        return items, {"semantic_dedupe_dropped": 0}
+    try:
+        vecs = embeddings(texts=[(it.get("text") or "")[:240] for it in items], timeout=embed_timeout)
+        reps = greedy_cluster(items, vecs, max_clusters=len(items), threshold=threshold)
+        reps = [it for it in reps if isinstance(it, dict)]
+        dedupe_dropped = 0
+        cleaned: List[Dict[str, str]] = []
+        for it in reps:
+            size = int(it.get("_cluster_size") or 1)
+            if size > 1:
+                dedupe_dropped += size - 1
+            cleaned.append({k: v for k, v in it.items() if not str(k).startswith("_cluster")})
+        return cleaned, {"semantic_dedupe_dropped": dedupe_dropped}
+    except Exception as e:
+        ctx.errors.append(f"twitter_following_semantic_dedupe_failed:{type(e).__name__}:{e}")
+        return items, {"semantic_dedupe_dropped": 0}
+
+
+def _rate(num: int, denom: int) -> float:
+    if denom <= 0:
+        return 0.0
+    return round(num / denom, 3)
+
+
+def _build_quality_metrics(
+    *,
+    total: int,
+    kept: int,
+    clusters: int,
+    noise_dropped: int,
+    exact_dedupe_dropped: int,
+    semantic_dedupe_dropped: int,
+    candidates: int,
+    capped: int = 0,
+) -> Dict[str, Any]:
+    dedupe_dropped = int(exact_dedupe_dropped or 0) + int(semantic_dedupe_dropped or 0)
+    return {
+        "total": int(total),
+        "kept": int(kept),
+        "candidates": int(candidates),
+        "noise_dropped": int(noise_dropped),
+        "noise_drop_rate": _rate(int(noise_dropped), int(total)),
+        "exact_dedupe_dropped": int(exact_dedupe_dropped),
+        "semantic_dedupe_dropped": int(semantic_dedupe_dropped),
+        "dedupe_dropped": dedupe_dropped,
+        "dedupe_rate": _rate(dedupe_dropped, int(candidates)),
+        "capped": int(capped),
+        "clusters": int(clusters),
+    }
 
 
 def _guess_sentiment(snippets: List[str]) -> str:
@@ -409,6 +492,7 @@ def _fallback_summary(
     total: int,
     kept: int,
     clusters: int,
+    metrics: Optional[Dict[str, Any]] = None,
     resolver: Optional[Any] = None,
 ) -> Dict[str, Any]:
     rep_texts = [str(it.get("text") or it.get("snippet") or "") for it in items]
@@ -423,11 +507,14 @@ def _fallback_summary(
             max_items=3,
             resolver=resolver,
         )
+    meta = {"total": total, "kept": kept, "clusters": clusters}
+    if metrics:
+        meta["metrics"] = metrics
     return {
         "narratives": narratives,
         "sentiment": _guess_sentiment(rep_texts or snippets),
         "events": events,
-        "meta": {"total": total, "kept": kept, "clusters": clusters},
+        "meta": meta,
     }
 
 
@@ -667,13 +754,20 @@ def build_twitter_following_summary(
     done = measure(ctx.perf, "twitter_following")
     try:
         rows = _fetch_following_rows(hours=hours, limit=tweet_limit, now_sh=ctx.now_sh)
-        items = _prep_snippets(rows, limit=140)
-        snippets = [it.get("snippet") or it.get("text") or "" for it in items]
+        items, prep_metrics = _prep_snippets(rows, limit=140)
 
         total = len(rows)
+        allow_embeddings = bool(allow_llm and ctx.use_llm)
+        items, semantic_metrics = _semantic_dedupe_items(
+            items,
+            ctx=ctx,
+            threshold=0.92,
+            embed_timeout=18,
+            allow_embeddings=allow_embeddings,
+        )
+        snippets = [it.get("snippet") or it.get("text") or "" for it in items]
         kept = len(snippets)
 
-        allow_embeddings = bool(allow_llm and ctx.use_llm)
         target_clusters, threshold = _cluster_params(len(items))
         reps = _cluster_snippets(
             items,
@@ -687,10 +781,22 @@ def build_twitter_following_summary(
         rep_texts = [t for t in rep_texts if t]
         cluster_count = len(reps) if reps else 0
 
+        metrics = _build_quality_metrics(
+            total=total,
+            kept=kept,
+            clusters=cluster_count,
+            noise_dropped=int(prep_metrics.get("noise_dropped") or 0),
+            exact_dedupe_dropped=int(prep_metrics.get("exact_dedupe_dropped") or 0),
+            semantic_dedupe_dropped=int(semantic_metrics.get("semantic_dedupe_dropped") or 0),
+            candidates=int(prep_metrics.get("candidates") or 0),
+            capped=int(prep_metrics.get("capped") or 0),
+        )
+
         ctx.twitter_following = {
             "total": total,
             "kept": kept,
             "clusters": cluster_count,
+            "metrics": metrics,
             "snippets": snippets,
             "clustered_snippets": [it.get("snippet") or it.get("text") for it in reps if it] if reps else [],
         }
@@ -701,12 +807,36 @@ def build_twitter_following_summary(
             total=total,
             kept=kept,
             clusters=cluster_count,
+            metrics=metrics,
             resolver=ctx.resolver,
         )
         summary = fallback_summary
 
+        diagnostics: Dict[str, Any] = {}
+
         llm_budget_over = ctx.budget.over(reserve_s=50.0)
-        if allow_llm and ctx.use_llm and rep_texts and (not llm_budget_over):
+        llm_summary_allowed = bool(allow_llm and ctx.use_llm and rep_texts and (not llm_budget_over))
+
+        if allow_llm and ctx.use_llm and rep_texts and (not llm_summary_allowed):
+            if not ctx.budget.over(reserve_s=40.0):
+                try:
+                    llm_inputs = _build_llm_inputs(reps)
+                    out = detect_twitter_following_events(twitter_snippets=llm_inputs or rep_texts)
+                    if isinstance(out, dict):
+                        llm_events = _normalize_list(out.get("events"), max_items=3)
+                        if llm_events:
+                            fallback_summary["events"] = _merge_lists(
+                                llm_events,
+                                _normalize_list(fallback_summary.get("events"), max_items=3),
+                                max_items=3,
+                            )
+                            diagnostics["llm_events"] = llm_events
+                    else:
+                        _log_llm_failure(ctx, "twitter_following_llm_events_parse_failed", raw=str(out))
+                except Exception as e:
+                    _log_llm_failure(ctx, "twitter_following_llm_events_failed", exc=e)
+
+        if llm_summary_allowed:
             try:
                 llm_inputs = _build_llm_inputs(reps)
                 out = summarize_twitter_following(twitter_snippets=llm_inputs or rep_texts)
@@ -718,25 +848,46 @@ def build_twitter_following_summary(
                         "meta": fallback_summary.get("meta") or {},
                     }
                     summary = _merge_summary(fallback=fallback_summary, agent=agent_summary, resolver=ctx.resolver)
-                    ctx.twitter_following["diagnostics"] = {
-                        "fallback_summary": fallback_summary,
-                        "agent_summary": agent_summary,
-                        "compare": _compare_summaries(fallback_summary, agent_summary),
-                    }
+                    diagnostics.update(
+                        {
+                            "fallback_summary": fallback_summary,
+                            "agent_summary": agent_summary,
+                            "compare": _compare_summaries(fallback_summary, agent_summary),
+                        }
+                    )
                 else:
                     _log_llm_failure(ctx, "twitter_following_llm_parse_failed", raw=str(out))
             except Exception as e:
                 _log_llm_failure(ctx, "twitter_following_llm_failed", exc=e)
 
+        if diagnostics:
+            ctx.twitter_following["diagnostics"] = diagnostics
         ctx.twitter_following_summary = summary
     except Exception as e:
         ctx.errors.append(f"twitter_following_failed:{type(e).__name__}:{e}")
-        ctx.twitter_following = {"total": 0, "kept": 0, "clusters": 0, "snippets": [], "clustered_snippets": []}
+        metrics = _build_quality_metrics(
+            total=0,
+            kept=0,
+            clusters=0,
+            noise_dropped=0,
+            exact_dedupe_dropped=0,
+            semantic_dedupe_dropped=0,
+            candidates=0,
+            capped=0,
+        )
+        ctx.twitter_following = {
+            "total": 0,
+            "kept": 0,
+            "clusters": 0,
+            "metrics": metrics,
+            "snippets": [],
+            "clustered_snippets": [],
+        }
         ctx.twitter_following_summary = {
             "narratives": [],
             "sentiment": "中性",
             "events": [],
-            "meta": {"total": 0, "kept": 0, "clusters": 0},
+            "meta": {"total": 0, "kept": 0, "clusters": 0, "metrics": metrics},
         }
     done()
 
@@ -761,17 +912,39 @@ def self_check_twitter_following() -> str:
         {"handle": "gamma", "text": "ETH 上所传闻暂无证实", "createdAt": "2025-01-01T00:03:00+08:00"},
         {"handle": "delta", "text": "OP 解锁临近，谨慎", "createdAt": "2025-01-01T00:04:00+08:00"},
     ]
-    items = _prep_snippets(sample_rows, limit=10)
+    items, prep_metrics = _prep_snippets(sample_rows, limit=10)
+    items, semantic_metrics = _semantic_dedupe_items(
+        items,
+        ctx=_DummyCtx(),
+        threshold=0.92,
+        embed_timeout=10,
+        allow_embeddings=False,
+    )
     snippets = [it.get("text") or it.get("snippet") or "" for it in items]
     reps = _cluster_snippets(items, ctx=_DummyCtx(), max_clusters=4, threshold=0.8, allow_embeddings=False)
+    metrics = _build_quality_metrics(
+        total=len(sample_rows),
+        kept=len(snippets),
+        clusters=len(reps),
+        noise_dropped=int(prep_metrics.get("noise_dropped") or 0),
+        exact_dedupe_dropped=int(prep_metrics.get("exact_dedupe_dropped") or 0),
+        semantic_dedupe_dropped=int(semantic_metrics.get("semantic_dedupe_dropped") or 0),
+        candidates=int(prep_metrics.get("candidates") or 0),
+        capped=int(prep_metrics.get("capped") or 0),
+    )
     summary = _fallback_summary(
         items=reps,
         snippets=snippets,
         total=len(sample_rows),
         kept=len(snippets),
         clusters=len(reps),
+        metrics=metrics,
         resolver=_DummyCtx().resolver,
     )
+    meta = summary.get("meta") or {}
+    if not isinstance(meta.get("metrics"), dict):
+        return "self_check_twitter_following:fail:metrics_missing"
+
     if not snippets:
         return "self_check_twitter_following:fail:empty_snippets"
     if len(reps) > 4:

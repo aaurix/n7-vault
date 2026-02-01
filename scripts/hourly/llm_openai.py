@@ -472,6 +472,37 @@ def summarize_twitter_actionables(*, twitter_snippets: List[str]) -> Dict[str, A
     )
 
 
+def detect_twitter_following_events(*, twitter_snippets: List[str]) -> Dict[str, Any]:
+    """Detect notable events from following timeline snippets (LLM)."""
+
+    system = (
+        "你是加密交易员助手。输入是过去1小时following时间线的X短句（已清洗/去重）。\n"
+        "输入列表元素可能是字符串，或{ text, count }对象；count代表相似话题的聚类数量。\n"
+        "请仅提取重大事件。输出JSON：{events:[...]}。\n"
+        "硬性要求：\n"
+        "- events每条<=50字，最多3条；没有则输出空数组。\n"
+        "- events强调客观事件（上所/解锁/黑客/融资/空投/监管/脱锚/回购等），优先带主体。\n"
+        "- 优先考虑count较高的内容作为事件依据。\n"
+        "- 只基于输入，不要编造；不要引用原文；不要输出链接。\n"
+    )
+
+    user = {
+        "twitter_snippets": twitter_snippets[:140],
+        "requirements": {"language": "zh", "no_quotes": True},
+    }
+
+    return chat_json(
+        system=system,
+        user=json.dumps(user, ensure_ascii=False),
+        temperature=0.1,
+        max_tokens=220,
+        retry_on_parse_fail=True,
+        retry_delay_s=0.9,
+    )
+
+
+
+
 def summarize_twitter_following(*, twitter_snippets: List[str]) -> Dict[str, Any]:
     """Summarize following timeline into narratives/sentiment/events."""
 
