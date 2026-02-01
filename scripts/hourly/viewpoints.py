@@ -11,6 +11,7 @@ Design goals:
 
 from __future__ import annotations
 
+import os
 import time
 from typing import Any, Dict, List
 
@@ -76,7 +77,10 @@ def extract_viewpoint_threads(
     max_resolve_calls = 40
     max_enrich_calls = 30
     t0 = time.perf_counter()
-    time_budget_s = 22.0
+    try:
+        time_budget_s = float(os.environ.get("HOURLY_TG_VIEWPOINT_BUDGET_S") or 12.0)
+    except Exception:
+        time_budget_s = 12.0
 
     for t in human_texts:
         if time.perf_counter() - t0 > time_budget_s:
@@ -130,6 +134,8 @@ def extract_viewpoint_threads(
         else:
             if enrich_calls >= max_enrich_calls:
                 continue
+            if time.perf_counter() - t0 > time_budget_s:
+                break
             dex = dex_client.enrich_symbol(sym)
             enrich_cache[sym] = dex
             enrich_calls += 1

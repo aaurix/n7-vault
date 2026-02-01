@@ -66,20 +66,22 @@ class TgClient:
         except Exception:
             return False
 
-    def replay(self, channel_id: int, *, limit: int, since: str, until: str) -> Dict[str, Any]:
+    def replay(self, channel_id: int, *, limit: int, since: str, until: str, timeout: int = 15) -> Dict[str, Any]:
         return self.request_json(
             "POST",
             "/replay",
             {"channel": int(channel_id), "limit": int(limit), "since": since, "until": until},
-            timeout=15,
+            timeout=timeout,
         )
 
-    def fetch_messages(self, channel_id: int, *, limit: int, since: str, until: str) -> List[Dict[str, Any]]:
+    def fetch_messages(
+        self, channel_id: int, *, limit: int, since: str, until: str, timeout: int = 12
+    ) -> List[Dict[str, Any]]:
         path = (
             f"/channels/{urlreq.quote(str(channel_id))}/messages"
             f"?limit={int(limit)}&since={urlreq.quote(since)}&until={urlreq.quote(until)}"
         )
-        rows = self.request_json("GET", path, timeout=12)
+        rows = self.request_json("GET", path, timeout=timeout)
         if isinstance(rows, dict):
             return rows.get("messages") or []
         return rows or []
