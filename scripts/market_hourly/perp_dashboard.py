@@ -305,10 +305,29 @@ def build_perp_dash_inputs(*, oi_items: List[Dict[str, Any]], max_n: int = 3) ->
 
 
 def render_perp_dashboards_mini(perp_dash_inputs: List[Dict[str, Any]], *, top_n: int = 3) -> List[str]:
-    """Deterministic renderer: returns WhatsApp-friendly lines.
+    """Deterministic renderer: concise trader view (price/OI + 1H/4H trend + action)."""
 
-    Caller can join with "\n" and use split_whatsapp_text.
-    """
+    def _trend_label(slope: Optional[float]) -> str:
+        if slope is None:
+            return "震荡"
+        if slope >= 0.06:
+            return "上行"
+        if slope <= -0.06:
+            return "下行"
+        return "震荡"
+
+    def _extreme_tag(rsi: Optional[float]) -> str:
+        if rsi is None:
+            return ""
+        if rsi >= 75:
+            return "极端过热"
+        if rsi >= 70:
+            return "过热"
+        if rsi <= 25:
+            return "极端超卖"
+        if rsi <= 30:
+            return "超卖"
+        return ""
 
     out: List[str] = []
 
@@ -325,67 +344,30 @@ def render_perp_dashboards_mini(perp_dash_inputs: List[Dict[str, Any]], *, top_n
         st = d.get("structure") if isinstance(d.get("structure"), dict) else {}
         s1 = st.get("1h") if isinstance(st.get("1h"), dict) else {}
         s4 = st.get("4h") if isinstance(st.get("4h"), dict) else {}
-        lv = d.get("key_levels") if isinstance(d.get("key_levels"), dict) else {}
-
-        price_now = _as_num(d.get("price_now"))
-        mc = _as_num(d.get("market_cap"))
-        fdv = _as_num(d.get("fdv"))
-        if (mc is None or fdv is None) and isinstance(d.get("market"), dict):
-            market = d.get("market")
-            if mc is None:
-                mc = _as_num(market.get("market_cap") or market.get("marketCap") or market.get("mcap"))
-            if fdv is None:
-                fdv = _as_num(market.get("fdv") or market.get("fully_diluted_valuation"))
 
         flow = str(d.get("flow_label") or "资金方向不明").strip()
         bias = str(d.get("bias_hint") or "观望").strip() or "观望"
 
-        # Line 1: change dashboard (no raw quotes)
-        line1 = f"{i}) {sym}（{bias}）"
-        if price_now is not None:
-            line1 += f"现价{_fmt_num(price_now)} "
-        line1 += f"价1h{_fmt_pct(px.get('1h_pct'))} 4h{_fmt_pct(px.get('4h_pct'))} | OI1h{_fmt_pct(oi.get('1h_pct'))} 4h{_fmt_pct(oi.get('4h_pct'))}"
-        mc_bits: List[str] = []
-        if mc is not None:
-            mc_bits.append(f"MC{_fmt_usd(mc)}")
-        if fdv is not None:
-            mc_bits.append(f"FDV{_fmt_usd(fdv)}")
-        if mc_bits:
-            line1 += " | " + "/".join(mc_bits)
+        # Line 1: price/OI relationship (trader view)
+        line1 = (
+            f"{i}) {sym}（{bias}）"
+            f"价4h{_fmt_pct(px.get('4h_pct'))} OI4h{_fmt_pct(oi.get('4h_pct'))} → {flow}"
+        )
         out.append(line1)
 
-        # Line 2: 1H structure
+        # Line 2: 1H/4H trend + extreme emotion
+        slope1 = _as_num(s1.get("ema20_slope_pct"))
+        slope4 = _as_num(s4.get("ema20_slope_pct"))
         rsi1 = _as_num(s1.get("rsi14"))
-        atr1 = _as_num(s1.get("atr_pct"))
-        out.append(
-            "   - 1H: swing "
-            + f"{_fmt_num(s1.get('swing_hi'))}/{_fmt_num(s1.get('swing_lo'))}"
-            + f" | EMA20斜率{_fmt_pct(s1.get('ema20_slope_pct'), digits=2)}"
-            + (f" | RSI{rsi1:.0f}" if rsi1 is not None else " | RSI?")
-            + (f" | ATR{atr1:.1f}%" if atr1 is not None else "")
-        )
-
-        # Line 3: 4H structure
         rsi4 = _as_num(s4.get("rsi14"))
-        atr4 = _as_num(s4.get("atr_pct"))
-        out.append(
-            "   - 4H: swing "
-            + f"{_fmt_num(s4.get('swing_hi'))}/{_fmt_num(s4.get('swing_lo'))}"
-            + f" | EMA20斜率{_fmt_pct(s4.get('ema20_slope_pct'), digits=2)}"
-            + (f" | RSI{rsi4:.0f}" if rsi4 is not None else " | RSI?")
-            + (f" | ATR{atr4:.1f}%" if atr4 is not None else "")
-        )
+        tag1 = _extreme_tag(rsi1)
+        tag4 = _extreme_tag(rsi4)
+        t1 = _trend_label(slope1)
+        t4 = _trend_label(slope4)
+        trend_line = f"   - 趋势：1H{t1}{('(' + tag1 + ')') if tag1 else ''} / 4H{t4}{('(' + tag4 + ')') if tag4 else ''}"
+        out.append(trend_line)
 
-        # Line 4: key levels + flow
-        res = lv.get("resistance")
-        sup = lv.get("support")
-        lv_txt = "关键位："
-        lv_txt += (f"压{_fmt_num(res)}" if res is not None else "压? ")
-        lv_txt += " / "
-        lv_txt += (f"撑{_fmt_num(sup)}" if sup is not None else "撑?")
-        out.append(f"   - {lv_txt} | {flow}")
-
-        # Line 5: actions
+        # Line 3: actions (already includes key levels / risk notes)
         notes = d.get("action_notes") if isinstance(d.get("action_notes"), list) else []
         notes2 = [str(x).strip() for x in notes if isinstance(x, str) and x.strip()][:2]
         if notes2:
