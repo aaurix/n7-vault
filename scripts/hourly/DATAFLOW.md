@@ -9,9 +9,9 @@
 3. **OI pipeline**
    - Parse OI signals → enrich with kline data → Top N.
    - Optional LLM: trading plans (budget-gated).
-4. **TG actionables**
-   - Snippet prep → optional LLM → normalize.
-   - Fallback: rule-based actionables from TG text.
+4. **TG topics (narratives)**
+   - Deterministic prefilter → dedup → embeddings cluster (scored) → LLM → postfilter.
+   - Fallback: rule-based topic extraction from TG text.
 5. **Meme radar**
    - Spawn async meme radar → load output → merge TG address candidates.
 6. **Twitter supplement**
@@ -19,7 +19,7 @@
 7. **Social cards**
    - Unify TG actionables + Twitter cards into a shared schema.
    - Enrich price/MC where available via shared resolver/Dex client.
-8. **Threads + narratives**
+8. **Threads + assets**
    - Token thread summaries (LLM optional).
    - Infer related assets for narratives.
 9. **Sentiment + watchlist**

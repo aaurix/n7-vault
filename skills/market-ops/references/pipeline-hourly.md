@@ -28,6 +28,7 @@ Generate an hourly WhatsApp summary combining:
 2) **Deterministic preprocessing (must stay deterministic)**
    - Filtering spam/bots/ads
    - Deduplication
+   - TG热点预筛：锚点/事件词/数值触发
    - Token/CA extraction
    - Time budget gating
 

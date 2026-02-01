@@ -9,20 +9,23 @@ from typing import Any, Dict, List
 
 from .filters import stance_from_texts
 from .services.entity_resolver import get_shared_entity_resolver
+from .services.tg_preprocess import filter_tg_topic_texts
 
 
 def tg_topics_fallback(texts: List[str], *, limit: int = 5) -> List[Dict[str, Any]]:
     """Deterministic TG topic extraction fallback (no embeddings/LLM).
 
-    We cluster loosely by mentioned tickers/addresses. This is intentionally simple
-    but ensures we don't emit an empty topics section when LLM is disabled.
+    We cluster loosely by mentioned tickers/addresses after deterministic prefiltering.
+    This is intentionally simple but ensures we don't emit an empty topics section when LLM is disabled.
     """
 
     resolver = get_shared_entity_resolver()
     sym_hits: Dict[str, int] = {}
     sym_samples: Dict[str, List[str]] = {}
 
-    for t in texts[:800]:
+    filtered = filter_tg_topic_texts(texts, resolver=resolver, limit=400)
+
+    for t in filtered[:400]:
         syms, _addrs = resolver.extract_symbols_and_addrs(t)
         for s in syms[:3]:
             sym_hits[s] = sym_hits.get(s, 0) + 1

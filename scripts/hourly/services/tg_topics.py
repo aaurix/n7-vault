@@ -1,46 +1,49 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""TG热点/可交易标的提炼。"""
+"""TG热点提炼（事件/叙事）。"""
 
 from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from ..llm_openai import summarize_tg_actionables
+from ..embed_cluster import greedy_cluster
+from ..llm_openai import embeddings, summarize_narratives
 from ..models import PipelineContext
-from .actionable_normalization import _fallback_actionables_from_texts, _normalize_actionables
-from .llm_failures import _log_llm_failure
+from ..topic_pipeline import build_topics
+from ..tg_topics_fallback import tg_topics_fallback
 from .pipeline_timing import measure
-from .snippet_prep import _prep_tg_snippets
+from .tg_preprocess import filter_tg_topic_texts, postfilter_tg_topic_item, score_tg_cluster
 
 
 def build_tg_topics(ctx: PipelineContext) -> None:
     done = measure(ctx.perf, "tg_topics_pipeline")
 
     items: List[Dict[str, Any]] = []
-    snippets = _prep_tg_snippets(ctx.human_texts, limit=120, resolver=ctx.resolver)
-    ctx.perf["tg_snippets"] = float(len(snippets))
+    candidates = filter_tg_topic_texts(ctx.human_texts, resolver=ctx.resolver, limit=240)
+    ctx.perf["tg_topics_candidates"] = float(len(candidates))
 
-    if ctx.use_llm and snippets and (not ctx.budget.over(reserve_s=70.0)):
-        ctx.tg_actionables_attempted = True
-        try:
-            out = summarize_tg_actionables(tg_snippets=snippets)
-            raw_items = out.get("items") if isinstance(out, dict) else None
-            parse_failed = bool(isinstance(out, dict) and out.get("_parse_failed"))
-            raw = str(out.get("raw") or "") if isinstance(out, dict) else ""
-            if parse_failed:
-                _log_llm_failure(ctx, "tg_actionables_llm_parse_failed", raw=raw)
-            if isinstance(raw_items, list):
-                items = _normalize_actionables(raw_items)
-            elif isinstance(out, dict) and not parse_failed:
-                _log_llm_failure(ctx, "tg_actionables_llm_schema_invalid", raw=raw)
-            if not items and not parse_failed:
-                _log_llm_failure(ctx, "tg_actionables_llm_empty", raw=raw)
-        except Exception as e:
-            _log_llm_failure(ctx, "tg_actionables_llm_failed", exc=e)
+    if ctx.use_llm and candidates and (not ctx.budget.over(reserve_s=75.0)):
+        items = build_topics(
+            texts=candidates,
+            embeddings_fn=embeddings,
+            cluster_fn=greedy_cluster,
+            llm_summarizer=summarize_narratives,
+            llm_items_key="items",
+            prefilter=None,
+            postfilter=lambda it: postfilter_tg_topic_item(it, resolver=ctx.resolver),
+            cluster_score_fn=lambda it: score_tg_cluster(it, resolver=ctx.resolver),
+            max_clusters=12,
+            threshold=0.82,
+            embed_timeout=26,
+            time_budget_ok=lambda reserve: not ctx.budget.over(reserve_s=reserve),
+            budget_embed_s=55.0,
+            budget_llm_s=70.0,
+            errors=ctx.errors,
+            tag="tg_topics",
+        )
 
     if not items:
-        items = _fallback_actionables_from_texts(ctx.human_texts, limit=5)
+        items = tg_topics_fallback(candidates or ctx.human_texts, limit=5)
 
     ctx.narratives = items
     done()

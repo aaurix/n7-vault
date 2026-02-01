@@ -3,7 +3,7 @@
 
 """Topic pipeline (production):
 
-prefilter -> dedup -> embeddings cluster (K) -> LLM summarize -> postfilter -> normalize
+prefilter -> dedup -> embeddings cluster (K, optional scoring) -> LLM summarize -> postfilter -> normalize
 
 Used for:
 - Telegram 热点
@@ -44,6 +44,7 @@ def build_topics(
     llm_items_key: str = "items",
     prefilter: Optional[Callable[[str], bool]] = None,
     postfilter: Optional[Callable[[Dict[str, Any]], bool]] = None,
+    cluster_score_fn: Optional[Callable[[Dict[str, Any]], float]] = None,
     max_clusters: int = 10,
     threshold: float = 0.82,
     embed_timeout: int = 30,
@@ -88,6 +89,21 @@ def build_topics(
             vecs = embeddings_fn(texts=[t[:240] for t in filtered], timeout=embed_timeout)
             items = [{"text": t} for t in filtered]
             reps = cluster_fn(items, vecs, max_clusters=max_clusters, threshold=threshold)
+            if cluster_score_fn:
+                for r in reps:
+                    if isinstance(r, dict):
+                        try:
+                            r["_cluster_score"] = float(cluster_score_fn(r))
+                        except Exception:
+                            pass
+                reps = sorted(
+                    reps,
+                    key=lambda x: (
+                        float((x or {}).get("_cluster_score") or 0.0),
+                        float((x or {}).get("_cluster_size") or 0.0),
+                    ),
+                    reverse=True,
+                )
             reps_texts = [x.get("text") for x in reps if x.get("text")] or reps_texts
         except Exception as e:
             errors.append(f"{tag}_embed_failed:{e}")

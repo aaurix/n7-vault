@@ -31,8 +31,13 @@ def dexscreener_json(
     return _client(cache_path).json(url, ttl_s=ttl_s, timeout_s=timeout_s, cache_path=cache_path)
 
 
-def dexscreener_search(q: str, *, ttl_s: int = DEFAULT_TTL_S) -> List[Dict[str, Any]]:
-    return _client().search(q, ttl_s=ttl_s)
+def dexscreener_search(
+    q: str,
+    *,
+    ttl_s: Optional[int] = None,
+    cache_tier: str = "market",
+) -> List[Dict[str, Any]]:
+    return _client().search(q, ttl_s=ttl_s, cache_tier=cache_tier)
 
 
 def best_pair(pairs: List[Dict[str, Any]], symbol_hint: Optional[str] = None) -> Optional[Dict[str, Any]]:

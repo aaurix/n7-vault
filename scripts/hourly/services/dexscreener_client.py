@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""DexScreener client with shared cache + throttle."""
+"""DexScreener client with shared cache + throttle + tiered TTL."""
 
 from __future__ import annotations
 
@@ -15,6 +15,8 @@ from repo_paths import state_path
 
 
 DEFAULT_TTL_S = 60 * 60
+CACHE_TTL_MARKET_S = DEFAULT_TTL_S
+CACHE_TTL_RESOLVE_S = 6 * 60 * 60
 MIN_INTERVAL_S = 0.35
 USER_AGENT = "clawdbot-hourly-summary/1.1"
 
@@ -107,6 +109,14 @@ class DexScreenerClient:
         self._cache_path_loaded: Optional[Path] = None
         self._last_call_at = 0.0
 
+    def _ttl_for_tier(self, tier: str | None) -> int:
+        t = (tier or "").strip().lower()
+        if t == "resolve":
+            return CACHE_TTL_RESOLVE_S
+        if t == "market":
+            return CACHE_TTL_MARKET_S
+        return self.ttl_s
+
     def set_cache_path(self, path: Optional[Path]) -> None:
         resolved = path or _default_cache_path()
         if self.cache_path != resolved:
@@ -164,11 +174,18 @@ class DexScreenerClient:
             _save_cache(cache, path)
         return data
 
-    def search(self, q: str, *, ttl_s: Optional[int] = None) -> List[Dict[str, Any]]:
+    def search(
+        self,
+        q: str,
+        *,
+        ttl_s: Optional[int] = None,
+        cache_tier: str = "market",
+    ) -> List[Dict[str, Any]]:
         if not q:
             return []
         url = f"https://api.dexscreener.com/latest/dex/search?q={urlreq.quote(q)}"
-        data = self.json(url, ttl_s=ttl_s)
+        ttl = self._ttl_for_tier(cache_tier) if ttl_s is None else ttl_s
+        data = self.json(url, ttl_s=ttl)
         if not isinstance(data, dict):
             return []
         pairs = data.get("pairs") or []
@@ -215,7 +232,7 @@ class DexScreenerClient:
     def enrich_symbol(self, sym: str) -> Optional[Dict[str, Any]]:
         if not sym:
             return None
-        pairs = self.search(sym)
+        pairs = self.search(sym, cache_tier="market")
         best = self.best_pair(pairs, symbol_hint=sym)
         if not best:
             return None
@@ -225,7 +242,7 @@ class DexScreenerClient:
         """Resolve a contract address to best DexScreener pair metrics (best-effort)."""
         if not addr:
             return None
-        pairs = self.search(addr)
+        pairs = self.search(addr, cache_tier="market")
         best = self.best_pair(pairs)
         if not best:
             return None
@@ -234,7 +251,7 @@ class DexScreenerClient:
     def resolve_addr_symbol(self, addr: str) -> Optional[str]:
         if not addr:
             return None
-        pairs = self.search(addr)
+        pairs = self.search(addr, cache_tier="resolve")
         best = self.best_pair(pairs)
         if not best:
             return None
@@ -258,6 +275,8 @@ def get_shared_dexscreener_client(cache_path: Optional[Path] = None) -> DexScree
 __all__ = [
     "DexScreenerClient",
     "DEFAULT_TTL_S",
+    "CACHE_TTL_MARKET_S",
+    "CACHE_TTL_RESOLVE_S",
     "MIN_INTERVAL_S",
     "get_shared_dexscreener_client",
 ]
