@@ -349,10 +349,14 @@ def render_perp_dashboards_mini(perp_dash_inputs: List[Dict[str, Any]], *, top_n
         bias = str(d.get("bias_hint") or "观望").strip() or "观望"
 
         # Line 1: price/OI relationship (trader view)
-        line1 = (
-            f"{i}) {sym}（{bias}）"
-            f"价4h{_fmt_pct(px.get('4h_pct'))} OI4h{_fmt_pct(oi.get('4h_pct'))} → {flow}"
-        )
+        price_now = _as_num(d.get("price_now"))
+        mc = _as_num(d.get("market_cap"))
+        line1 = f"{i}) {sym}（{bias}）"
+        if price_now is not None:
+            line1 += f"现价{_fmt_num(price_now)} "
+        if mc is not None:
+            line1 += f"MC{_fmt_usd(mc)} "
+        line1 += f"价4h{_fmt_pct(px.get('4h_pct'))} OI4h{_fmt_pct(oi.get('4h_pct'))} → {flow}"
         out.append(line1)
 
         # Line 2: 1H/4H trend + extreme emotion
