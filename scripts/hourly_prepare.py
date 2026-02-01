@@ -13,10 +13,12 @@ but this script does not call hourly.llm_openai.chat_json.
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import json
 import os
 import signal
 import sys
+import threading
 import time
 from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple
 
@@ -118,6 +120,8 @@ def _log(msg: str, *, enabled: bool) -> None:
 
 def _call_with_timeout(timeout_s: float, fn: Callable[[], Any]) -> Any:
     if timeout_s <= 0:
+        return fn()
+    if threading.current_thread() is not threading.main_thread():
         return fn()
 
     def _handler(signum, frame):  # type: ignore[no-untyped-def]
@@ -246,33 +250,68 @@ def run_prepare(
     if only_unknown:
         _log(f"[hourly_prepare] WARN unknown only tokens: {', '.join(only_unknown)}", enabled=log_steps)
 
-    runner.run("health_check", lambda: _assert_tg_health(ctx))
+    twitter_future: Optional[concurrent.futures.Future[Any]] = None
+    twitter_executor: Optional[concurrent.futures.ThreadPoolExecutor] = None
 
-    meme_proc = runner.run("meme_spawn", lambda: spawn_meme_radar(ctx))
+    def _await_twitter() -> None:
+        nonlocal twitter_future, twitter_executor
+        if twitter_future is None:
+            return
+        try:
+            twitter_future.result()
+        except Exception as e:
+            ctx.errors.append(f"twitter_following_thread_failed:{type(e).__name__}:{e}")
+        if twitter_executor is not None:
+            twitter_executor.shutdown(wait=True)
+        twitter_future = None
+        twitter_executor = None
 
-    runner.run("tg_fetch", lambda: fetch_tg_messages(ctx))
-    runner.run("human_texts", lambda: build_human_texts(ctx))
+    def _should_parallel_twitter() -> bool:
+        if not runner._should_run("twitter_following"):
+            return False
+        for step in _STEP_GROUPS.get("tg", set()):
+            if runner._should_run(step):
+                return True
+        return False
 
-    runner.run("oi_items", lambda: build_oi(ctx))
+    try:
+        runner.run("health_check", lambda: _assert_tg_health(ctx))
 
-    # LLM-based OI plans (optional, budgeted)
-    runner.run("oi_plans", lambda: build_oi_plans_step(ctx), enabled=bool(ctx.use_llm))
+        meme_proc = runner.run("meme_spawn", lambda: spawn_meme_radar(ctx))
 
-    runner.run("viewpoint_threads", lambda: build_viewpoint_threads(ctx))
-    runner.run("tg_topics", lambda: build_tg_topics(ctx))
+        if _should_parallel_twitter():
+            twitter_executor = concurrent.futures.ThreadPoolExecutor(max_workers=1, thread_name_prefix="hourly_twitter")
+            twitter_future = twitter_executor.submit(
+                lambda: runner.run("twitter_following", lambda: build_twitter_following_summary(ctx, allow_llm=False))
+            )
 
-    # Deterministic fallback (only if tg_topics didn't already attempt one).
-    if not ctx.narratives and not ctx.perf.get("tg_topics_fallback_used"):
-        runner.run("tg_topics_fallback", lambda: setattr(ctx, "narratives", tg_topics_fallback(ctx.human_texts, limit=5)))
+        runner.run("tg_fetch", lambda: fetch_tg_messages(ctx))
+        runner.run("human_texts", lambda: build_human_texts(ctx))
 
-    runner.run("twitter_following", lambda: build_twitter_following_summary(ctx, allow_llm=False))
+        runner.run("oi_items", lambda: build_oi(ctx))
 
-    # meme radar join
-    runner.run("meme_wait", lambda: wait_meme_radar(ctx, meme_proc), enabled=meme_proc is not None)
-    runner.run("tg_addr_merge", lambda: merge_tg_addr_candidates_into_radar(ctx), enabled=meme_proc is not None)
+        # LLM-based OI plans (optional, budgeted)
+        runner.run("oi_plans", lambda: build_oi_plans_step(ctx), enabled=bool(ctx.use_llm))
 
-    # Unified social cards (TG + Twitter)
-    runner.run("social_cards", lambda: build_social_cards(ctx))
+        runner.run("viewpoint_threads", lambda: build_viewpoint_threads(ctx))
+        runner.run("tg_topics", lambda: build_tg_topics(ctx))
+
+        # Deterministic fallback (only if tg_topics didn't already attempt one).
+        if not ctx.narratives and not ctx.perf.get("tg_topics_fallback_used"):
+            runner.run("tg_topics_fallback", lambda: setattr(ctx, "narratives", tg_topics_fallback(ctx.human_texts, limit=5)))
+
+        if twitter_future is None:
+            runner.run("twitter_following", lambda: build_twitter_following_summary(ctx, allow_llm=False))
+
+        # meme radar join
+        runner.run("meme_wait", lambda: wait_meme_radar(ctx, meme_proc), enabled=meme_proc is not None)
+        runner.run("tg_addr_merge", lambda: merge_tg_addr_candidates_into_radar(ctx), enabled=meme_proc is not None)
+
+        # Unified social cards (TG + Twitter)
+        runner.run("social_cards", lambda: build_social_cards(ctx))
+
+    finally:
+        _await_twitter()
 
     # Build twitter evidence packs for the agent (one token per pack)
     ca_inputs = []

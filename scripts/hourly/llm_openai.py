@@ -481,6 +481,8 @@ def summarize_twitter_following(*, twitter_snippets: List[str]) -> Dict[str, Any
         "请输出三部分：叙事、情绪、重大事件。输出JSON：{narratives:[...], sentiment, events:[...]}。\n"
         "硬性要求：\n"
         "- narratives/events每条<=50字，最多3条；没有则输出空数组。\n"
+        "- narratives必须包含可定位锚点（项目/代币/平台/事件），避免泛化描述。\n"
+        "- events强调客观事件（上所/解锁/黑客/融资/空投/监管/脱锚/回购等），优先带主体。\n"
         "- sentiment必须包含: 偏多/偏空/分歧/中性 之一，可附10字内原因。\n"
         "- 优先考虑count较高的内容作为叙事/事件。\n"
         "- 只基于输入，不要编造；不要引用原文；不要输出链接。\n"

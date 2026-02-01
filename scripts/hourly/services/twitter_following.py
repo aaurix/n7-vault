@@ -8,10 +8,11 @@ import datetime as dt
 import json
 import re
 import subprocess
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from ..config import SH_TZ, UTC
 from ..embed_cluster import greedy_cluster
+from ..filters import extract_symbols_and_addrs
 from ..llm_openai import embeddings, summarize_twitter_following
 from ..models import PipelineContext
 from .evidence_cleaner import _clean_evidence_snippet
@@ -60,6 +61,15 @@ _LIGHT_NOISE = {
     "lfg",
 }
 
+_NARRATIVE_PATTERNS: List[Dict[str, Any]] = [
+    {"label": "突破/新高", "kws": ["breakout", "突破", "新高", "ath", "新高点", "突破位"]},
+    {"label": "回调/走弱", "kws": ["回调", "下跌", "走弱", "砸盘", "dump", "selloff"]},
+    {"label": "多头升温", "kws": ["bull", "long", "做多", "看多", "pump", "moon"]},
+    {"label": "空头升温", "kws": ["bear", "short", "做空", "看空", "砸盘", "rug"]},
+    {"label": "资金流入/热度升温", "kws": ["inflow", "资金流入", "热度", "volume", "成交放大", "买盘"]},
+    {"label": "资金流出/热度降温", "kws": ["outflow", "资金流出", "降温", "抛压", "卖压"]},
+]
+
 _EVENT_PATTERNS: List[Dict[str, Any]] = [
     {"label": "上所/上架", "kws": ["上线", "上所", "上架", "list", "listing", "binance", "coinbase", "okx", "bybit"]},
     {"label": "解锁/释放", "kws": ["unlock", "解锁", "释放", "vesting"]},
@@ -67,9 +77,29 @@ _EVENT_PATTERNS: List[Dict[str, Any]] = [
     {"label": "清算/爆仓", "kws": ["liquidation", "清算", "爆仓"]},
     {"label": "监管/诉讼", "kws": ["sec", "监管", "诉讼", "court", "delist", "下架"]},
     {"label": "融资/投资", "kws": ["融资", "投资", "funding", "raise", "round"]},
+    {"label": "空投/激励", "kws": ["airdrop", "空投", "激励", "points", "积分"]},
+    {"label": "回购/销毁", "kws": ["buyback", "回购", "销毁", "burn"]},
+    {"label": "合作/集成", "kws": ["合作", "partner", "partnership", "integrate", "integration"]},
+    {"label": "脱锚/稳定币", "kws": ["depeg", "脱锚", "peg", "稳定币"]},
 ]
 
 _SYMBOL_RE = re.compile(r"\$[A-Za-z0-9]{2,10}")
+_MAJOR_SYMS = {
+    "BTC",
+    "ETH",
+    "SOL",
+    "BNB",
+    "XRP",
+    "ADA",
+    "DOGE",
+    "AVAX",
+    "OP",
+    "ARB",
+    "SUI",
+    "SEI",
+    "APT",
+}
+_MAJOR_RE = re.compile(r"\b(?:" + "|".join(sorted(_MAJOR_SYMS)) + r")\b", re.IGNORECASE)
 
 
 def _run_bird_home_following(n: int, *, timeout_s: int = 35) -> str:
@@ -235,20 +265,69 @@ def _extract_symbol_hint(text: str) -> str:
     return m.group(0)[1:].upper()
 
 
-def _detect_events(snippets: List[str], *, max_items: int = 3) -> List[str]:
-    out: List[str] = []
-    for s in snippets:
-        low = s.lower()
-        matched = None
-        for pat in _EVENT_PATTERNS:
-            if any(k in low for k in pat["kws"]):
-                matched = pat
-                break
-        if not matched:
+def _extract_symbols(text: str, *, resolver: Optional[Any] = None) -> List[str]:
+    syms: List[str] = []
+    if resolver is not None:
+        try:
+            syms, _addrs = resolver.extract_symbols_and_addrs(text or "")
+        except Exception:
+            syms = []
+    if not syms:
+        syms, _addrs = extract_symbols_and_addrs(text or "")
+    majors = [x.upper() for x in _MAJOR_RE.findall(text or "")]
+    for sym in majors:
+        if sym and sym not in syms:
+            syms.append(sym)
+    return syms
+
+
+def _pick_symbol(text: str, *, resolver: Optional[Any] = None) -> str:
+    syms = _extract_symbols(text, resolver=resolver)
+    if syms:
+        return str(syms[0])
+    return _extract_symbol_hint(text)
+
+
+def _event_label(text: str) -> str:
+    low = (text or "").lower()
+    for pat in _EVENT_PATTERNS:
+        if any(k in low for k in pat["kws"]):
+            return str(pat["label"])
+    return ""
+
+
+def _has_anchor(text: str, *, resolver: Optional[Any] = None) -> bool:
+    return bool(_pick_symbol(text, resolver=resolver) or _event_label(text))
+
+
+def _narrative_hint(text: str, *, resolver: Optional[Any] = None) -> str:
+    low = (text or "").lower()
+    sym = _pick_symbol(text, resolver=resolver)
+    for pat in _NARRATIVE_PATTERNS:
+        if any(k in low for k in pat["kws"]):
+            label = str(pat["label"])
+            return f"{sym}{label}" if sym else label
+    return ""
+
+
+def _detect_events_from_items(
+    items: List[Dict[str, Any]],
+    *,
+    max_items: int = 3,
+    resolver: Optional[Any] = None,
+) -> List[str]:
+    scored: List[Tuple[int, int, str]] = []
+    for idx, it in enumerate(items):
+        text = str(it.get("text") or it.get("snippet") or "")
+        label = _event_label(text)
+        if not label:
             continue
-        sym = _extract_symbol_hint(s)
-        label = matched["label"]
+        sym = _pick_symbol(text, resolver=resolver)
         ev = f"{sym}{label}" if sym else f"{label}相关讨论"
+        score = int(it.get("_cluster_size") or 1)
+        scored.append((score, idx, ev))
+    out: List[str] = []
+    for _score, _idx, ev in sorted(scored, key=lambda x: (-x[0], x[1])):
         if ev in out:
             continue
         out.append(ev)
@@ -268,6 +347,26 @@ def _pick_narratives(snippets: List[str], *, max_items: int = 3) -> List[str]:
         if s in out:
             continue
         out.append(s)
+        if len(out) >= max_items:
+            break
+    return out
+
+
+def _extract_narratives_from_items(
+    items: List[Dict[str, Any]],
+    *,
+    max_items: int = 3,
+    resolver: Optional[Any] = None,
+) -> List[str]:
+    out: List[str] = []
+    for it in items:
+        text = str(it.get("text") or it.get("snippet") or "")
+        hint = _narrative_hint(text, resolver=resolver)
+        if not hint:
+            continue
+        if hint in out:
+            continue
+        out.append(hint)
         if len(out) >= max_items:
             break
     return out
@@ -303,13 +402,134 @@ def _normalize_sentiment(val: Any, *, fallback: str) -> str:
     return fallback
 
 
-def _fallback_summary(snippets: List[str], *, total: int, kept: int, clusters: int) -> Dict[str, Any]:
+def _fallback_summary(
+    *,
+    items: List[Dict[str, Any]],
+    snippets: List[str],
+    total: int,
+    kept: int,
+    clusters: int,
+    resolver: Optional[Any] = None,
+) -> Dict[str, Any]:
+    rep_texts = [str(it.get("text") or it.get("snippet") or "") for it in items]
+    rep_texts = [t for t in rep_texts if t]
+    narratives = _extract_narratives_from_items(items, max_items=3, resolver=resolver)
+    if not narratives:
+        narratives = _pick_narratives(rep_texts or snippets, max_items=3)
+    events = _detect_events_from_items(items, max_items=3, resolver=resolver)
+    if not events:
+        events = _detect_events_from_items(
+            [{"text": s, "_cluster_size": 1} for s in (rep_texts or snippets)],
+            max_items=3,
+            resolver=resolver,
+        )
     return {
-        "narratives": _pick_narratives(snippets, max_items=3),
-        "sentiment": _guess_sentiment(snippets),
-        "events": _detect_events(snippets, max_items=3),
+        "narratives": narratives,
+        "sentiment": _guess_sentiment(rep_texts or snippets),
+        "events": events,
         "meta": {"total": total, "kept": kept, "clusters": clusters},
     }
+
+
+def _cluster_params(total: int) -> Tuple[int, float]:
+    if total <= 18:
+        return max(1, min(total, 5)), 0.84
+    if total <= 45:
+        return 6, 0.82
+    if total <= 90:
+        return 7, 0.80
+    if total <= 140:
+        return 8, 0.79
+    return 9, 0.78
+
+
+def _coarse_cluster_by_symbol(
+    items: List[Dict[str, Any]],
+    *,
+    max_clusters: int,
+    resolver: Optional[Any] = None,
+) -> List[Dict[str, Any]]:
+    groups: Dict[str, List[Dict[str, Any]]] = {}
+    order: List[str] = []
+    for idx, it in enumerate(items):
+        text = str(it.get("text") or it.get("snippet") or "")
+        sym = _pick_symbol(text, resolver=resolver)
+        key = sym or f"__misc_{idx}"
+        if sym:
+            if key not in groups:
+                order.append(key)
+            groups.setdefault(key, []).append(it)
+        else:
+            order.append(key)
+            groups[key] = [it]
+
+    reps: List[Dict[str, Any]] = []
+    for key in order:
+        group = groups.get(key) or []
+        if not group:
+            continue
+        rep = dict(group[0])
+        rep["_cluster_size"] = len(group)
+        members = [str(g.get("text") or g.get("snippet") or "")[:140] for g in group if g]
+        if members:
+            rep["_cluster_members"] = members[:3]
+        reps.append(rep)
+
+    reps.sort(key=lambda x: int(x.get("_cluster_size") or 1), reverse=True)
+    return reps[:max_clusters]
+
+
+def _merge_clusters_by_symbol(
+    reps: List[Dict[str, Any]],
+    *,
+    max_clusters: int,
+    resolver: Optional[Any] = None,
+) -> List[Dict[str, Any]]:
+    groups: Dict[str, List[Dict[str, Any]]] = {}
+    order: List[str] = []
+    for idx, it in enumerate(reps):
+        text = str(it.get("text") or it.get("snippet") or "")
+        sym = _pick_symbol(text, resolver=resolver)
+        key = sym or f"__misc_{idx}"
+        if sym:
+            if key not in groups:
+                order.append(key)
+            groups.setdefault(key, []).append(it)
+        else:
+            order.append(key)
+            groups[key] = [it]
+
+    merged: List[Dict[str, Any]] = []
+    for key in order:
+        group = groups.get(key) or []
+        if not group:
+            continue
+        rep = dict(group[0])
+        total = 0
+        members: List[str] = []
+        for it in group:
+            total += int(it.get("_cluster_size") or 1)
+            mem = it.get("_cluster_members") or []
+            if isinstance(mem, list):
+                for m in mem:
+                    t = str(m).strip()
+                    if t and t not in members:
+                        members.append(t[:140])
+                    if len(members) >= 3:
+                        break
+            if len(members) < 3:
+                t = str(it.get("text") or it.get("snippet") or "").strip()
+                if t and t not in members:
+                    members.append(t[:140])
+            if len(members) >= 3:
+                break
+        rep["_cluster_size"] = total
+        if members:
+            rep["_cluster_members"] = members[:3]
+        merged.append(rep)
+
+    merged.sort(key=lambda x: int(x.get("_cluster_size") or 1), reverse=True)
+    return merged[:max_clusters]
 
 
 def _cluster_snippets(
@@ -324,20 +544,21 @@ def _cluster_snippets(
     if not items:
         return []
     if len(items) <= max_clusters:
-        return list(items)
+        return _merge_clusters_by_symbol(list(items), max_clusters=max_clusters, resolver=ctx.resolver)
     if not allow_embeddings:
-        return list(items)
+        return _coarse_cluster_by_symbol(items, max_clusters=max_clusters, resolver=ctx.resolver)
     if ctx.budget.over(reserve_s=45.0):
         ctx.errors.append("twitter_following_embed_skipped:budget")
-        return list(items)
+        return _coarse_cluster_by_symbol(items, max_clusters=max_clusters, resolver=ctx.resolver)
 
     try:
         vecs = embeddings(texts=[(it.get("text") or "")[:240] for it in items], timeout=embed_timeout)
         reps = greedy_cluster(items, vecs, max_clusters=max_clusters, threshold=threshold)
-        return [it for it in reps if isinstance(it, dict)]
+        reps = [it for it in reps if isinstance(it, dict)]
+        return _merge_clusters_by_symbol(reps, max_clusters=max_clusters, resolver=ctx.resolver)
     except Exception as e:
         ctx.errors.append(f"twitter_following_embed_failed:{type(e).__name__}:{e}")
-        return list(items)
+        return _coarse_cluster_by_symbol(items, max_clusters=max_clusters, resolver=ctx.resolver)
 
 
 def _build_llm_inputs(reps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -352,6 +573,88 @@ def _build_llm_inputs(reps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         if len(out) >= 120:
             break
     return out
+
+
+def _filter_anchor_items(items: List[str], *, resolver: Optional[Any] = None) -> List[str]:
+    anchored = [it for it in items if _has_anchor(it, resolver=resolver)]
+    return anchored or items
+
+
+def _merge_lists(primary: List[str], fallback: List[str], *, max_items: int = 3) -> List[str]:
+    out: List[str] = []
+    for seq in (primary, fallback):
+        for it in seq:
+            s = str(it).strip().lstrip("- ")
+            if not s:
+                continue
+            if s in out:
+                continue
+            out.append(s)
+            if len(out) >= max_items:
+                return out
+    return out
+
+
+def _norm_compare_text(text: str) -> str:
+    t = re.sub(r"[\s\W_]+", "", str(text or "").lower())
+    return t
+
+
+def _sentiment_tag(val: str) -> str:
+    s = str(val or "")
+    for tag in _ALLOWED_SENTIMENTS:
+        if tag in s:
+            return tag
+    return ""
+
+
+def _compare_lists(base: List[str], other: List[str]) -> Dict[str, Any]:
+    base_keys = {_norm_compare_text(x) for x in base if _norm_compare_text(x)}
+    other_keys = {_norm_compare_text(x) for x in other if _norm_compare_text(x)}
+    only_base = [x for x in base if _norm_compare_text(x) not in other_keys]
+    only_other = [x for x in other if _norm_compare_text(x) not in base_keys]
+    overlap = [x for x in base if _norm_compare_text(x) in other_keys]
+    return {
+        "only_base": only_base[:3],
+        "only_other": only_other[:3],
+        "overlap": overlap[:3],
+        "base_count": len(base),
+        "other_count": len(other),
+    }
+
+
+def _compare_summaries(fallback: Dict[str, Any], agent: Dict[str, Any]) -> Dict[str, Any]:
+    base_n = _normalize_list(fallback.get("narratives"), max_items=6)
+    base_e = _normalize_list(fallback.get("events"), max_items=6)
+    agent_n = _normalize_list(agent.get("narratives"), max_items=6)
+    agent_e = _normalize_list(agent.get("events"), max_items=6)
+    base_s = str(fallback.get("sentiment") or "")
+    agent_s = str(agent.get("sentiment") or "")
+    return {
+        "sentiment_base": base_s,
+        "sentiment_agent": agent_s,
+        "sentiment_match": _sentiment_tag(base_s) == _sentiment_tag(agent_s),
+        "narratives": _compare_lists(base_n, agent_n),
+        "events": _compare_lists(base_e, agent_e),
+    }
+
+
+def _merge_summary(
+    *,
+    fallback: Dict[str, Any],
+    agent: Dict[str, Any],
+    resolver: Optional[Any] = None,
+) -> Dict[str, Any]:
+    base_n = _normalize_list(fallback.get("narratives"), max_items=6)
+    base_e = _normalize_list(fallback.get("events"), max_items=6)
+    agent_n = _filter_anchor_items(_normalize_list(agent.get("narratives"), max_items=6), resolver=resolver)
+    agent_e = _filter_anchor_items(_normalize_list(agent.get("events"), max_items=6), resolver=resolver)
+    return {
+        "narratives": _merge_lists(agent_n, base_n, max_items=3),
+        "sentiment": _normalize_sentiment(agent.get("sentiment"), fallback=str(fallback.get("sentiment") or "中性")),
+        "events": _merge_lists(agent_e, base_e, max_items=3),
+        "meta": fallback.get("meta") or {},
+    }
 
 
 def build_twitter_following_summary(
@@ -371,7 +674,15 @@ def build_twitter_following_summary(
         kept = len(snippets)
 
         allow_embeddings = bool(allow_llm and ctx.use_llm)
-        reps = _cluster_snippets(items, ctx=ctx, max_clusters=12, threshold=0.82, embed_timeout=26, allow_embeddings=allow_embeddings)
+        target_clusters, threshold = _cluster_params(len(items))
+        reps = _cluster_snippets(
+            items,
+            ctx=ctx,
+            max_clusters=target_clusters,
+            threshold=threshold,
+            embed_timeout=26,
+            allow_embeddings=allow_embeddings,
+        )
         rep_texts = [str(it.get("text") or it.get("snippet") or "").strip() for it in reps if it]
         rep_texts = [t for t in rep_texts if t]
         cluster_count = len(reps) if reps else 0
@@ -384,7 +695,15 @@ def build_twitter_following_summary(
             "clustered_snippets": [it.get("snippet") or it.get("text") for it in reps if it] if reps else [],
         }
 
-        summary = _fallback_summary(rep_texts or snippets, total=total, kept=kept, clusters=cluster_count)
+        fallback_summary = _fallback_summary(
+            items=reps,
+            snippets=snippets,
+            total=total,
+            kept=kept,
+            clusters=cluster_count,
+            resolver=ctx.resolver,
+        )
+        summary = fallback_summary
 
         llm_budget_over = ctx.budget.over(reserve_s=50.0)
         if allow_llm and ctx.use_llm and rep_texts and (not llm_budget_over):
@@ -392,13 +711,17 @@ def build_twitter_following_summary(
                 llm_inputs = _build_llm_inputs(reps)
                 out = summarize_twitter_following(twitter_snippets=llm_inputs or rep_texts)
                 if isinstance(out, dict):
-                    narratives = _normalize_list(out.get("narratives"), max_items=3) or summary.get("narratives")
-                    events = _normalize_list(out.get("events"), max_items=3) or summary.get("events")
-                    summary = {
-                        "narratives": narratives,
-                        "sentiment": _normalize_sentiment(out.get("sentiment"), fallback=summary["sentiment"]),
-                        "events": events,
-                        "meta": {"total": total, "kept": kept, "clusters": cluster_count},
+                    agent_summary = {
+                        "narratives": _normalize_list(out.get("narratives"), max_items=3),
+                        "sentiment": _normalize_sentiment(out.get("sentiment"), fallback=fallback_summary["sentiment"]),
+                        "events": _normalize_list(out.get("events"), max_items=3),
+                        "meta": fallback_summary.get("meta") or {},
+                    }
+                    summary = _merge_summary(fallback=fallback_summary, agent=agent_summary, resolver=ctx.resolver)
+                    ctx.twitter_following["diagnostics"] = {
+                        "fallback_summary": fallback_summary,
+                        "agent_summary": agent_summary,
+                        "compare": _compare_summaries(fallback_summary, agent_summary),
                     }
                 else:
                     _log_llm_failure(ctx, "twitter_following_llm_parse_failed", raw=str(out))
@@ -419,16 +742,42 @@ def build_twitter_following_summary(
 
 
 def self_check_twitter_following() -> str:
+    class _DummyResolver:
+        def extract_symbols_and_addrs(self, text: str, require_sol_digit: bool = False):
+            return extract_symbols_and_addrs(text)
+
+    class _DummyBudget:
+        def over(self, reserve_s: float = 0.0) -> bool:
+            return False
+
+    class _DummyCtx:
+        resolver = _DummyResolver()
+        budget = _DummyBudget()
+        errors: List[str] = []
+
     sample_rows = [
         {"handle": "alpha", "text": "BTC 突破关键阻力，考虑做多", "createdAt": "2025-01-01T00:00:00+08:00"},
         {"handle": "beta", "text": "SOL 遇阻回落，短线偏空", "createdAt": "2025-01-01T00:02:00+08:00"},
         {"handle": "gamma", "text": "ETH 上所传闻暂无证实", "createdAt": "2025-01-01T00:03:00+08:00"},
+        {"handle": "delta", "text": "OP 解锁临近，谨慎", "createdAt": "2025-01-01T00:04:00+08:00"},
     ]
     items = _prep_snippets(sample_rows, limit=10)
     snippets = [it.get("text") or it.get("snippet") or "" for it in items]
-    summary = _fallback_summary(snippets, total=len(sample_rows), kept=len(snippets), clusters=len(items))
+    reps = _cluster_snippets(items, ctx=_DummyCtx(), max_clusters=4, threshold=0.8, allow_embeddings=False)
+    summary = _fallback_summary(
+        items=reps,
+        snippets=snippets,
+        total=len(sample_rows),
+        kept=len(snippets),
+        clusters=len(reps),
+        resolver=_DummyCtx().resolver,
+    )
     if not snippets:
         return "self_check_twitter_following:fail:empty_snippets"
+    if len(reps) > 4:
+        return "self_check_twitter_following:fail:cluster_limit"
     if summary.get("sentiment") not in _ALLOWED_SENTIMENTS:
         return "self_check_twitter_following:fail:bad_sentiment"
+    if not summary.get("events"):
+        return "self_check_twitter_following:fail:events_empty"
     return "self_check_twitter_following:ok"
