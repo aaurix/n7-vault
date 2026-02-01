@@ -1,201 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""OpenAI/OpenRouter API helper for LLM-based summarization.
-
-This module is ONLY used by the hourly summarization pipeline when explicitly enabled.
-- Chat completions: OpenRouter (OPENROUTER_API_KEY, optional ~/.clawdbot/.env fallback).
-- Embeddings: OpenAI (OPENAI_API_KEY).
-
-We keep calls minimal:
-- 1 telegram actionables summary (top 5)
-- 1 twitter actionables summary (top 5)
-- 1 OI+Kline trading plan summary (top 3)
-- optional: 1 token-thread batch summary (top 3, only on strong hours)
-"""
+"""OpenRouter/OpenAI chat helper for summarization."""
 
 from __future__ import annotations
 
 import json
 import os
-import re
 import time
-import hashlib
 import urllib.request as urlreq
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
-from repo_paths import state_path
-
-
-def _load_env_key(name: str) -> Optional[str]:
-    k = os.environ.get(name)
-    if k:
-        return k.strip()
-
-    # Fallback for daemon-less local runs
-    env_path = os.path.expanduser("~/.clawdbot/.env")
-    try:
-        if os.path.exists(env_path):
-            raw = open(env_path, "r", encoding="utf-8").read()
-            m = re.search(rf"^{re.escape(name)}\s*=\s*(.+)\s*$", raw, re.MULTILINE)
-            if m:
-                return m.group(1).strip().strip('"').strip("'")
-    except Exception:
-        pass
-
-    return None
-
-
-def load_openai_api_key() -> Optional[str]:
-    """OpenAI key (for OpenAI endpoints, embeddings, etc)."""
-
-    return _load_env_key("OPENAI_API_KEY")
-
-
-def load_openrouter_api_key() -> Optional[str]:
-    """OpenRouter key (OpenAI-compatible endpoint)."""
-
-    return _load_env_key("OPENROUTER_API_KEY")
-
-
-def load_chat_api_key() -> Optional[str]:
-    """Key resolver for *chat* calls (OpenRouter only).
-
-    Chat completions are routed through OpenRouter; embeddings stay on OpenAI.
-    """
-
-    return load_openrouter_api_key()
-
-
-def _sha1(s: str) -> str:
-    return hashlib.sha1((s or "").encode("utf-8")).hexdigest()
-
-
-def _default_embed_cache_path() -> str:
-    return str(state_path("embeddings_cache.json"))
-
-
-_EMBED_CACHE: Optional[Dict[str, List[float]]] = None
-_EMBED_CACHE_PATH: Optional[str] = None
-_EMBED_DIRTY: bool = False
-
-
-def _load_embed_cache(path: str) -> Dict[str, List[float]]:
-    try:
-        if os.path.exists(path):
-            data = json.loads(open(path, "r", encoding="utf-8").read())
-            if isinstance(data, dict):
-                out: Dict[str, List[float]] = {}
-                for k, v in data.items():
-                    if isinstance(k, str) and isinstance(v, list):
-                        out[k] = [float(x) for x in v]
-                return out
-    except Exception:
-        pass
-    return {}
-
-
-def _save_embed_cache(path: str, cache: Dict[str, List[float]], *, max_items: int = 5000) -> None:
-    try:
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        # naive prune: keep most-recent by insertion order is not tracked; just cap by arbitrary slice
-        if len(cache) > max_items:
-            keys = list(cache.keys())[-max_items:]
-            cache = {k: cache[k] for k in keys}
-        open(path, "w", encoding="utf-8").write(json.dumps(cache, ensure_ascii=False))
-    except Exception:
-        pass
-
-
-def flush_embeddings_cache() -> None:
-    """Best-effort flush to disk (optional)."""
-    global _EMBED_DIRTY
-    if not _EMBED_DIRTY:
-        return
-    if _EMBED_CACHE is None or not _EMBED_CACHE_PATH:
-        return
-    _save_embed_cache(_EMBED_CACHE_PATH, _EMBED_CACHE)
-    _EMBED_DIRTY = False
-
-
-def embeddings(
-    *,
-    texts: Sequence[str],
-    model: str = "text-embedding-3-small",
-    timeout: int = 30,
-    cache_path: Optional[str] = None,
-) -> List[List[float]]:
-    """Embedding with disk cache keyed by sha1(text).
-
-    Cache is best-effort. On any cache error, falls back to direct API call.
-    Uses an in-process singleton cache to avoid reloading the JSON file multiple times per run.
-    """
-
-    global _EMBED_CACHE, _EMBED_CACHE_PATH, _EMBED_DIRTY
-
-    api_key = load_openai_api_key()
-    if not api_key:
-        raise RuntimeError("OPENAI_API_KEY not found")
-
-    cache_path = cache_path or _default_embed_cache_path()
-    if _EMBED_CACHE is None or _EMBED_CACHE_PATH != cache_path:
-        _EMBED_CACHE_PATH = cache_path
-        _EMBED_CACHE = _load_embed_cache(cache_path)
-        _EMBED_DIRTY = False
-
-    cache = _EMBED_CACHE or {}
-
-    # Resolve cached vectors
-    keys = [_sha1(t) for t in texts]
-    out: List[Optional[List[float]]] = [None] * len(keys)
-    missing_idx: List[int] = []
-    missing_texts: List[str] = []
-
-    for i, k in enumerate(keys):
-        if k in cache:
-            out[i] = cache[k]
-        else:
-            missing_idx.append(i)
-            missing_texts.append(texts[i])
-
-    # Fetch only missing
-    if missing_texts:
-        payload = {"model": model, "input": list(missing_texts)}
-
-        req = urlreq.Request(
-            "https://api.openai.com/v1/embeddings",
-            data=json.dumps(payload).encode("utf-8"),
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json",
-                "User-Agent": "clawdbot-hourly/1.0",
-            },
-            method="POST",
-        )
-
-        with urlreq.urlopen(req, timeout=timeout) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-
-        vecs: List[List[float]] = []
-        for row in (data.get("data") or []):
-            v = row.get("embedding")
-            if isinstance(v, list):
-                vecs.append([float(x) for x in v])
-
-        # Fill outputs + write-through cache
-        for j, i in enumerate(missing_idx):
-            if j < len(vecs):
-                out[i] = vecs[j]
-                cache[keys[i]] = vecs[j]
-                _EMBED_DIRTY = True
-
-        # write-through (best-effort)
-        flush_embeddings_cache()
-
-    # Persist the singleton back
-    _EMBED_CACHE = cache
-
-    return [v or [] for v in out]
+from .keys import load_openrouter_api_key
+from .parsing import parse_json_object
 
 
 def _resolve_chat_endpoint(model: str) -> Tuple[str, str, str]:
@@ -278,48 +95,14 @@ def chat_json(
 
     content = _call_once()
 
-    def _try_parse_json(s: str) -> Optional[Dict[str, Any]]:
-        if not s:
-            return None
-        s2 = s.strip()
-        try:
-            out = json.loads(s2)
-            return out if isinstance(out, dict) else None
-        except Exception:
-            pass
-
-        # Strip fenced code blocks
-        if "```" in s2:
-            import re as _re
-
-            m = _re.search(r"```(?:json)?\s*(\{.*?\})\s*```", s2, _re.S | _re.I)
-            if m:
-                try:
-                    out = json.loads(m.group(1))
-                    return out if isinstance(out, dict) else None
-                except Exception:
-                    pass
-
-        # Best-effort: take the first {...} span
-        i = s2.find("{")
-        j = s2.rfind("}")
-        if 0 <= i < j:
-            frag = s2[i : j + 1]
-            try:
-                out = json.loads(frag)
-                return out if isinstance(out, dict) else None
-            except Exception:
-                return None
-        return None
-
-    parsed = _try_parse_json(content)
+    parsed = parse_json_object(content)
     if parsed is not None:
         return parsed
 
     if retry_on_parse_fail:
         time.sleep(max(0.1, float(retry_delay_s)))
         content2 = _call_once()
-        parsed2 = _try_parse_json(content2)
+        parsed2 = parse_json_object(content2)
         if parsed2 is not None:
             return parsed2
         return {"raw": content2, "_parse_failed": True, "_retry_used": True}
@@ -502,7 +285,6 @@ def detect_twitter_following_events(*, twitter_snippets: List[str]) -> Dict[str,
 
 
 
-
 def summarize_twitter_following(*, twitter_snippets: List[str]) -> Dict[str, Any]:
     """Summarize following timeline into narratives/sentiment/events."""
 
@@ -639,3 +421,19 @@ def summarize_overall(
 
     # give overall a bit more time; if it still times out, caller will catch and skip
     return chat_json(system=system, user=json.dumps(user, ensure_ascii=False), max_tokens=420, timeout=55)
+
+
+__all__ = [
+    "chat_json",
+    "summarize_token_thread",
+    "summarize_token_threads_batch",
+    "summarize_oi_trading_plans",
+    "summarize_tg_actionables",
+    "summarize_twitter_actionables",
+    "detect_twitter_following_events",
+    "summarize_twitter_following",
+    "summarize_narratives",
+    "summarize_twitter_topics",
+    "summarize_twitter_ca_viewpoints",
+    "summarize_overall",
+]

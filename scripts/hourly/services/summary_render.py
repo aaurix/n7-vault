@@ -10,6 +10,7 @@ from typing import Any, Dict, List
 from ..models import PipelineContext
 from ..perp_dashboard import build_perp_dash_inputs
 from ..render import WHATSAPP_CHUNK_MAX, build_summary, split_whatsapp_text
+from .metrics_report import build_metrics_report
 from .pipeline_timing import measure
 from .text_hash import sha1_text
 
@@ -71,6 +72,7 @@ def render(ctx: PipelineContext) -> Dict[str, Any]:
 
     summary_hash = sha1_text(summary_whatsapp + "\n---\n" + summary_markdown)
     summary_whatsapp_chunks = split_whatsapp_text(summary_whatsapp, max_chars=WHATSAPP_CHUNK_MAX)
+    metrics_report = build_metrics_report(ctx)
 
     done()
 
@@ -85,6 +87,7 @@ def render(ctx: PipelineContext) -> Dict[str, Any]:
         "summary_markdown_path": tmp_md_path,
         "errors": ctx.errors,
         "llm_failures": ctx.llm_failures,
+        "metrics_report": metrics_report,
         "elapsed_s": round(ctx.budget.elapsed_s(), 2),
         "perf": ctx.perf,
         "use_llm": bool(ctx.use_llm),

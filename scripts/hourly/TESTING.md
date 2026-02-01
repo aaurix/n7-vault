@@ -20,6 +20,11 @@ assert all(len(x) <= WHATSAPP_CHUNK_MAX for x in split_whatsapp_text("x" * (WHAT
 PY
 ```
 
+## Pytest
+```bash
+pytest -q
+```
+
 ## Compile check
 ```bash
 python3 -m compileall scripts/hourly

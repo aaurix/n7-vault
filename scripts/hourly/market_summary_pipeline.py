@@ -13,6 +13,7 @@ from .models import PipelineContext
 from .services.actionable_normalization import self_check_actionables
 from .services.context_builder import build_context
 from .services.meme_radar import merge_tg_addr_candidates_into_radar, spawn_meme_radar, wait_meme_radar
+from .services.metrics_report import build_metrics_report
 from .services.narrative_assets import infer_narrative_assets_from_tg
 from .services.oi_service import build_oi, build_oi_plans_step
 from .services.sentiment_watch import compute_sentiment_and_watch
@@ -78,6 +79,7 @@ def run_pipeline(*, total_budget_s: float = DEFAULT_TOTAL_BUDGET_S) -> Dict[str,
                 "summary_markdown_path": "",
                 "errors": ctx.errors + [f"fatal_render:{type(e2).__name__}:{e2}"],
                 "llm_failures": ctx.llm_failures,
+                "metrics_report": build_metrics_report(ctx),
                 "elapsed_s": round(ctx.budget.elapsed_s(), 2),
                 "perf": ctx.perf,
                 "use_llm": bool(ctx.use_llm),
