@@ -186,6 +186,7 @@ def pair_metrics(p: Dict[str, Any]) -> Dict[str, Any]:
         "pairAddress": p.get("pairAddress"),
         "baseSymbol": (p.get("baseToken") or {}).get("symbol"),
         "baseAddress": (p.get("baseToken") or {}).get("address"),
+        "priceUsd": p.get("priceUsd"),
         "liquidityUsd": (p.get("liquidity") or {}).get("usd"),
         "vol24h": (p.get("volume") or {}).get("h24"),
         "chg1h": (p.get("priceChange") or {}).get("h1"),

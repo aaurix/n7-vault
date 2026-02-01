@@ -16,23 +16,22 @@ import json
 import os
 from typing import Any, Dict, List
 
-from hourly.market_summary_pipeline import (
-    PipelineContext,
-    build_context,
-    spawn_meme_radar,
-    fetch_tg_messages,
-    build_human_texts,
-    build_oi,
-    build_viewpoint_threads,
-    build_tg_topics,
-    wait_meme_radar,
+from hourly.config import DEFAULT_TOTAL_BUDGET_S
+from hourly.models import PipelineContext
+from hourly.services.context_builder import build_context
+from hourly.services.meme_radar import (
     merge_tg_addr_candidates_into_radar,
+    spawn_meme_radar,
+    wait_meme_radar,
 )
+from hourly.services.oi_service import build_oi, build_oi_plans_step
+from hourly.services.telegram_service import build_human_texts, build_viewpoint_threads, fetch_tg_messages
+from hourly.services.tg_topics import build_tg_topics
 from hourly.perp_dashboard import build_perp_dash_inputs
 from hourly.tg_topics_fallback import tg_topics_fallback
 
 
-def run_prepare(total_budget_s: float = 240.0) -> Dict[str, Any]:
+def run_prepare(total_budget_s: float = DEFAULT_TOTAL_BUDGET_S) -> Dict[str, Any]:
     ctx: PipelineContext = build_context(total_budget_s=total_budget_s)
 
     # Default: enable LLM in prepare stage when available.
@@ -51,8 +50,6 @@ def run_prepare(total_budget_s: float = 240.0) -> Dict[str, Any]:
 
     # LLM-based OI plans (optional, budgeted)
     if ctx.use_llm:
-        from hourly.market_summary_pipeline import build_oi_plans_step
-
         build_oi_plans_step(ctx)
 
     build_viewpoint_threads(ctx)
@@ -125,7 +122,7 @@ def run_prepare(total_budget_s: float = 240.0) -> Dict[str, Any]:
 
 
 def main() -> int:
-    budget = float(os.environ.get("HOURLY_MARKET_SUMMARY_BUDGET_S") or 240)
+    budget = float(os.environ.get("HOURLY_MARKET_SUMMARY_BUDGET_S") or DEFAULT_TOTAL_BUDGET_S)
     out = run_prepare(total_budget_s=budget)
     print(json.dumps(out, ensure_ascii=False, indent=2))
     return 0

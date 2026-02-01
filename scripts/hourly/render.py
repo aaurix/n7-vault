@@ -205,6 +205,41 @@ def _cn_num(x: Any) -> str:
         return str(x)
 
 
+def _fmt_price(x: Any) -> str:
+    if x is None:
+        return "?"
+    try:
+        v = float(x)
+    except Exception:
+        return str(x)
+    try:
+        if abs(v) >= 1000:
+            return f"{v:.0f}"
+        if abs(v) >= 100:
+            return f"{v:.2f}"
+        if abs(v) >= 10:
+            return f"{v:.3f}"
+        if abs(v) >= 1:
+            return f"{v:.4f}"
+        if abs(v) >= 0.01:
+            return f"{v:.5f}"
+        return f"{v:.6g}" if v != 0 else "0"
+    except Exception:
+        return str(x)
+
+
+def _fmt_usd(x: Any) -> str:
+    if x is None:
+        return "?"
+    try:
+        v = float(x)
+    except Exception:
+        return str(x)
+    if v == 0:
+        return "$0"
+    return f"${_cn_num(v)}" if _cn_num(v) != "?" else "?"
+
+
 def build_summary(
     *,
     title: str,
@@ -393,6 +428,9 @@ def build_summary(
     def _is_actionable(it: Any) -> bool:
         return isinstance(it, dict) and bool(it.get("asset_name") or it.get("why_buy") or it.get("why_not_buy"))
 
+    def _is_twitter_signal_card(it: Any) -> bool:
+        return isinstance(it, dict) and str(it.get("card_type") or "") == "twitter_signal"
+
     actionable_mode = bool(narratives and any(_is_actionable(it) for it in narratives))
 
     if actionable_mode:
@@ -475,12 +513,55 @@ def build_summary(
                 if pts:
                     out.append(f"   - {pts[0]}")
 
-    out.append(H("社媒补充（X Top2）"))
+    out.append(H("社媒补充（X信号卡Top2）"))
     twitter_topics = (twitter_lines or [])
     tw_limit = 2
     if twitter_topics:
         for i, it in enumerate(twitter_topics[:tw_limit], 1):
-            if _is_actionable(it):
+            if _is_twitter_signal_card(it):
+                sym = str(it.get("symbol") or it.get("sym") or "").strip()
+                if not sym:
+                    continue
+                symbol_type = str(it.get("symbol_type") or "").strip().lower()
+                chain = str(it.get("chain") or "").strip()
+                type_label = "链上" if symbol_type == "onchain" else ("CEX" if symbol_type == "cex" else "")
+                if chain:
+                    type_label = f"{type_label}/{chain}" if type_label else chain
+
+                price = it.get("price")
+                mc = it.get("market_cap")
+                fdv = it.get("fdv")
+
+                line = f"{i}) {sym}"
+                if type_label:
+                    line += f"（{type_label}）"
+                line += f"价{_fmt_price(price)}"
+
+                mc_bits: List[str] = []
+                if mc is not None:
+                    mc_bits.append(f"MC{_fmt_usd(mc)}")
+                if fdv is not None:
+                    mc_bits.append(f"FDV{_fmt_usd(fdv)}")
+                if mc_bits:
+                    line += " | " + "/".join(mc_bits)
+                out.append(line)
+
+                one = str(it.get("one_liner") or "").strip()
+                sen = str(it.get("sentiment") or "").strip()
+                sig = it.get("signals") if isinstance(it.get("signals"), str) else (";".join(it.get("signals") or []) if isinstance(it.get("signals"), list) else "")
+                ev = it.get("evidence_snippets") if isinstance(it.get("evidence_snippets"), list) else []
+
+                if one:
+                    tail = f"（{sen}）" if sen else ""
+                    out.append(f"   - 观点：{one}{tail}")
+                elif sen:
+                    out.append(f"   - 情绪：{sen}")
+                if sig:
+                    out.append(f"   - 信号：{sig}")
+                if ev and not one:
+                    out.append("   - 证据：" + " | ".join([str(x) for x in ev[:2] if x]))
+
+            elif _is_actionable(it):
                 asset = str(it.get("asset_name") or it.get("asset") or it.get("symbol") or "").strip()
                 if not asset:
                     continue
