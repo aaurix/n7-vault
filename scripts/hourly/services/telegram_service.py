@@ -8,7 +8,7 @@ from typing import Any, Dict, List
 
 from ..bots import load_bot_sender_ids
 from ..config import TG_CHANNELS, VIEWPOINT_CHAT_IDS
-from ..filters import is_botish_text
+from ..filters import BASE58_RE, EVM_ADDR_RE, TICKER_DOLLAR_RE, is_botish_text
 from ..models import PipelineContext
 from ..tg_client import msg_text, sender_id
 from ..viewpoints import extract_viewpoint_threads
@@ -39,6 +39,21 @@ def _tg_total_budget() -> float:
         return float(os.environ.get("HOURLY_TG_TOTAL_BUDGET_S") or 25.0)
     except Exception:
         return 25.0
+
+
+def _clip_text(text: str, *, limit: int = 360) -> str:
+    t = (text or "").strip()
+    if len(t) <= limit:
+        return t
+    # Preserve tail when CA/$TICKER appears beyond the clip window.
+    if BASE58_RE.search(t[limit:]) or EVM_ADDR_RE.search(t[limit:]) or TICKER_DOLLAR_RE.search(t[limit:]):
+        tail_len = min(140, max(80, limit // 3))
+        tail = t[-tail_len:]
+        head_len = max(0, limit - tail_len - 3)
+        if head_len <= 0:
+            return t[:limit]
+        return f"{t[:head_len]}...{tail}"
+    return t[:limit]
 
 
 def fetch_tg_messages(ctx: PipelineContext) -> None:
@@ -107,7 +122,7 @@ def build_human_texts(ctx: PipelineContext) -> None:
             t = msg_text(m)
             if not t or is_botish_text(t):
                 continue
-            out.append(t[:360])
+            out.append(_clip_text(t, limit=360))
 
     ctx.human_texts = out
     ctx.perf["viewpoint_threads_msgs_in"] = float(len(out))

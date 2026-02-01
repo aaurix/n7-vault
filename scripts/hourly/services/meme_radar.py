@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional
 
 from repo_paths import scripts_path
 
+from ..filters import BASE58_RE, EVM_ADDR_RE
 from ..models import PipelineContext
 from .pipeline_timing import measure
 
@@ -71,17 +72,35 @@ def merge_tg_addr_candidates_into_radar(ctx: PipelineContext) -> None:
     addr_counts: Dict[str, int] = {}
     addr_examples: Dict[str, str] = {}
 
-    for t in ctx.human_texts[:500]:
-        if not t:
-            continue
+    texts = [t for t in ctx.human_texts if t]
+    if len(texts) > 500:
+        addr_texts: List[str] = []
+        other_texts: List[str] = []
+        for t in texts:
+            if EVM_ADDR_RE.search(t) or BASE58_RE.search(t):
+                addr_texts.append(t)
+            else:
+                other_texts.append(t)
+        texts = (addr_texts + other_texts)[:500]
+
+    for t in texts:
         _syms, addrs = resolver.extract_symbols_and_addrs(t, require_sol_digit=True)
+        seen_msg = set()
         for a in addrs:
+            if a in seen_msg:
+                continue
+            seen_msg.add(a)
             addr_counts[a] = addr_counts.get(a, 0) + 1
             addr_examples.setdefault(a, t[:220])
 
     tg_addr_items: List[Dict[str, Any]] = []
+    dex_cache: Dict[str, Dict[str, Any] | None] = {}
     for addr, cnt in sorted(addr_counts.items(), key=lambda kv: kv[1], reverse=True)[:12]:
-        dexm = dex.enrich_addr(addr)
+        if addr in dex_cache:
+            dexm = dex_cache[addr]
+        else:
+            dexm = dex.enrich_addr(addr)
+            dex_cache[addr] = dexm
         if not dexm:
             continue
         tg_addr_items.append(

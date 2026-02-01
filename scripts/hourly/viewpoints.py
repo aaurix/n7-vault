@@ -19,6 +19,17 @@ from .filters import GENERIC_TOKENS, stance_from_texts
 from .services.entity_resolver import EntityResolver, get_shared_entity_resolver
 
 
+def _dedupe_keep_order(items: List[str]) -> List[str]:
+    out: List[str] = []
+    seen = set()
+    for it in items:
+        if not it or it in seen:
+            continue
+        seen.add(it)
+        out.append(it)
+    return out
+
+
 def _points_of(msgs: List[str]) -> List[str]:
     low = "\n".join(msgs).lower()
     pts: List[str] = []
@@ -82,39 +93,55 @@ def extract_viewpoint_threads(
     except Exception:
         time_budget_s = 25.0
 
+    parsed: List[tuple[str, List[str], List[str]]] = []
+    addr_counts: Dict[str, int] = {}
+
     for t in human_texts:
         if time.perf_counter() - t0 > time_budget_s:
             break
-        t = (t or "").strip()
-        if not t:
+        text = (t or "").strip()
+        if not text:
             continue
 
-        syms, addrs = resolver.extract_symbols_and_addrs(t)
-        # Resolve CA -> symbol (budgeted + cached)
-        for a in addrs[:2]:
-            if a in resolve_cache:
-                rs = resolve_cache[a]
-            else:
-                if resolve_calls >= max_resolve_calls:
-                    continue
-                rs = resolver.resolve_addr_symbol(a)
-                resolve_cache[a] = rs
-                resolve_calls += 1
-            if rs and rs not in GENERIC_TOKENS:
-                syms.append(rs)
-
+        syms, addrs = resolver.extract_symbols_and_addrs(text)
         syms = [s for s in syms if s not in GENERIC_TOKENS]
-        if not syms:
+        addrs = _dedupe_keep_order(addrs)[:2]
+        for a in addrs:
+            addr_counts[a] = addr_counts.get(a, 0) + 1
+        parsed.append((text, syms, addrs))
+
+    # Resolve CA -> symbol (batch + cached, prioritize most-mentioned)
+    for addr, _cnt in sorted(addr_counts.items(), key=lambda kv: kv[1], reverse=True):
+        if resolve_calls >= max_resolve_calls:
+            break
+        if time.perf_counter() - t0 > time_budget_s:
+            break
+        rs = resolver.resolve_addr_symbol(addr)
+        resolve_cache[addr] = rs
+        resolve_calls += 1
+
+    for text, syms, addrs in parsed:
+        if time.perf_counter() - t0 > time_budget_s:
+            break
+
+        resolved_syms: List[str] = []
+        for a in addrs:
+            rs = resolve_cache.get(a)
+            if rs and rs not in GENERIC_TOKENS:
+                resolved_syms.append(rs)
+
+        sym_list = _dedupe_keep_order(syms + resolved_syms)
+        if not sym_list:
             continue
 
         # token-first key
-        sym = syms[0]
-        clusters.setdefault(sym, []).append(t)
+        sym = sym_list[0]
+        clusters.setdefault(sym, []).append(text)
 
     strong: List[Dict[str, Any]] = []
     weak: List[Dict[str, Any]] = []
 
-    for sym, msgs in clusters.items():
+    for sym, msgs in sorted(clusters.items(), key=lambda kv: len(kv[1]), reverse=True):
         if time.perf_counter() - t0 > time_budget_s:
             break
         c = len(msgs)
