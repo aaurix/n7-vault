@@ -27,6 +27,7 @@ from hourly.services.meme_radar import (
 from hourly.services.oi_service import build_oi, build_oi_plans_step
 from hourly.services.telegram_service import build_human_texts, build_viewpoint_threads, fetch_tg_messages
 from hourly.services.tg_topics import build_tg_topics
+from hourly.services.social_cards import build_social_cards
 from hourly.perp_dashboard import build_perp_dash_inputs
 from hourly.tg_topics_fallback import tg_topics_fallback
 
@@ -62,6 +63,9 @@ def run_prepare(total_budget_s: float = DEFAULT_TOTAL_BUDGET_S) -> Dict[str, Any
     # meme radar join
     wait_meme_radar(ctx, meme_proc)
     merge_tg_addr_candidates_into_radar(ctx)
+
+    # Unified social cards (TG + Twitter)
+    build_social_cards(ctx)
 
     # Build twitter evidence packs for the agent (one token per pack)
     ca_inputs = []
@@ -116,6 +120,7 @@ def run_prepare(total_budget_s: float = DEFAULT_TOTAL_BUDGET_S) -> Dict[str, Any
             "threads_weak": ctx.weak_threads,
             "radar_items": ctx.radar_items[:15],
             "twitter_ca_inputs": ca_inputs,
+            "social_cards": ctx.social_cards[:6],
             "debug": debug,
         },
     }
