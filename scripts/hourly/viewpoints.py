@@ -14,7 +14,7 @@ from __future__ import annotations
 import time
 from typing import Any, Dict, List
 
-from .dex import enrich_symbol, resolve_addr_symbol
+from .dexscreener import enrich_symbol, resolve_addr_symbol
 from .filters import GENERIC_TOKENS, extract_symbols_and_addrs, stance_from_texts
 
 

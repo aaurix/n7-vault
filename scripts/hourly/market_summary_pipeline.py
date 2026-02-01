@@ -28,7 +28,7 @@ from zoneinfo import ZoneInfo
 from repo_paths import state_path, scripts_path
 
 from hourly.bots import load_bot_sender_ids
-from hourly.dex import enrich_addr, enrich_symbol, resolve_addr_symbol
+from hourly.dexscreener import enrich_addr, enrich_symbol, resolve_addr_symbol
 from hourly.filters import extract_symbols_and_addrs, is_botish_text, stance_from_texts
 from hourly.kline_fetcher import run_kline_json
 from hourly.perp_dashboard import build_perp_dash_inputs
