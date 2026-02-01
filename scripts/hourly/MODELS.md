@@ -27,3 +27,4 @@ Unified TG/X card schema:
 - `symbol`, `symbol_type`, `addr`, `chain`
 - `price`, `market_cap`, `fdv`
 - `sentiment`, `one_liner`, `signals`, `evidence_snippets`
+- `drivers` (2-3 catalysts when available), `risk`

@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any, Dict, List, Optional
 
 from ..binance_futures import get_mark_price
@@ -28,6 +29,28 @@ def _norm_symbol(val: Any) -> str:
     if s.startswith("$"):
         s = s[1:]
     return s
+
+
+def _split_drivers(text: str, *, max_n: int = 3) -> List[str]:
+    t = re.sub(r"\s+", " ", str(text or "")).strip()
+    if not t:
+        return []
+    parts = [p.strip() for p in re.split(r"[;；,，、/|]+", t) if p.strip()]
+    if len(parts) < 2:
+        parts = [p.strip() for p in re.split(r"(?:和|并|以及|同时|与)", t) if p.strip()]
+    if not parts:
+        parts = [t]
+    out: List[str] = []
+    seen: set[str] = set()
+    for p in parts:
+        key = p.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(p)
+        if len(out) >= max_n:
+            break
+    return out
 
 
 def _pick_dex_market(dex: Dict[str, Any]) -> Dict[str, Any]:
@@ -124,8 +147,15 @@ def _tg_card_from_actionable(it: Dict[str, Any], *, resolver, dex, cache: Dict[s
     why_not = str(it.get("why_not_buy") or it.get("why_not") or "").strip()
     trigger = str(it.get("trigger") or "").strip()
     risk = str(it.get("risk") or "").strip()
+    if not risk:
+        risk = "情绪盘/消息噪音"
 
     ev = _clean_ev_list(it.get("evidence_snippets") or it.get("evidence") or [])
+    drivers = _split_drivers(why_buy, max_n=3)
+    if not drivers and trigger:
+        drivers = _split_drivers(trigger, max_n=2)
+    if not drivers and ev:
+        drivers = _split_drivers(ev[0], max_n=2)
     addr = str(it.get("addr") or it.get("ca") or "").strip()
     if not addr and ev:
         addr = _extract_addr_from_texts(ev, resolver)
@@ -172,6 +202,8 @@ def _tg_card_from_actionable(it: Dict[str, Any], *, resolver, dex, cache: Dict[s
         "one_liner": one_liner,
         "signals": signals,
         "evidence_snippets": ev,
+        "drivers": drivers,
+        "risk": risk,
     }
 
 
@@ -272,6 +304,31 @@ def _interleave_cards(a: List[SocialCard], b: List[SocialCard]) -> List[SocialCa
                 seen.add(sym)
                 out.append(card)
     return out
+
+
+def self_check_social_cards() -> Dict[str, Any]:
+    class _DummyResolver:
+        def extract_symbols_and_addrs(self, text: str, require_sol_digit: bool = False):
+            return [], []
+
+    sample = {
+        "asset_name": "TEST",
+        "why_buy": "上所预期，资金流入，生态扩张",
+        "why_not_buy": "",
+        "trigger": "突破前高",
+        "risk": "解锁压力",
+        "evidence_snippets": ["测试1", "测试2"],
+        "price": 1.23,
+        "market_cap": 1234567,
+        "fdv": 2345678,
+        "chain": "sol",
+    }
+
+    card = _tg_card_from_actionable(sample, resolver=_DummyResolver(), dex=object(), cache={})
+    drivers = card.get("drivers") if isinstance(card, dict) else []
+    risk = card.get("risk") if isinstance(card, dict) else None
+    ok = bool(card) and isinstance(drivers, list) and 2 <= len(drivers) <= 3 and risk == "解锁压力"
+    return {"ok": ok, "drivers": drivers, "risk": risk}
 
 
 def build_social_cards(ctx: PipelineContext) -> None:

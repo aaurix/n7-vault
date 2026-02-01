@@ -17,7 +17,7 @@ This skill is the **runbook** for the hourly summary pipeline in this repo.
 - Run locally:
   - `python3 /Users/massis/clawd/scripts/hourly_market_summary.py`
 - Inspect JSON keys:
-  - `summary_whatsapp` (delivery body)
+  - `summary_whatsapp` (delivery body; TG social cards include drivers+1 risk)
   - `errors` (debug only; never user-visible)
   - `tg_viewpoint_messages` (input size sanity check)
 - Cron rule of thumb:

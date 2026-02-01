@@ -29,6 +29,8 @@ class SocialCard(TypedDict, total=False):
     one_liner: str
     signals: str
     evidence_snippets: List[str]
+    drivers: List[str]
+    risk: str
 
 
 @dataclass(frozen=True)

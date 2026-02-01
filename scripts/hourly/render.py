@@ -560,6 +560,21 @@ def build_summary(
                 out.append(f"   - 观点：{one}{tail}")
             elif sen:
                 out.append(f"   - 情绪：{sen}")
+
+            drivers_raw = it.get("drivers")
+            drivers_list: List[str] = []
+            if isinstance(drivers_raw, list):
+                drivers_list = [str(x).strip() for x in drivers_raw if str(x).strip()]
+            elif isinstance(drivers_raw, str) and drivers_raw.strip():
+                drivers_list = [x.strip() for x in drivers_raw.split(";") if x.strip()]
+            drivers_list = drivers_list[:3]
+
+            risk = str(it.get("risk") or "").strip()
+            if drivers_list:
+                out.append(f"   - 驱动：{'；'.join(drivers_list)}")
+            if risk:
+                out.append(f"   - 风险：{risk}")
+
             if sig:
                 out.append(f"   - 信号：{sig}")
             if ev and not one:
