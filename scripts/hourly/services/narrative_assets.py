@@ -6,8 +6,6 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from ..dexscreener import enrich_symbol, resolve_addr_symbol
-from ..filters import extract_symbols_and_addrs
 from ..models import PipelineContext
 from .pipeline_timing import measure
 
@@ -16,6 +14,9 @@ def infer_narrative_assets_from_tg(ctx: PipelineContext) -> None:
     """Best-effort asset linking for TG narratives, using TG-only token contexts."""
 
     done = measure(ctx.perf, "narrative_asset_infer")
+
+    resolver = ctx.resolver
+    dex = ctx.dex
 
     # If we're in actionable mode, asset_name already anchors the item.
     if ctx.narratives and any(isinstance(it, dict) and it.get("asset_name") for it in ctx.narratives):
@@ -98,18 +99,18 @@ def infer_narrative_assets_from_tg(ctx: PipelineContext) -> None:
     def _find_addr_near_hint(hint: str) -> Optional[str]:
         for t in ctx.human_texts:
             if hint.lower() in (t or "").lower():
-                _sy, _ad = extract_symbols_and_addrs(t)
+                _sy, _ad = resolver.extract_symbols_and_addrs(t)
                 if _ad:
                     return _ad[0]
         return None
 
     def _pin_hint(hint: str) -> Optional[str]:
-        d = enrich_symbol(hint)
+        d = dex.enrich_symbol(hint)
         if d:
             return hint
         addr = _find_addr_near_hint(hint)
         if addr:
-            rs = resolve_addr_symbol(addr)
+            rs = resolver.resolve_addr_symbol(addr)
             if rs:
                 return rs
         return None

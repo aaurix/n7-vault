@@ -79,7 +79,7 @@ def build_viewpoint_threads(ctx: PipelineContext) -> None:
     import time
 
     t0 = time.perf_counter()
-    vp = extract_viewpoint_threads(ctx.human_texts, min_heat=3, weak_heat=1)
+    vp = extract_viewpoint_threads(ctx.human_texts, min_heat=3, weak_heat=1, resolver=ctx.resolver)
     ctx.perf["viewpoint_threads_extract"] = round(time.perf_counter() - t0, 3)
     ctx.strong_threads = list(vp.get("strong") or [])
     ctx.weak_threads = list(vp.get("weak") or [])

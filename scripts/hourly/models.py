@@ -12,6 +12,8 @@ from typing import Any, Dict, List, TYPE_CHECKING
 if TYPE_CHECKING:
     from .tg_client import TgClient
     from .services.state_manager import HourlyStateManager
+    from .services.dexscreener_client import DexScreenerClient
+    from .services.entity_resolver import EntityResolver
 
 
 @dataclass(frozen=True)
@@ -48,6 +50,8 @@ class PipelineContext:
     client: "TgClient"
     budget: TimeBudget
     state: "HourlyStateManager"
+    dex: "DexScreenerClient"
+    resolver: "EntityResolver"
 
     errors: List[str] = field(default_factory=list)
     llm_failures: List[str] = field(default_factory=list)

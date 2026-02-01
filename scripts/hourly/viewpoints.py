@@ -14,8 +14,8 @@ from __future__ import annotations
 import time
 from typing import Any, Dict, List
 
-from .dexscreener import enrich_symbol, resolve_addr_symbol
-from .filters import GENERIC_TOKENS, extract_symbols_and_addrs, stance_from_texts
+from .filters import GENERIC_TOKENS, stance_from_texts
+from .services.entity_resolver import EntityResolver, get_shared_entity_resolver
 
 
 def _points_of(msgs: List[str]) -> List[str]:
@@ -49,6 +49,7 @@ def extract_viewpoint_threads(
     *,
     min_heat: int = 3,
     weak_heat: int = 2,
+    resolver: EntityResolver | None = None,
 ) -> Dict[str, List[Dict[str, Any]]]:
     """Return {'strong': [...], 'weak': [...]} token threads.
 
@@ -62,6 +63,9 @@ def extract_viewpoint_threads(
     Note: when heat is high, we allow a generic point even if no clear trigger words,
     to avoid dropping otherwise strong threads.
     """
+
+    resolver = resolver or get_shared_entity_resolver()
+    dex_client = resolver.dex
 
     clusters: Dict[str, List[str]] = {}
 
@@ -81,7 +85,7 @@ def extract_viewpoint_threads(
         if not t:
             continue
 
-        syms, addrs = extract_symbols_and_addrs(t)
+        syms, addrs = resolver.extract_symbols_and_addrs(t)
         # Resolve CA -> symbol (budgeted + cached)
         for a in addrs[:2]:
             if a in resolve_cache:
@@ -89,7 +93,7 @@ def extract_viewpoint_threads(
             else:
                 if resolve_calls >= max_resolve_calls:
                     continue
-                rs = resolve_addr_symbol(a)
+                rs = resolver.resolve_addr_symbol(a)
                 resolve_cache[a] = rs
                 resolve_calls += 1
             if rs and rs not in GENERIC_TOKENS:
@@ -126,7 +130,7 @@ def extract_viewpoint_threads(
         else:
             if enrich_calls >= max_enrich_calls:
                 continue
-            dex = enrich_symbol(sym)
+            dex = dex_client.enrich_symbol(sym)
             enrich_cache[sym] = dex
             enrich_calls += 1
         if not dex:

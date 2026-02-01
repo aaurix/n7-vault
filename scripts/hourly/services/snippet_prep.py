@@ -6,18 +6,24 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from ..filters import extract_symbols_and_addrs
+from .entity_resolver import EntityResolver, get_shared_entity_resolver
 from .evidence_cleaner import _clean_snippet_text
 
 
-def _prep_tg_snippets(texts: List[str], *, limit: int = 120) -> List[str]:
+def _prep_tg_snippets(
+    texts: List[str],
+    *,
+    limit: int = 120,
+    resolver: EntityResolver | None = None,
+) -> List[str]:
+    resolver = resolver or get_shared_entity_resolver()
     out: List[str] = []
     seen: set[str] = set()
     for t in texts[:800]:
         t = _clean_snippet_text(t)
         if not t:
             continue
-        syms, addrs = extract_symbols_and_addrs(t)
+        syms, addrs = resolver.extract_symbols_and_addrs(t)
         anchor = ""
         if syms:
             anchor = syms[0]

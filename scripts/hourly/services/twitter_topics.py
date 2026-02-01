@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from ..dexscreener import enrich_addr, enrich_symbol
 from ..exchange_ccxt import fetch_ticker_last
 from ..binance_futures import get_mark_price
 from ..llm_openai import summarize_twitter_ca_viewpoints
@@ -44,12 +43,12 @@ def _pick_dex_market(dex: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def _fetch_dex_market(addr: str, sym: str) -> Dict[str, Any]:
+def _fetch_dex_market(addr: str, sym: str, dex_client) -> Dict[str, Any]:
     dex = None
     if addr:
-        dex = enrich_addr(addr)
+        dex = dex_client.enrich_addr(addr)
     if not dex and sym:
-        dex = enrich_symbol(sym)
+        dex = dex_client.enrich_symbol(sym)
     return _pick_dex_market(dex or {})
 
 
@@ -72,6 +71,8 @@ def build_twitter_ca_topics(ctx: PipelineContext) -> None:
     """Twitter signal cards (aux supplement)."""
 
     done = measure(ctx.perf, "twitter_ca_topics")
+
+    dex_client = ctx.dex
 
     # Build candidate list from meme radar items with Twitter evidence.
     candidates: List[Dict[str, Any]] = []
@@ -165,7 +166,7 @@ def build_twitter_ca_topics(ctx: PipelineContext) -> None:
             key = addr or sym
             dm = dex_cache.get(key)
             if dm is None:
-                dm = _fetch_dex_market(addr, sym)
+                dm = _fetch_dex_market(addr, sym, dex_client)
                 dex_cache[key] = dm
             if price is None:
                 price = dm.get("price")

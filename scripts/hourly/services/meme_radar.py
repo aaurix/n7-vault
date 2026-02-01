@@ -9,7 +9,6 @@ from typing import Any, Dict, List, Optional
 
 from repo_paths import scripts_path
 
-from ..dexscreener import enrich_addr
 from ..models import PipelineContext
 from .pipeline_timing import measure
 
@@ -66,10 +65,8 @@ def wait_meme_radar(ctx: PipelineContext, proc: Optional[subprocess.Popen[str]])
 
 def merge_tg_addr_candidates_into_radar(ctx: PipelineContext) -> None:
     done = measure(ctx.perf, "tg_addr_to_radar")
-    import re
-
-    evm_re = re.compile(r"\b0x[a-fA-F0-9]{40}\b")
-    sol_re = re.compile(r"\b[1-9A-HJ-NP-Za-km-z]{32,44}\b")
+    resolver = ctx.resolver
+    dex = ctx.dex
 
     addr_counts: Dict[str, int] = {}
     addr_examples: Dict[str, str] = {}
@@ -77,18 +74,14 @@ def merge_tg_addr_candidates_into_radar(ctx: PipelineContext) -> None:
     for t in ctx.human_texts[:500]:
         if not t:
             continue
-        for a in evm_re.findall(t):
-            addr_counts[a] = addr_counts.get(a, 0) + 1
-            addr_examples.setdefault(a, t[:220])
-        for a in sol_re.findall(t):
-            if not any(ch.isdigit() for ch in a):
-                continue
+        _syms, addrs = resolver.extract_symbols_and_addrs(t, require_sol_digit=True)
+        for a in addrs:
             addr_counts[a] = addr_counts.get(a, 0) + 1
             addr_examples.setdefault(a, t[:220])
 
     tg_addr_items: List[Dict[str, Any]] = []
     for addr, cnt in sorted(addr_counts.items(), key=lambda kv: kv[1], reverse=True)[:12]:
-        dexm = enrich_addr(addr)
+        dexm = dex.enrich_addr(addr)
         if not dexm:
             continue
         tg_addr_items.append(

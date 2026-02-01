@@ -7,7 +7,8 @@ from __future__ import annotations
 import re
 from typing import Any, Dict, List
 
-from ..filters import extract_symbols_and_addrs, stance_from_texts
+from ..filters import stance_from_texts
+from .entity_resolver import get_shared_entity_resolver
 from .evidence_cleaner import _clean_evidence_snippet
 
 
@@ -22,6 +23,7 @@ def _sentiment_from_actionable(*, why_buy: str, why_not: str) -> str:
 
 
 def _normalize_actionables(raw_items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    resolver = get_shared_entity_resolver()
     out: List[Dict[str, Any]] = []
     seen: set[str] = set()
 
@@ -68,7 +70,7 @@ def _normalize_actionables(raw_items: List[Dict[str, Any]]) -> List[Dict[str, An
         ev_list = _norm_evidence(ev)
 
         if not asset and ev_list:
-            syms, _addrs = extract_symbols_and_addrs(ev_list[0])
+            syms, _addrs = resolver.extract_symbols_and_addrs(ev_list[0])
             if syms:
                 asset = syms[0]
 
@@ -140,11 +142,12 @@ def self_check_actionables() -> Dict[str, Any]:
 
 
 def _fallback_actionables_from_texts(texts: List[str], *, limit: int = 5) -> List[Dict[str, Any]]:
+    resolver = get_shared_entity_resolver()
     sym_hits: Dict[str, int] = {}
     sym_samples: Dict[str, List[str]] = {}
 
     for t in texts[:800]:
-        syms, _addrs = extract_symbols_and_addrs(t)
+        syms, _addrs = resolver.extract_symbols_and_addrs(t)
         for s in syms[:2]:
             sym_hits[s] = sym_hits.get(s, 0) + 1
             sym_samples.setdefault(s, []).append(t)

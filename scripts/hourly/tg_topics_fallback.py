@@ -7,7 +7,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from .filters import extract_symbols_and_addrs, stance_from_texts
+from .filters import stance_from_texts
+from .services.entity_resolver import get_shared_entity_resolver
 
 
 def tg_topics_fallback(texts: List[str], *, limit: int = 5) -> List[Dict[str, Any]]:
@@ -17,11 +18,12 @@ def tg_topics_fallback(texts: List[str], *, limit: int = 5) -> List[Dict[str, An
     but ensures we don't emit an empty topics section when LLM is disabled.
     """
 
+    resolver = get_shared_entity_resolver()
     sym_hits: Dict[str, int] = {}
     sym_samples: Dict[str, List[str]] = {}
 
     for t in texts[:800]:
-        syms, _addrs = extract_symbols_and_addrs(t)
+        syms, _addrs = resolver.extract_symbols_and_addrs(t)
         for s in syms[:3]:
             sym_hits[s] = sym_hits.get(s, 0) + 1
             sym_samples.setdefault(s, []).append(t)

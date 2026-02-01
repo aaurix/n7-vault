@@ -18,7 +18,7 @@ def build_tg_topics(ctx: PipelineContext) -> None:
     done = measure(ctx.perf, "tg_topics_pipeline")
 
     items: List[Dict[str, Any]] = []
-    snippets = _prep_tg_snippets(ctx.human_texts, limit=120)
+    snippets = _prep_tg_snippets(ctx.human_texts, limit=120, resolver=ctx.resolver)
     ctx.perf["tg_snippets"] = float(len(snippets))
 
     if ctx.use_llm and snippets and (not ctx.budget.over(reserve_s=70.0)):
