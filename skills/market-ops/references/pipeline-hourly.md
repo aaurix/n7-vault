@@ -6,6 +6,7 @@ Generate an hourly WhatsApp summary combining:
 - TG可交易标的（LLM提炼，偏“标的卡片”）
 - Perp/alt OI+price signals (Top3)
 - Meme radar candidates（TG CA threads + Dex）
+- Social cards（TG+X统一schema，价格/MC尽量补全）
 - Twitter/X补充（独立构建，Top2；WhatsApp裁剪不影响）
 
 ## Entry point
@@ -46,7 +47,8 @@ Generate an hourly WhatsApp summary combining:
 - 候选来源：Telegram 线程 + meme radar 的 CA/Dex 匹配
 - 证据抓取：bird 搜索以 CA 为主锚点（可带 $SYMBOL），强过滤推广/机器人
 - 输出方式：规则化 one-liner/标签；预算允许时再用 LLM 重写
-- 输出展示：仅作补充，Top2 封顶；不依赖TG actionables，WhatsApp裁剪不影响该段
+- 输出展示：作为社媒补充卡片，与 TG actionables 统一为 SocialCard
+- 展示封顶：Top2；WhatsApp裁剪不影响该段
 
 ## Stability rules
 - Prefer skipping optional steps over timing out.

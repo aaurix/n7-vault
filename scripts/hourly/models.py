@@ -7,13 +7,28 @@ from __future__ import annotations
 import datetime as dt
 import time
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, TYPE_CHECKING
+from typing import Any, Dict, List, Optional, TYPE_CHECKING, TypedDict
 
 if TYPE_CHECKING:
     from .tg_client import TgClient
     from .services.state_manager import HourlyStateManager
     from .services.dexscreener_client import DexScreenerClient
     from .services.entity_resolver import EntityResolver
+
+
+class SocialCard(TypedDict, total=False):
+    source: str
+    symbol: str
+    symbol_type: str
+    addr: str
+    chain: str
+    price: Optional[float]
+    market_cap: Optional[float]
+    fdv: Optional[float]
+    sentiment: str
+    one_liner: str
+    signals: str
+    evidence_snippets: List[str]
 
 
 @dataclass(frozen=True)
@@ -75,6 +90,7 @@ class PipelineContext:
     radar_items: List[Dict[str, Any]] = field(default_factory=list)
 
     twitter_topics: List[Dict[str, Any]] = field(default_factory=list)
+    social_cards: List[SocialCard] = field(default_factory=list)
 
     threads: List[Dict[str, Any]] = field(default_factory=list)
 

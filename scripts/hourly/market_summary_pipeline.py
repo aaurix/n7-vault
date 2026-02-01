@@ -16,6 +16,7 @@ from .services.meme_radar import merge_tg_addr_candidates_into_radar, spawn_meme
 from .services.narrative_assets import infer_narrative_assets_from_tg
 from .services.oi_service import build_oi, build_oi_plans_step
 from .services.sentiment_watch import compute_sentiment_and_watch
+from .services.social_cards import build_social_cards
 from .services.summary_render import render
 from .services.telegram_service import build_human_texts, build_viewpoint_threads, fetch_tg_messages, require_tg_health
 from .services.tg_topics import build_tg_topics
@@ -45,6 +46,7 @@ def run_pipeline(*, total_budget_s: float = DEFAULT_TOTAL_BUDGET_S) -> Dict[str,
 
         build_token_thread_summaries(ctx)
         infer_narrative_assets_from_tg(ctx)
+        build_social_cards(ctx)
         compute_sentiment_and_watch(ctx)
 
         return render(ctx)

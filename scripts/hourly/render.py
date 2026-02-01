@@ -248,7 +248,7 @@ def build_summary(
     narratives: Optional[List[Dict[str, Any]]] = None,
     threads: Optional[List[Dict[str, Any]]] = None,
     weak_threads: Optional[List[Dict[str, Any]]] = None,
-    twitter_lines: Optional[List[str]] = None,
+    social_cards: Optional[List[Dict[str, Any]]] = None,
     overlap_syms: Optional[List[str]] = None,
     sentiment: str = "",
     watch: Optional[List[str]] = None,
@@ -428,9 +428,6 @@ def build_summary(
     def _is_actionable(it: Any) -> bool:
         return isinstance(it, dict) and bool(it.get("asset_name") or it.get("why_buy") or it.get("why_not_buy"))
 
-    def _is_twitter_signal_card(it: Any) -> bool:
-        return isinstance(it, dict) and str(it.get("card_type") or "") == "twitter_signal"
-
     actionable_mode = bool(narratives and any(_is_actionable(it) for it in narratives))
 
     if actionable_mode:
@@ -513,89 +510,60 @@ def build_summary(
                 if pts:
                     out.append(f"   - {pts[0]}")
 
-    out.append(H("社媒补充（X信号卡Top2）"))
-    twitter_topics = (twitter_lines or [])
-    tw_limit = 2
-    if twitter_topics:
-        for i, it in enumerate(twitter_topics[:tw_limit], 1):
-            if _is_twitter_signal_card(it):
-                sym = str(it.get("symbol") or it.get("sym") or "").strip()
-                if not sym:
-                    continue
-                symbol_type = str(it.get("symbol_type") or "").strip().lower()
-                chain = str(it.get("chain") or "").strip()
-                type_label = "链上" if symbol_type == "onchain" else ("CEX" if symbol_type == "cex" else "")
-                if chain:
-                    type_label = f"{type_label}/{chain}" if type_label else chain
+    out.append(H("社媒补充（TG/X信号卡Top2）"))
+    cards = social_cards or []
+    card_limit = 2
+    if cards:
+        for i, it in enumerate(cards[:card_limit], 1):
+            if not isinstance(it, dict):
+                continue
+            sym = str(it.get("symbol") or it.get("asset_name") or "").strip()
+            if not sym:
+                continue
 
-                price = it.get("price")
-                mc = it.get("market_cap")
-                fdv = it.get("fdv")
+            source = str(it.get("source") or "").strip().lower()
+            src_label = "X" if source == "twitter" else ("TG" if source == "tg" else "")
 
-                line = f"{i}) {sym}"
-                if type_label:
-                    line += f"（{type_label}）"
-                line += f"价{_fmt_price(price)}"
+            symbol_type = str(it.get("symbol_type") or "").strip().lower()
+            chain = str(it.get("chain") or "").strip()
+            type_label = "链上" if symbol_type == "onchain" else ("CEX" if symbol_type == "cex" else "")
+            if chain:
+                type_label = f"{type_label}/{chain}" if type_label else chain
 
-                mc_bits: List[str] = []
-                if mc is not None:
-                    mc_bits.append(f"MC{_fmt_usd(mc)}")
-                if fdv is not None:
-                    mc_bits.append(f"FDV{_fmt_usd(fdv)}")
-                if mc_bits:
-                    line += " | " + "/".join(mc_bits)
-                out.append(line)
+            label_bits = [x for x in [src_label, type_label] if x]
 
-                one = str(it.get("one_liner") or "").strip()
-                sen = str(it.get("sentiment") or "").strip()
-                sig = it.get("signals") if isinstance(it.get("signals"), str) else (";".join(it.get("signals") or []) if isinstance(it.get("signals"), list) else "")
-                ev = it.get("evidence_snippets") if isinstance(it.get("evidence_snippets"), list) else []
+            price = it.get("price")
+            mc = it.get("market_cap")
+            fdv = it.get("fdv")
 
-                if one:
-                    tail = f"（{sen}）" if sen else ""
-                    out.append(f"   - 观点：{one}{tail}")
-                elif sen:
-                    out.append(f"   - 情绪：{sen}")
-                if sig:
-                    out.append(f"   - 信号：{sig}")
-                if ev and not one:
-                    out.append("   - 证据：" + " | ".join([str(x) for x in ev[:2] if x]))
+            line = f"{i}) {sym}"
+            if label_bits:
+                line += f"（{'/'.join(label_bits)}）"
+            line += f"价{_fmt_price(price)}"
 
-            elif _is_actionable(it):
-                asset = str(it.get("asset_name") or it.get("asset") or it.get("symbol") or "").strip()
-                if not asset:
-                    continue
-                why_buy = str(it.get("why_buy") or "").strip()
-                why_not = str(it.get("why_not_buy") or "").strip()
-                trigger = str(it.get("trigger") or "").strip()
-                risk = str(it.get("risk") or "").strip()
-                ev = it.get("evidence_snippets") if isinstance(it.get("evidence_snippets"), list) else []
-                line = f"{i}) {asset}"
-                parts: List[str] = []
-                if why_buy:
-                    parts.append(f"买:{why_buy}")
-                if why_not:
-                    parts.append(f"不买:{why_not}")
-                if parts:
-                    line += "（" + " | ".join(parts) + "）"
-                out.append(line)
-                if trigger:
-                    out.append(f"   - 触发：{trigger}")
-                if risk:
-                    out.append(f"   - 风险：{risk}")
-                if ev:
-                    out.append("   - 证据：" + " | ".join([str(x) for x in ev[:2] if x]))
-            else:
-                one = it.get("one_liner") if isinstance(it, dict) else str(it)
-                sen = it.get("sentiment") if isinstance(it, dict) else ""
-                sig = it.get("signals") if isinstance(it, dict) else ""
-                rel_s = ""  # do not show related_assets for Twitter topics
-                if sen:
-                    out.append(f"{i}) {one}（{sen}）{rel_s}")
-                else:
-                    out.append(f"{i}) {one}{rel_s}")
-                if sig and i == 1:
-                    out.append(f"   - 信号：{sig}")
+            mc_bits: List[str] = []
+            if mc is not None:
+                mc_bits.append(f"MC{_fmt_usd(mc)}")
+            if fdv is not None:
+                mc_bits.append(f"FDV{_fmt_usd(fdv)}")
+            if mc_bits:
+                line += " | " + "/".join(mc_bits)
+            out.append(line)
+
+            one = str(it.get("one_liner") or "").strip()
+            sen = str(it.get("sentiment") or "").strip()
+            sig = str(it.get("signals") or "").strip()
+            ev = it.get("evidence_snippets") if isinstance(it.get("evidence_snippets"), list) else []
+
+            if one:
+                tail = f"（{sen}）" if sen else ""
+                out.append(f"   - 观点：{one}{tail}")
+            elif sen:
+                out.append(f"   - 情绪：{sen}")
+            if sig:
+                out.append(f"   - 信号：{sig}")
+            if ev and not one:
+                out.append("   - 证据：" + " | ".join([str(x) for x in ev[:2] if x]))
     else:
         out.append("- 无")
 

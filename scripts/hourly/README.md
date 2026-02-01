@@ -9,7 +9,7 @@ This folder hosts the hourly market summary pipeline and its supporting services
 ## Structure
 - `config.py` → static config (TZ + Telegram channel ids)
 - `models.py` → `PipelineContext`, `TimeBudget`
-- `services/` → pipeline steps (TG ingest, OI, actionables, Twitter supplement, render, etc.)
+- `services/` → pipeline steps (TG ingest, OI, actionables, Twitter supplement, social cards, render, etc.)
 
 ## Design goals
 - Deterministic preprocessing + budget-aware LLM calls
