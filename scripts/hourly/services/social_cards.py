@@ -7,28 +7,16 @@ from __future__ import annotations
 import re
 from typing import Any, Dict, List, Optional
 
-from ..binance_futures import get_mark_price
-from ..exchange_ccxt import fetch_ticker_last
 from ..models import PipelineContext, SocialCard
+from ..market_data_helpers import (
+    as_num as _as_num,
+    fetch_cex_price as _fetch_cex_price,
+    fetch_dex_market as _fetch_dex_market,
+    norm_symbol as _norm_symbol,
+)
 from .actionable_normalization import _sentiment_from_actionable
 from .evidence_cleaner import _clean_evidence_snippet
 from .pipeline_timing import measure
-
-
-def _as_num(x: Any) -> Optional[float]:
-    try:
-        if x is None:
-            return None
-        return float(x)
-    except Exception:
-        return None
-
-
-def _norm_symbol(val: Any) -> str:
-    s = str(val or "").upper().strip()
-    if s.startswith("$"):
-        s = s[1:]
-    return s
 
 
 def _split_drivers(text: str, *, max_n: int = 3) -> List[str]:
@@ -51,41 +39,6 @@ def _split_drivers(text: str, *, max_n: int = 3) -> List[str]:
         if len(out) >= max_n:
             break
     return out
-
-
-def _pick_dex_market(dex: Dict[str, Any]) -> Dict[str, Any]:
-    if not isinstance(dex, dict):
-        return {}
-    return {
-        "price": _as_num(dex.get("priceUsd") or dex.get("price")),
-        "market_cap": _as_num(dex.get("marketCap") or dex.get("market_cap") or dex.get("mcap")),
-        "fdv": _as_num(dex.get("fdv") or dex.get("fully_diluted_valuation")),
-        "chain": str(dex.get("chainId") or "").strip(),
-    }
-
-
-def _fetch_dex_market(addr: str, sym: str, dex_client) -> Dict[str, Any]:
-    dex = None
-    if addr:
-        dex = dex_client.enrich_addr(addr)
-    if not dex and sym:
-        dex = dex_client.enrich_symbol(sym)
-    return _pick_dex_market(dex or {})
-
-
-def _fetch_cex_price(sym: str) -> Optional[float]:
-    s = _norm_symbol(sym)
-    if not s:
-        return None
-    sym2 = s if s.endswith("USDT") or "/" in s else f"{s}USDT"
-    px = fetch_ticker_last(sym2)
-    if px is not None:
-        return px
-    try:
-        sym3 = sym2.replace("/", "")
-        return get_mark_price(sym3)
-    except Exception:
-        return None
 
 
 def _clean_ev_list(ev: Any) -> List[str]:
@@ -342,7 +295,11 @@ def build_social_cards(ctx: PipelineContext) -> None:
     for it in (ctx.twitter_topics or [])[:6]:
         if not isinstance(it, dict):
             continue
-        card = _twitter_card_from_item(it, resolver=resolver, dex=dex, cache=cache)
+        try:
+            card = _twitter_card_from_item(it, resolver=resolver, dex=dex, cache=cache)
+        except Exception as e:
+            ctx.errors.append(f"social_cards_twitter_failed:{type(e).__name__}:{e}")
+            continue
         if card:
             tw_cards.append(card)
 
@@ -353,7 +310,11 @@ def build_social_cards(ctx: PipelineContext) -> None:
         asset = it.get("asset_name") or it.get("asset") or it.get("symbol")
         if not asset:
             continue
-        card = _tg_card_from_actionable(it, resolver=resolver, dex=dex, cache=cache)
+        try:
+            card = _tg_card_from_actionable(it, resolver=resolver, dex=dex, cache=cache)
+        except Exception as e:
+            ctx.errors.append(f"social_cards_tg_failed:{type(e).__name__}:{e}")
+            continue
         if card:
             tg_cards.append(card)
 

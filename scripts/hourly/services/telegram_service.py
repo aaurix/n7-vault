@@ -100,8 +100,8 @@ def fetch_tg_messages(ctx: PipelineContext) -> None:
         if not rows and not disable_replay and budget_left(start) > 3:
             try:
                 ctx.client.replay(cid, limit=300, since=since, until=until, timeout=timeout_s)
-            except Exception:
-                pass
+            except Exception as e:
+                ctx.errors.append(f"viewpoint_replay_failed:{cid}:{e}")
             rows = ctx.client.fetch_messages(cid, limit=260, since=since, until=until, timeout=timeout_s)
         ctx.messages_by_chat[s] = rows
 

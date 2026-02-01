@@ -16,5 +16,5 @@ python3 /Users/massis/clawd/scripts/hourly_prepare.py
 
 ## Debugging tips
 - Inspect `errors` and `llm_failures` in JSON output.
-- `summary_whatsapp_chunks` must stay <= ~950 chars per chunk.
+- `summary_whatsapp_chunks` must stay <= hourly.render.WHATSAPP_CHUNK_MAX (~950 chars) per chunk.
 - TG service must be healthy (see `require_tg_health`).

@@ -9,7 +9,7 @@ from typing import Any, Dict, List
 
 from ..models import PipelineContext
 from ..perp_dashboard import build_perp_dash_inputs
-from ..render import build_summary, split_whatsapp_text
+from ..render import WHATSAPP_CHUNK_MAX, build_summary, split_whatsapp_text
 from .pipeline_timing import measure
 from .text_hash import sha1_text
 
@@ -22,7 +22,8 @@ def render(ctx: PipelineContext) -> Dict[str, Any]:
     perp_dash_inputs: List[Dict[str, Any]] = []
     try:
         perp_dash_inputs = build_perp_dash_inputs(oi_items=ctx.oi_items, max_n=3)
-    except Exception:
+    except Exception as e:
+        ctx.errors.append(f"perp_dash_inputs_failed:{type(e).__name__}:{e}")
         perp_dash_inputs = []
 
     summary_whatsapp = build_summary(
@@ -64,11 +65,12 @@ def render(ctx: PipelineContext) -> Dict[str, Any]:
         tmp = Path("/tmp/clawdbot_hourly_summary.md")
         tmp.write_text(summary_markdown, encoding="utf-8")
         tmp_md_path = str(tmp)
-    except Exception:
+    except Exception as e:
+        ctx.errors.append(f"render_markdown_write_failed:{type(e).__name__}:{e}")
         tmp_md_path = ""
 
     summary_hash = sha1_text(summary_whatsapp + "\n---\n" + summary_markdown)
-    summary_whatsapp_chunks = split_whatsapp_text(summary_whatsapp, max_chars=1400)
+    summary_whatsapp_chunks = split_whatsapp_text(summary_whatsapp, max_chars=WHATSAPP_CHUNK_MAX)
 
     done()
 

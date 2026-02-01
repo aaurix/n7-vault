@@ -6,65 +6,18 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from ..exchange_ccxt import fetch_ticker_last
-from ..binance_futures import get_mark_price
 from ..llm_openai import summarize_twitter_ca_viewpoints
 from ..models import PipelineContext
+from ..market_data_helpers import (
+    as_num as _as_num,
+    fetch_cex_price as _fetch_cex_price,
+    fetch_dex_market as _fetch_dex_market,
+    norm_symbol as _norm_symbol,
+)
 from .actionable_normalization import _fallback_actionables_from_radar
 from .evidence_cleaner import _clean_evidence_snippet
 from .llm_failures import _log_llm_failure
 from .pipeline_timing import measure
-
-
-def _as_num(x: Any) -> Optional[float]:
-    try:
-        if x is None:
-            return None
-        return float(x)
-    except Exception:
-        return None
-
-
-def _norm_symbol(val: Any) -> str:
-    s = str(val or "").upper().strip()
-    if s.startswith("$"):
-        s = s[1:]
-    return s
-
-
-def _pick_dex_market(dex: Dict[str, Any]) -> Dict[str, Any]:
-    if not isinstance(dex, dict):
-        return {}
-    return {
-        "price": _as_num(dex.get("priceUsd") or dex.get("price")),
-        "market_cap": _as_num(dex.get("marketCap") or dex.get("market_cap") or dex.get("mcap")),
-        "fdv": _as_num(dex.get("fdv") or dex.get("fully_diluted_valuation")),
-        "chain": str(dex.get("chainId") or "").strip(),
-    }
-
-
-def _fetch_dex_market(addr: str, sym: str, dex_client) -> Dict[str, Any]:
-    dex = None
-    if addr:
-        dex = dex_client.enrich_addr(addr)
-    if not dex and sym:
-        dex = dex_client.enrich_symbol(sym)
-    return _pick_dex_market(dex or {})
-
-
-def _fetch_cex_price(sym: str) -> Optional[float]:
-    s = _norm_symbol(sym)
-    if not s:
-        return None
-    sym2 = s if s.endswith("USDT") or "/" in s else f"{s}USDT"
-    px = fetch_ticker_last(sym2)
-    if px is not None:
-        return px
-    try:
-        sym3 = sym2.replace("/", "")
-        return get_mark_price(sym3)
-    except Exception:
-        return None
 
 
 def build_twitter_ca_topics(ctx: PipelineContext) -> None:

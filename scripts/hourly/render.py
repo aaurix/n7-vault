@@ -10,7 +10,10 @@ from typing import Any, Dict, List, Optional
 from hourly.perp_dashboard import render_perp_dashboards_mini
 
 
-def split_whatsapp_text(text: str, *, max_chars: int = 950) -> List[str]:
+WHATSAPP_CHUNK_MAX = 950
+
+
+def split_whatsapp_text(text: str, *, max_chars: int = WHATSAPP_CHUNK_MAX) -> List[str]:
     """Split WhatsApp message into chunks.
 
     WhatsApp messages can truncate/fail when too long; we keep each chunk <= max_chars.
@@ -95,7 +98,7 @@ def split_whatsapp_text(text: str, *, max_chars: int = 950) -> List[str]:
     return [x for x in out2 if x and len(x) <= max_chars]
 
 
-_WA_MAX_CHARS = 1400
+_WA_MAX_CHARS = WHATSAPP_CHUNK_MAX
 
 
 def _is_whatsapp_header(line: str) -> bool:

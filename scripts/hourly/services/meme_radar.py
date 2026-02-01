@@ -31,12 +31,21 @@ def _meme_radar_cmd() -> List[str]:
     ]
 
 
+def _tail_stderr(text: str, *, limit: int = 400) -> str:
+    t = (text or "").strip()
+    if not t:
+        return ""
+    if len(t) <= limit:
+        return t
+    return t[-limit:]
+
+
 def spawn_meme_radar(ctx: PipelineContext) -> Optional[subprocess.Popen[str]]:
     try:
         return subprocess.Popen(
             _meme_radar_cmd(),
             stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
             text=True,
         )
     except Exception as e:
@@ -50,14 +59,27 @@ def wait_meme_radar(ctx: PipelineContext, proc: Optional[subprocess.Popen[str]])
         if proc is not None:
             # Keep headroom for rendering / JSON output.
             timeout_s = min(170.0, max(5.0, ctx.budget.remaining_s() - 8.0))
+            stderr_text = ""
             try:
-                proc.wait(timeout=timeout_s)
-            except Exception:
+                _out, stderr_text = proc.communicate(timeout=timeout_s)
+            except subprocess.TimeoutExpired:
                 try:
                     proc.kill()
                 except Exception:
                     pass
                 ctx.errors.append("meme_radar_timeout")
+                try:
+                    _out, stderr_text = proc.communicate(timeout=5)
+                except Exception:
+                    stderr_text = stderr_text or ""
+            except Exception as e:
+                ctx.errors.append(f"meme_radar_wait_failed:{type(e).__name__}:{e}")
+            returncode = proc.returncode
+            if returncode:
+                ctx.errors.append(f"meme_radar_exit:{returncode}")
+            tail = _tail_stderr(stderr_text)
+            if tail:
+                ctx.errors.append(f"meme_radar_stderr:{tail}")
     finally:
         ctx.radar = ctx.state.load_meme_radar_output(ctx.errors)
         ctx.radar_items = list(ctx.radar.get("items") or [])
