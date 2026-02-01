@@ -7,6 +7,7 @@ This is intentionally separate from token-thread clustering.
 Narratives can exist without explicit tickers (e.g. "BSC已经死了").
 
 We will use LLM summarization for narratives when available.
+When LLM is unavailable, we fall back to deterministic clustering + keyword/entity extraction.
 """
 
 from __future__ import annotations

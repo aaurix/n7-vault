@@ -73,6 +73,7 @@ class PipelineContext:
     errors: List[str] = field(default_factory=list)
     llm_failures: List[str] = field(default_factory=list)
     perf: Dict[str, float] = field(default_factory=dict)
+    tg_topics_fallback_reason: str = ""
 
     # intermediate
     messages_by_chat: Dict[str, List[Dict[str, Any]]] = field(default_factory=dict)

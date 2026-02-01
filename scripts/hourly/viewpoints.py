@@ -78,9 +78,9 @@ def extract_viewpoint_threads(
     max_enrich_calls = 30
     t0 = time.perf_counter()
     try:
-        time_budget_s = float(os.environ.get("HOURLY_TG_VIEWPOINT_BUDGET_S") or 12.0)
+        time_budget_s = float(os.environ.get("HOURLY_TG_VIEWPOINT_BUDGET_S") or 25.0)
     except Exception:
-        time_budget_s = 12.0
+        time_budget_s = 25.0
 
     for t in human_texts:
         if time.perf_counter() - t0 > time_budget_s:

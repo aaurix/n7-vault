@@ -79,6 +79,23 @@ def _has_event_word(text: str) -> bool:
     return bool(_EVENT_RE.search(text))
 
 
+def extract_event_words(text: str) -> List[str]:
+    """Return unique event keywords found in text (preserve order)."""
+    if not text:
+        return []
+    hits = _EVENT_RE.findall(text)
+    out: List[str] = []
+    seen: set[str] = set()
+    for h in hits:
+        key = (h or "").lower()
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        # normalize english to lowercase, keep CJK as-is
+        out.append(key if re.search(r"[a-z]", key) else h)
+    return out
+
+
 def _has_numeric(text: str) -> bool:
     return bool(_NUMERIC_RE.search(text))
 
@@ -237,5 +254,6 @@ __all__ = [
     "postfilter_tg_topic_item",
     "score_tg_cluster",
     "score_tg_text",
+    "extract_event_words",
     "self_check_tg_preprocess",
 ]

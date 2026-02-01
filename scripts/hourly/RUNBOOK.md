@@ -12,7 +12,6 @@ python3 /Users/massis/clawd/scripts/hourly_prepare.py
 
 ## Common env flags
 - `HOURLY_MARKET_SUMMARY_BUDGET_S=240` (default)
-- `HOURLY_PREP_USE_LLM=0` (disable LLM in prepare stage)
 
 ## Debugging tips
 - Inspect `errors` and `llm_failures` in JSON output.

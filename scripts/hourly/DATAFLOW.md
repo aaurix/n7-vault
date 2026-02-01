@@ -11,7 +11,8 @@
    - Optional LLM: trading plans (budget-gated).
 4. **TG topics (narratives)**
    - Deterministic prefilter → dedup → embeddings cluster (scored) → LLM → postfilter.
-   - Fallback: rule-based topic extraction from TG text.
+   - No-LLM path: cluster centers + keyword/entity extraction (embeddings optional).
+   - Fallback: symbol-based extraction when clustering yields nothing.
 5. **Meme radar**
    - Spawn async meme radar → load output → merge TG address candidates.
 6. **Twitter supplement**

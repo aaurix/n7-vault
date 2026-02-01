@@ -22,7 +22,8 @@ def build_tg_topics(ctx: PipelineContext) -> None:
     candidates = filter_tg_topic_texts(ctx.human_texts, resolver=ctx.resolver, limit=240)
     ctx.perf["tg_topics_candidates"] = float(len(candidates))
 
-    if ctx.use_llm and candidates and (not ctx.budget.over(reserve_s=75.0)):
+    llm_budget_over = ctx.budget.over(reserve_s=75.0)
+    if ctx.use_llm and candidates and (not llm_budget_over):
         items = build_topics(
             texts=candidates,
             embeddings_fn=embeddings,
@@ -43,7 +44,33 @@ def build_tg_topics(ctx: PipelineContext) -> None:
         )
 
     if not items:
-        items = tg_topics_fallback(candidates or ctx.human_texts, limit=5)
+        reason = ""
+        if not candidates:
+            reason = "no_candidates"
+        elif not ctx.use_llm:
+            reason = "llm_disabled"
+        elif llm_budget_over:
+            reason = "llm_budget"
+        else:
+            # pick last tg_topics error (if any) for debugging
+            for err in reversed(ctx.errors):
+                if err.startswith("tg_topics_"):
+                    reason = err
+                    break
+            if not reason:
+                reason = "llm_empty"
+
+        ctx.tg_topics_fallback_reason = reason
+        ctx.perf["tg_topics_fallback_used"] = 1.0
+
+        use_embeddings = not ctx.budget.over(reserve_s=40.0)
+        items = tg_topics_fallback(
+            candidates or ctx.human_texts,
+            limit=5,
+            resolver=ctx.resolver,
+            use_embeddings=use_embeddings,
+            errors=ctx.errors,
+        )
 
     ctx.narratives = items
     done()

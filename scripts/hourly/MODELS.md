@@ -9,7 +9,7 @@ Key fields:
 - **budget**: `TimeBudget` (deadline-based)
 - **inputs**: `messages_by_chat`, `human_texts`, `oi_items`, `radar_items`
 - **outputs**: `narratives`, `threads`, `twitter_topics`, `social_cards`, `sentiment`, `watch`
-- **diagnostics**: `perf`, `errors`, `llm_failures`
+- **diagnostics**: `perf`, `errors`, `llm_failures`, `tg_topics_fallback_reason`
 
 ## `TimeBudget`
 Monotonic, deadline-based helper with:
