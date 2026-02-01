@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures
+import datetime as dt
 import json
 import os
 import signal
@@ -118,6 +119,10 @@ def _log(msg: str, *, enabled: bool) -> None:
     print(msg, file=sys.stderr, flush=True)
 
 
+def _iso_now() -> str:
+    return dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
 def _call_with_timeout(timeout_s: float, fn: Callable[[], Any]) -> Any:
     if timeout_s <= 0:
         return fn()
@@ -153,6 +158,39 @@ class StepRunner:
         self.log_steps = log_steps
         self.timeout_s = timeout_s
         self.continue_on_error = continue_on_error
+        self._state_lock = threading.Lock()
+
+    def _update_state(self, update_fn: Callable[[Dict[str, Any]], None]) -> None:
+        if not getattr(self.ctx, "state", None):
+            return
+        with self._state_lock:
+            self.ctx.state.update_hourly_prepare_state(update_fn)
+
+    def _record_step_start(self, name: str) -> None:
+        ts = _iso_now()
+
+        def _update(data: Dict[str, Any]) -> None:
+            steps = data.setdefault("steps", {})
+            info = steps.setdefault(name, {})
+            info["start"] = ts
+            data["last_step"] = name
+
+        self._update_state(_update)
+
+    def _record_step_end(self, name: str, status: str) -> None:
+        ts = _iso_now()
+
+        def _update(data: Dict[str, Any]) -> None:
+            steps = data.setdefault("steps", {})
+            info = steps.setdefault(name, {})
+            info["end"] = ts
+            info["status"] = status
+            if status == "ok":
+                data["last_step"] = None
+            else:
+                data["last_step"] = name
+
+        self._update_state(_update)
 
     def _should_run(self, name: str) -> bool:
         if self.only_steps and name not in self.only_steps:
@@ -170,6 +208,8 @@ class StepRunner:
             self.ctx.perf[f"prepare_{name}_skipped"] = 1.0
             return None
 
+        status = "ok"
+        self._record_step_start(name)
         _log(f"[hourly_prepare] START {name}", enabled=self.log_steps)
         t0 = time.perf_counter()
         try:
@@ -177,6 +217,7 @@ class StepRunner:
                 return _call_with_timeout(self.timeout_s, fn)
             return fn()
         except Exception as e:
+            status = "timeout" if isinstance(e, StepTimeout) else "error"
             self.ctx.errors.append(f"step_failed:{name}:{type(e).__name__}:{e}")
             _log(f"[hourly_prepare] FAIL {name} {type(e).__name__}:{e}", enabled=self.log_steps)
             if not self.continue_on_error:
@@ -185,6 +226,7 @@ class StepRunner:
         finally:
             dt = time.perf_counter() - t0
             self.ctx.perf[f"prepare_{name}"] = round(dt, 3)
+            self._record_step_end(name, status)
             _log(f"[hourly_prepare] END {name} {dt:.3f}s", enabled=self.log_steps)
 
 
@@ -203,6 +245,17 @@ def _assert_tg_health(ctx: PipelineContext) -> None:
         raise RuntimeError("TG service not healthy")
 
 
+def _init_prepare_state(ctx: PipelineContext) -> None:
+    ts = _iso_now()
+
+    def _update(data: Dict[str, Any]) -> None:
+        data["run_started_at"] = ts
+        data["steps"] = {}
+        data["last_step"] = None
+
+    ctx.state.update_hourly_prepare_state(_update)
+
+
 def run_prepare(
     total_budget_s: float = DEFAULT_TOTAL_BUDGET_S,
     *,
@@ -214,6 +267,7 @@ def run_prepare(
 ) -> Dict[str, Any]:
     t_total = time.perf_counter()
     ctx: PipelineContext = build_context(total_budget_s=total_budget_s)
+    _init_prepare_state(ctx)
 
     # LLM availability is decided by configuration (API key).
 
