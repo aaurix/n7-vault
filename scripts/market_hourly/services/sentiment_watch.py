@@ -8,7 +8,7 @@ from typing import Any, List
 
 from ..models import PipelineContext
 from .actionable_normalization import _sentiment_from_actionable
-from .pipeline_timing import measure
+from .diagnostics import measure
 
 
 def compute_sentiment_and_watch(ctx: PipelineContext) -> None:

@@ -11,7 +11,7 @@ from ..llm_openai import embeddings, summarize_narratives
 from ..models import PipelineContext
 from ..topic_pipeline import build_topics
 from ..tg_topics_fallback import tg_topics_fallback
-from .pipeline_timing import measure
+from .diagnostics import measure
 from .tg_preprocess import filter_tg_topic_texts, postfilter_tg_topic_item, score_tg_cluster
 
 

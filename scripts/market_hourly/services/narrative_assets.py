@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 from ..models import PipelineContext
-from .pipeline_timing import measure
+from .diagnostics import measure
 
 
 def infer_narrative_assets_from_tg(ctx: PipelineContext) -> None:

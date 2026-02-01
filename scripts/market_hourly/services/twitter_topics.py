@@ -16,8 +16,8 @@ from ..market_data_helpers import (
 )
 from .actionable_normalization import _fallback_actionables_from_radar
 from .evidence_cleaner import _clean_evidence_snippet
-from .llm_failures import _log_llm_failure
-from .pipeline_timing import measure
+from .diagnostics import log_llm_failure
+from .diagnostics import measure
 
 
 def build_twitter_ca_topics(ctx: PipelineContext) -> None:
@@ -63,15 +63,15 @@ def build_twitter_ca_topics(ctx: PipelineContext) -> None:
             parse_failed = bool(isinstance(out, dict) and out.get("_parse_failed"))
             raw = str(out.get("raw") or "") if isinstance(out, dict) else ""
             if parse_failed:
-                _log_llm_failure(ctx, "twitter_viewpoints_llm_parse_failed", raw=raw)
+                log_llm_failure(ctx, "twitter_viewpoints_llm_parse_failed", raw=raw)
             if isinstance(raw_items, list):
                 llm_items = [it for it in raw_items if isinstance(it, dict)]
             elif isinstance(out, dict) and not parse_failed:
-                _log_llm_failure(ctx, "twitter_viewpoints_llm_schema_invalid", raw=raw)
+                log_llm_failure(ctx, "twitter_viewpoints_llm_schema_invalid", raw=raw)
             if not llm_items and not parse_failed:
-                _log_llm_failure(ctx, "twitter_viewpoints_llm_empty", raw=raw)
+                log_llm_failure(ctx, "twitter_viewpoints_llm_empty", raw=raw)
         except Exception as e:
-            _log_llm_failure(ctx, "twitter_viewpoints_llm_failed", exc=e)
+            log_llm_failure(ctx, "twitter_viewpoints_llm_failed", exc=e)
 
     # Index LLM outputs by id/symbol/ca for matching
     llm_map: Dict[str, Dict[str, Any]] = {}

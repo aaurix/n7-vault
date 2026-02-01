@@ -12,7 +12,7 @@ from ..filters import BASE58_RE, EVM_ADDR_RE, TICKER_DOLLAR_RE, is_botish_text
 from ..models import PipelineContext
 from ..tg_client import msg_text, sender_id
 from ..viewpoints import extract_viewpoint_threads
-from .pipeline_timing import measure
+from .diagnostics import measure
 
 import os
 import time

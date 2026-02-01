@@ -16,8 +16,8 @@ from ..filters import extract_symbols_and_addrs
 from ..llm_openai import embeddings, detect_twitter_following_events, summarize_twitter_following
 from ..models import PipelineContext
 from .evidence_cleaner import _clean_evidence_snippet
-from .llm_failures import _log_llm_failure
-from .pipeline_timing import measure
+from .diagnostics import log_llm_failure
+from .diagnostics import measure
 
 
 from .twitter_following_render import (
@@ -577,9 +577,9 @@ def build_twitter_following_summary(
                             )
                             diagnostics["llm_events"] = llm_events
                     else:
-                        _log_llm_failure(ctx, "twitter_following_llm_events_parse_failed", raw=str(out))
+                        log_llm_failure(ctx, "twitter_following_llm_events_parse_failed", raw=str(out))
                 except Exception as e:
-                    _log_llm_failure(ctx, "twitter_following_llm_events_failed", exc=e)
+                    log_llm_failure(ctx, "twitter_following_llm_events_failed", exc=e)
 
         if llm_summary_allowed:
             try:
@@ -601,9 +601,9 @@ def build_twitter_following_summary(
                         }
                     )
                 else:
-                    _log_llm_failure(ctx, "twitter_following_llm_parse_failed", raw=str(out))
+                    log_llm_failure(ctx, "twitter_following_llm_parse_failed", raw=str(out))
             except Exception as e:
-                _log_llm_failure(ctx, "twitter_following_llm_failed", exc=e)
+                log_llm_failure(ctx, "twitter_following_llm_failed", exc=e)
 
         if diagnostics:
             ctx.twitter_following["diagnostics"] = diagnostics

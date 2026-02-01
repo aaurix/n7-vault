@@ -16,7 +16,7 @@ from ..market_data_helpers import (
 )
 from .actionable_normalization import _sentiment_from_actionable
 from .evidence_cleaner import _clean_evidence_snippet
-from .pipeline_timing import measure
+from .diagnostics import measure
 
 
 def _split_drivers(text: str, *, max_n: int = 3) -> List[str]:

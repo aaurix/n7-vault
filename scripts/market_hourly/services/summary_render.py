@@ -11,8 +11,8 @@ from ..models import PipelineContext
 from ..perp_dashboard import build_perp_dash_inputs
 from ..render import WHATSAPP_CHUNK_MAX, build_summary, split_whatsapp_text
 from .metrics_report import build_metrics_report
-from .pipeline_timing import measure
-from .text_hash import sha1_text
+from .diagnostics import measure
+from .diagnostics import sha1_text
 
 
 def render(ctx: PipelineContext) -> Dict[str, Any]:

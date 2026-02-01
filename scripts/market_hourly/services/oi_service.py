@@ -12,7 +12,7 @@ from ..llm_openai import summarize_oi_trading_plans
 from ..models import PipelineContext
 from ..oi import parse_oi_signals
 from ..oi_plan_pipeline import build_oi_items, build_oi_plans
-from .pipeline_timing import measure
+from .diagnostics import measure
 
 
 def build_oi(ctx: PipelineContext) -> None:

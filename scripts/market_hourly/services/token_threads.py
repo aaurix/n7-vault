@@ -8,7 +8,7 @@ from typing import Dict, List
 
 from ..llm_openai import summarize_token_threads_batch
 from ..models import PipelineContext
-from .pipeline_timing import measure
+from .diagnostics import measure
 
 
 def build_token_thread_summaries(ctx: PipelineContext) -> None:

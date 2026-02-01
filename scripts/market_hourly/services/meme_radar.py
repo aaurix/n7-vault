@@ -11,7 +11,7 @@ from repo_paths import scripts_path
 
 from ..filters import BASE58_RE, EVM_ADDR_RE
 from ..models import PipelineContext
-from .pipeline_timing import measure
+from .diagnostics import measure
 
 
 def _meme_radar_cmd() -> List[str]:
