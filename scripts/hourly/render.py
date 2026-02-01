@@ -181,7 +181,7 @@ def _apply_whatsapp_budget(
         ]
         if not candidates:
             break
-        sec = max(candidates, key=lambda s: int(s.get("priority", 0)))
+        sec = min(candidates, key=lambda s: int(s.get("priority", 0)))
         sec["lines"].pop()
 
     out: List[str] = []

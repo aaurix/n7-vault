@@ -24,6 +24,10 @@ def build_tg_topics(ctx: PipelineContext) -> None:
 
     llm_budget_over = ctx.budget.over(reserve_s=75.0)
     if ctx.use_llm and candidates and (not llm_budget_over):
+        max_clusters = 12
+        if not ctx.use_embeddings:
+            max_clusters = max(12, len(candidates) + 1)
+            ctx.errors.append("tg_topics_embed_skipped:no_openai_key")
         items = build_topics(
             texts=candidates,
             embeddings_fn=embeddings,
@@ -33,7 +37,7 @@ def build_tg_topics(ctx: PipelineContext) -> None:
             prefilter=None,
             postfilter=lambda it: postfilter_tg_topic_item(it, resolver=ctx.resolver),
             cluster_score_fn=lambda it: score_tg_cluster(it, resolver=ctx.resolver),
-            max_clusters=12,
+            max_clusters=max_clusters,
             threshold=0.82,
             embed_timeout=26,
             time_budget_ok=lambda reserve: not ctx.budget.over(reserve_s=reserve),
@@ -63,7 +67,7 @@ def build_tg_topics(ctx: PipelineContext) -> None:
         ctx.tg_topics_fallback_reason = reason
         ctx.perf["tg_topics_fallback_used"] = 1.0
 
-        use_embeddings = not ctx.budget.over(reserve_s=40.0)
+        use_embeddings = bool(ctx.use_embeddings and not ctx.budget.over(reserve_s=40.0))
         items = tg_topics_fallback(
             candidates or ctx.human_texts,
             limit=5,

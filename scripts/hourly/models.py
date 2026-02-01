@@ -63,6 +63,7 @@ class PipelineContext:
     until: str
     hour_key: str
     use_llm: bool
+    use_embeddings: bool
 
     client: "TgClient"
     budget: TimeBudget

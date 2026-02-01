@@ -393,7 +393,8 @@ def tg_topics_fallback(
     """Deterministic TG topic extraction fallback (no chat LLM)."""
 
     resolver = resolver or get_shared_entity_resolver()
-    errors = errors or []
+    if errors is None:
+        errors = []
 
     filtered = filter_tg_topic_texts(texts, resolver=resolver, limit=400)
     filtered = _dedup_texts(filtered, limit=240)

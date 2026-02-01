@@ -63,7 +63,8 @@ def build_topics(
     """
 
     time_budget_ok = time_budget_ok or (lambda _limit: True)
-    errors = errors or []
+    if errors is None:
+        errors = []
 
     # 1) prefilter + dedup
     filtered: List[str] = []

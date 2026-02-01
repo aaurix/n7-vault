@@ -757,7 +757,7 @@ def build_twitter_following_summary(
         items, prep_metrics = _prep_snippets(rows, limit=140)
 
         total = len(rows)
-        allow_embeddings = bool(allow_llm and ctx.use_llm)
+        allow_embeddings = bool(ctx.use_embeddings)
         items, semantic_metrics = _semantic_dedupe_items(
             items,
             ctx=ctx,

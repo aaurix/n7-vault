@@ -7,7 +7,7 @@ from __future__ import annotations
 import datetime as dt
 
 from ..config import DEFAULT_TOTAL_BUDGET_S, SH_TZ, UTC
-from ..llm_openai import load_chat_api_key
+from ..llm_openai import load_chat_api_key, load_openai_api_key
 from ..models import PipelineContext, TimeBudget
 from ..tg_client import TgClient
 from .dexscreener_client import get_shared_dexscreener_client
@@ -28,6 +28,7 @@ def build_context(*, total_budget_s: float = DEFAULT_TOTAL_BUDGET_S) -> Pipeline
     until = _iso_z(now_utc)
 
     use_llm = bool(load_chat_api_key())
+    use_embeddings = bool(load_openai_api_key())
 
     dex = get_shared_dexscreener_client()
     resolver = get_shared_entity_resolver(dex)
@@ -39,6 +40,7 @@ def build_context(*, total_budget_s: float = DEFAULT_TOTAL_BUDGET_S) -> Pipeline
         until=until,
         hour_key=now_sh.strftime("%Y-%m-%d %H:00"),
         use_llm=use_llm,
+        use_embeddings=use_embeddings,
         client=TgClient(),
         budget=TimeBudget.start(total_s=total_budget_s),
         state=HourlyStateManager(),

@@ -10,6 +10,7 @@ Key fields:
 - **inputs**: `messages_by_chat`, `human_texts`, `oi_items`, `radar_items`, `twitter_following`
 - **outputs**: `narratives`, `threads`, `twitter_topics`, `twitter_following_summary`, `social_cards`, `sentiment`, `watch`
 - **diagnostics**: `perf`, `errors`, `llm_failures`, `tg_topics_fallback_reason`
+- **capabilities**: `use_llm` (chat), `use_embeddings`
 
 ## `TimeBudget`
 Monotonic, deadline-based helper with:

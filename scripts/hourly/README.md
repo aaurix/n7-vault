@@ -4,7 +4,7 @@ This folder hosts the hourly market summary pipeline and its supporting services
 
 ## Entry points
 - `scripts/hourly_market_summary.py` → production summary JSON (WhatsApp + Markdown)
-- `scripts/hourly_prepare.py` → deterministic data prep JSON (no LLM summary by default)
+- `scripts/hourly_prepare.py` → deterministic data prep JSON (LLM/embeddings used if keys present)
 
 ## Structure
 - `config.py` → static config (TZ + Telegram channel ids)

@@ -68,7 +68,7 @@ def render(ctx: PipelineContext) -> Dict[str, Any]:
         tmp_md_path = ""
 
     summary_hash = sha1_text(summary_whatsapp + "\n---\n" + summary_markdown)
-    summary_whatsapp_chunks = split_whatsapp_text(summary_whatsapp, max_chars=950)
+    summary_whatsapp_chunks = split_whatsapp_text(summary_whatsapp, max_chars=1400)
 
     done()
 

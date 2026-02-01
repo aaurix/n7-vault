@@ -9,6 +9,7 @@ python3 /Users/massis/clawd/scripts/hourly_market_summary.py
 ```bash
 python3 /Users/massis/clawd/scripts/hourly_prepare.py
 ```
+> Note: if LLM/embedding keys are present, prep can use them for topic/tweet summaries.
 
 ## Common env flags
 - `HOURLY_MARKET_SUMMARY_BUDGET_S=240` (default)
