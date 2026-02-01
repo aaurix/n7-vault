@@ -6,7 +6,7 @@ Contract:
 - Prints exactly one JSON object to stdout for the cron delivery wrapper.
 - Never crashes without emitting JSON (best-effort).
 
-Implementation lives in hourly.market_summary_pipeline.
+Implementation lives in market_hourly.market_summary_pipeline.
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ def main() -> int:
     sys.path.insert(0, os.path.dirname(__file__))
 
     try:
-        from hourly.market_summary_pipeline import run_pipeline  # type: ignore
+        from market_hourly.market_summary_pipeline import run_pipeline  # type: ignore
 
         budget_s = float(os.environ.get("HOURLY_MARKET_SUMMARY_BUDGET_S", "240"))
         out = run_pipeline(total_budget_s=budget_s)

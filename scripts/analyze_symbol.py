@@ -22,7 +22,7 @@ Usage:
 
 Notes:
 - If OPENAI_API_KEY is missing or LLM call fails, falls back to deterministic output.
-- WhatsApp chunking enforced via hourly.render.WHATSAPP_CHUNK_MAX (~950 chars per chunk).
+- WhatsApp chunking enforced via market_hourly.render.WHATSAPP_CHUNK_MAX (~950 chars per chunk).
 """
 
 from __future__ import annotations
@@ -37,8 +37,8 @@ from typing import Any, Dict, List, Optional
 sys.path.insert(0, os.path.dirname(__file__))
 
 from analyze_symbol_prepare import normalize_symbol_input, run_prepare  # noqa: E402
-from hourly.llm_openai import chat_json, load_chat_api_key, summarize_oi_trading_plans  # noqa: E402
-from hourly.render import WHATSAPP_CHUNK_MAX, split_whatsapp_text  # noqa: E402
+from market_hourly.llm_openai import chat_json, load_chat_api_key, summarize_oi_trading_plans  # noqa: E402
+from market_hourly.render import WHATSAPP_CHUNK_MAX, split_whatsapp_text  # noqa: E402
 
 
 def _fmt_pct(x: Optional[float]) -> str:

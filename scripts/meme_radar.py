@@ -4,7 +4,7 @@
 Goal: help 小E produce a meme shortlist by combining:
 - Twitter (bird) mentions (cas/contract addresses, tickers)
 - DexScreener token metrics (liq/vol/price change)
-- Standardized Twitter evidence for meme tokens: CA + $SYMBOL (via hourly.twitter_context)
+- Standardized Twitter evidence for meme tokens: CA + $SYMBOL (via market_hourly.twitter_context)
 - (Optional) GMGN.ai links for further manual confirmation
 
 This is an MVP: it does NOT scrape GMGN (site can change); it emits GMGN links.
@@ -26,7 +26,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from repo_paths import state_path
-from hourly.twitter_context import twitter_evidence_for_ca
+from market_hourly.twitter_context import twitter_evidence_for_ca
 
 from zoneinfo import ZoneInfo
 

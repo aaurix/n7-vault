@@ -35,6 +35,29 @@ def _dedup_texts(texts: List[str], *, key_len: int = 120, limit: int = 200) -> L
     return out
 
 
+def _rank_texts_by_score(
+    texts: List[str],
+    *,
+    score_fn: Optional[Callable[[Dict[str, Any]], float]],
+    limit: int,
+) -> List[str]:
+    if not texts:
+        return []
+    if not score_fn:
+        return texts[:limit] if limit > 0 else texts
+    scored: List[tuple[float, int, str]] = []
+    for idx, t in enumerate(texts):
+        if not t:
+            continue
+        try:
+            score = float(score_fn({"text": t, "_cluster_size": 1}))
+        except Exception:
+            score = 0.0
+        scored.append((score, idx, t))
+    scored.sort(key=lambda x: (-x[0], x[1]))
+    return [t for _score, _idx, t in scored[:limit]]
+
+
 def build_topics(
     *,
     texts: List[str],
@@ -84,6 +107,11 @@ def build_topics(
 
     reps_texts = filtered
 
+    def _ranked(limit: int) -> List[str]:
+        if not cluster_score_fn:
+            return filtered
+        return _rank_texts_by_score(filtered, score_fn=cluster_score_fn, limit=limit)
+
     # 2) embeddings clustering (optional)
     if time_budget_ok(budget_embed_s) and len(filtered) > max_clusters:
         try:
@@ -108,10 +136,11 @@ def build_topics(
             reps_texts = [x.get("text") for x in reps if x.get("text")] or reps_texts
         except Exception as e:
             errors.append(f"{tag}_embed_failed:{e}")
-            reps_texts = filtered
+            reps_texts = _ranked(min(len(filtered), max_clusters))
     else:
         if not time_budget_ok(budget_embed_s):
             errors.append(f"{tag}_embed_skipped:budget")
+        reps_texts = _ranked(min(len(filtered), max_clusters))
 
     # 3) llm summarize
     if not time_budget_ok(budget_llm_s):

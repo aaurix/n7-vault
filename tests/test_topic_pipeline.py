@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from hourly.topic_pipeline import build_topics
+from market_hourly.topic_pipeline import build_topics
 
 
 def test_build_topics_dedup_and_cluster_flow() -> None:

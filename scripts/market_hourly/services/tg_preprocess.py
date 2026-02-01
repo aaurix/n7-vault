@@ -16,13 +16,25 @@ _EVENT_WORDS = [
     "上线",
     "上所",
     "上架",
+    "上币",
+    "上市",
+    "上新",
     "解锁",
+    "解禁",
     "锁仓",
     "黑客",
     "被黑",
     "漏洞",
     "清算",
     "回购",
+    "增持",
+    "减持",
+    "融资",
+    "募资",
+    "投资",
+    "并购",
+    "脱锚",
+    "爆仓",
     "治理",
     "提案",
     "空投",
@@ -37,6 +49,10 @@ _EVENT_WORDS = [
     "退市",
     "list",
     "listing",
+    "delist",
+    "mainnet",
+    "testnet",
+    "launch",
     "unlock",
     "airdrop",
     "exploit",
@@ -49,6 +65,86 @@ _EVENT_WORDS = [
 
 _EVENT_RE = re.compile("|".join(re.escape(x) for x in _EVENT_WORDS), re.IGNORECASE)
 _NUMERIC_RE = re.compile(r"\d+(?:[\.,]\d+)?\s*(?:[kKmMwW]|万|亿|M|B|%)?")
+
+_CHAIN_WORDS = [
+    "solana",
+    "sol",
+    "ethereum",
+    "eth",
+    "base",
+    "bsc",
+    "bnb",
+    "arbitrum",
+    "arb",
+    "optimism",
+    "polygon",
+    "matic",
+    "avalanche",
+    "avax",
+    "sui",
+    "aptos",
+    "ton",
+    "tron",
+    "near",
+    "sei",
+    "linea",
+    "scroll",
+    "zksync",
+    "starknet",
+    "比特币",
+    "以太坊",
+    "索拉纳",
+    "波场",
+]
+
+_PLATFORM_WORDS = [
+    "binance",
+    "币安",
+    "okx",
+    "欧易",
+    "bybit",
+    "coinbase",
+    "bitget",
+    "gate",
+    "芝麻开门",
+    "kucoin",
+    "mexc",
+    "kraken",
+    "bitfinex",
+    "bitmex",
+    "hyperliquid",
+    "uniswap",
+    "pancakeswap",
+    "raydium",
+    "jupiter",
+    "orca",
+    "dextools",
+    "dexscreener",
+    "gmgn",
+    "pump.fun",
+    "pumpfun",
+    "birdeye",
+]
+
+
+def _compile_keywords(words: List[str]) -> re.Pattern[str]:
+    parts: List[str] = []
+    for w in words:
+        s = (w or "").strip()
+        if not s:
+            continue
+        if re.fullmatch(r"[A-Za-z0-9\.]+", s):
+            if len(s) <= 3:
+                parts.append(rf"\b{re.escape(s)}\b")
+            else:
+                parts.append(re.escape(s))
+        else:
+            parts.append(re.escape(s))
+    return re.compile("|".join(parts), re.IGNORECASE) if parts else re.compile(r"^$")
+
+
+_CHAIN_RE = _compile_keywords(_CHAIN_WORDS)
+_PLATFORM_RE = _compile_keywords(_PLATFORM_WORDS)
 
 _VAGUE_STARTS = (
     "某个",
@@ -100,6 +196,14 @@ def _has_numeric(text: str) -> bool:
     return bool(_NUMERIC_RE.search(text))
 
 
+def _has_chain(text: str) -> bool:
+    return bool(_CHAIN_RE.search(text))
+
+
+def _has_platform(text: str) -> bool:
+    return bool(_PLATFORM_RE.search(text))
+
+
 def prefilter_tg_topic_text(text: str, *, resolver: Optional[EntityResolver] = None) -> bool:
     """Deterministic prefilter for TG topic extraction.
 
@@ -122,10 +226,12 @@ def prefilter_tg_topic_text(text: str, *, resolver: Optional[EntityResolver] = N
     has_symbol = bool(syms)
     has_event = _has_event_word(t)
     has_numeric = _has_numeric(t)
+    has_chain = _has_chain(t)
+    has_platform = _has_platform(t)
 
     if has_ca or has_dollar:
         return True
-    if has_event and (has_symbol or has_numeric):
+    if has_event and (has_symbol or has_numeric or has_chain or has_platform):
         return True
     return False
 
@@ -136,25 +242,29 @@ def filter_tg_topic_texts(
     resolver: Optional[EntityResolver] = None,
     limit: int = 200,
     max_len: int = 260,
+    min_score: float = 1.2,
 ) -> List[str]:
     resolver = resolver or get_shared_entity_resolver()
-    out: List[str] = []
+    scored: List[tuple[float, int, str]] = []
     seen: set[str] = set()
 
-    for t in texts[:800]:
+    for idx, t in enumerate(texts[:800]):
         cleaned = clean_tg_text(t)
         if not cleaned:
             continue
         if not prefilter_tg_topic_text(cleaned, resolver=resolver):
             continue
+        score = score_tg_text(cleaned, resolver=resolver)
+        if score < min_score:
+            continue
         key = cleaned.lower()[:120]
         if key in seen:
             continue
         seen.add(key)
-        out.append(cleaned[:max_len])
-        if len(out) >= limit:
-            break
-    return out
+        scored.append((score, idx, cleaned[:max_len]))
+
+    scored.sort(key=lambda x: (-x[0], x[1]))
+    return [t for _score, _idx, t in scored[:limit]]
 
 
 def score_tg_text(text: str, *, resolver: Optional[EntityResolver] = None) -> float:
@@ -170,22 +280,34 @@ def score_tg_text(text: str, *, resolver: Optional[EntityResolver] = None) -> fl
     has_symbol = bool(syms)
     has_event = _has_event_word(t)
     has_numeric = _has_numeric(t)
+    has_chain = _has_chain(t)
+    has_platform = _has_platform(t)
     promo = bool(_NOISE_RE.search(t))
 
     score = 0.0
     if has_ca:
-        score += 2.6
+        score += 3.8
     if has_dollar:
-        score += 1.8
+        score += 2.6
     if has_symbol:
-        score += 1.0
+        score += 1.4
     if has_event:
-        score += 0.8
-    if has_event and has_numeric:
+        score += 1.1
+    if has_numeric:
+        score += 1.0
+    if has_chain:
         score += 0.6
+    if has_platform:
+        score += 0.7
+    if has_event and has_numeric:
+        score += 0.8
+    if (has_ca or has_dollar) and has_event:
+        score += 0.6
+    if len(syms) >= 2:
+        score += 0.4
     if promo:
-        score -= 0.6
-    return max(0.0, score)
+        score -= 1.2
+    return max(0.0, min(10.0, score))
 
 
 def score_tg_cluster(item: Dict[str, Any], *, resolver: Optional[EntityResolver] = None) -> float:
@@ -212,6 +334,8 @@ def _has_anchor(text: str, *, resolver: Optional[EntityResolver] = None) -> bool
     if _has_event_word(t):
         return True
     if _has_numeric(t):
+        return True
+    if _has_chain(t) or _has_platform(t):
         return True
     return False
 

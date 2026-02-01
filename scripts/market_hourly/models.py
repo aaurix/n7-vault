@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional, TYPE_CHECKING, TypedDict
 if TYPE_CHECKING:
     from .tg_client import TgClient
     from .services.state_manager import HourlyStateManager
-    from .services.dexscreener_client import DexScreenerClient
+    from .dexscreener import DexScreenerClient
     from .services.entity_resolver import EntityResolver
 
 

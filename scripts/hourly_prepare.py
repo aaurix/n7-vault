@@ -7,7 +7,7 @@ Goal:
 - Output a JSON object to stdout that an agent can summarize.
 
 This avoids OpenAI chat/completions calls. Embeddings may still be used elsewhere,
-but this script does not call hourly.llm_openai.chat_json.
+but this script does not call market_hourly.llm_openai.chat_json.
 """
 
 from __future__ import annotations
@@ -23,21 +23,21 @@ import threading
 import time
 from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple
 
-from hourly.config import DEFAULT_TOTAL_BUDGET_S
-from hourly.models import PipelineContext
-from hourly.services.context_builder import build_context
-from hourly.services.meme_radar import (
+from market_hourly.config import DEFAULT_TOTAL_BUDGET_S
+from market_hourly.models import PipelineContext
+from market_hourly.services.context_builder import build_context
+from market_hourly.services.meme_radar import (
     merge_tg_addr_candidates_into_radar,
     spawn_meme_radar,
     wait_meme_radar,
 )
-from hourly.services.oi_service import build_oi, build_oi_plans_step
-from hourly.services.telegram_service import build_human_texts, build_viewpoint_threads, fetch_tg_messages
-from hourly.services.tg_topics import build_tg_topics
-from hourly.services.social_cards import build_social_cards
-from hourly.services.twitter_following import build_twitter_following_summary
-from hourly.perp_dashboard import build_perp_dash_inputs
-from hourly.tg_topics_fallback import tg_topics_fallback
+from market_hourly.services.oi_service import build_oi, build_oi_plans_step
+from market_hourly.services.telegram_service import build_human_texts, build_viewpoint_threads, fetch_tg_messages
+from market_hourly.services.tg_topics import build_tg_topics
+from market_hourly.services.social_cards import build_social_cards
+from market_hourly.services.twitter_following import build_twitter_following_summary
+from market_hourly.perp_dashboard import build_perp_dash_inputs
+from market_hourly.tg_topics_fallback import tg_topics_fallback
 
 
 _TRUTHY = {"1", "true", "True", "yes", "YES", "on", "ON"}

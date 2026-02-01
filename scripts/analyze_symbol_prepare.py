@@ -42,10 +42,10 @@ from typing import Any, Dict, List, Optional, Tuple
 # make ./scripts importable
 sys.path.insert(0, os.path.dirname(__file__))
 
-from hourly.binance_futures import oi_changes, price_changes  # noqa: E402
-from hourly.coingecko import get_market_cap_fdv  # noqa: E402
-from hourly.kline_fetcher import run_kline_json  # noqa: E402
-from hourly.twitter_context import TwitterQuerySpec, twitter_evidence  # noqa: E402
+from market_hourly.binance_futures import oi_changes, price_changes  # noqa: E402
+from market_hourly.coingecko import get_market_cap_fdv  # noqa: E402
+from market_hourly.kline_fetcher import run_kline_json  # noqa: E402
+from market_hourly.twitter_context import TwitterQuerySpec, twitter_evidence  # noqa: E402
 
 
 DEFAULT_QUOTE = "USDT"
@@ -390,7 +390,7 @@ def run_prepare(symbol: str) -> Dict[str, Any]:
         # Use stronger search anchors:
         # - always include futures symbol (e.g., PUMPUSDT)
         # - always include cashtag (e.g., $PUMP)
-        # - include bare base for non-ambiguous tickers; hourly.twitter_context will drop it for ambiguous ones
+        # - include bare base for non-ambiguous tickers; market_hourly.twitter_context will drop it for ambiguous ones
         #   via its existing ambiguous list.
         aliases = _dedup_keep_order([sym, cashtag, base])
         spec = TwitterQuerySpec(topic=sym, aliases=aliases, intent="plan", window_hours=24, snippet_limit=8)

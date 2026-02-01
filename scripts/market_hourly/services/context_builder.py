@@ -10,7 +10,7 @@ from ..config import DEFAULT_TOTAL_BUDGET_S, SH_TZ, UTC
 from ..llm_openai import load_chat_api_key, load_openai_api_key
 from ..models import PipelineContext, TimeBudget
 from ..tg_client import TgClient
-from .dexscreener_client import get_shared_dexscreener_client
+from ..dexscreener import get_shared_dexscreener_client
 from .entity_resolver import get_shared_entity_resolver
 from .state_manager import HourlyStateManager
 

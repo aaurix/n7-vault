@@ -239,7 +239,6 @@ class DexScreenerClient:
         return self.pair_metrics(best)
 
     def enrich_addr(self, addr: str) -> Optional[Dict[str, Any]]:
-        """Resolve a contract address to best DexScreener pair metrics (best-effort)."""
         if not addr:
             return None
         pairs = self.search(addr, cache_tier="market")
@@ -272,6 +271,51 @@ def get_shared_dexscreener_client(cache_path: Optional[Path] = None) -> DexScree
     return _SHARED_CLIENT
 
 
+def _client(cache_path: Optional[Path] = None) -> DexScreenerClient:
+    return get_shared_dexscreener_client(cache_path=cache_path)
+
+
+def dexscreener_json(
+    url: str,
+    *,
+    ttl_s: int = DEFAULT_TTL_S,
+    timeout_s: int = 12,
+    cache_path: Optional[Path] = None,
+) -> Optional[Any]:
+    if not url:
+        return None
+    return _client(cache_path).json(url, ttl_s=ttl_s, timeout_s=timeout_s, cache_path=cache_path)
+
+
+def dexscreener_search(
+    q: str,
+    *,
+    ttl_s: Optional[int] = None,
+    cache_tier: str = "market",
+) -> List[Dict[str, Any]]:
+    return _client().search(q, ttl_s=ttl_s, cache_tier=cache_tier)
+
+
+def best_pair(pairs: List[Dict[str, Any]], symbol_hint: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    return DexScreenerClient.best_pair(pairs, symbol_hint=symbol_hint)
+
+
+def pair_metrics(p: Dict[str, Any]) -> Dict[str, Any]:
+    return DexScreenerClient.pair_metrics(p)
+
+
+def enrich_symbol(sym: str) -> Optional[Dict[str, Any]]:
+    return _client().enrich_symbol(sym)
+
+
+def enrich_addr(addr: str) -> Optional[Dict[str, Any]]:
+    return _client().enrich_addr(addr)
+
+
+def resolve_addr_symbol(addr: str) -> Optional[str]:
+    return _client().resolve_addr_symbol(addr)
+
+
 __all__ = [
     "DexScreenerClient",
     "DEFAULT_TTL_S",
@@ -279,4 +323,11 @@ __all__ = [
     "CACHE_TTL_RESOLVE_S",
     "MIN_INTERVAL_S",
     "get_shared_dexscreener_client",
+    "dexscreener_json",
+    "dexscreener_search",
+    "best_pair",
+    "pair_metrics",
+    "enrich_symbol",
+    "enrich_addr",
+    "resolve_addr_symbol",
 ]

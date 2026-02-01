@@ -28,10 +28,10 @@ from typing import Any, Dict, List, Optional
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ""))
 
-from hourly.dexscreener import resolve_addr_symbol
-from hourly.dexscreener import dexscreener_search, best_pair, pair_metrics
-from hourly.llm_openai import load_openai_api_key, chat_json
-from hourly.twitter_context import twitter_evidence_for_ca
+from market_hourly.dexscreener import resolve_addr_symbol
+from market_hourly.dexscreener import dexscreener_search, best_pair, pair_metrics
+from market_hourly.llm_openai import load_openai_api_key, chat_json
+from market_hourly.twitter_context import twitter_evidence_for_ca
 
 
 EVM_CA_RE = re.compile(r"^0x[a-fA-F0-9]{40}$")
