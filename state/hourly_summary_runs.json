@@ -4,3 +4,5 @@
 {"hourKey":"2026-02-02 14:00","summaryHash":"0ec67a9b5a95f0f4db60e94d1f832a04ff945426","sent":true,"reason":"sent","ts":"2026-02-02T06:05:00Z"}
 {"hourKey":null,"summaryHash":null,"sent":false,"reason":"prep_failed","ts":"2026-02-02T08:12:44Z"}
 {"hourKey":null,"summaryHash":null,"sent":false,"reason":"prep_failed","ts":"2026-02-02T17:05:00+08:00"}
+{"hourKey":null,"summaryHash":null,"sent":false,"reason":"prep_failed","ts":"2026-02-02T10:07:59Z"}
+{"hourKey":null,"summaryHash":null,"sent":false,"reason":"prep_failed","ts":"2026-02-02T20:18:06+08:00"}
