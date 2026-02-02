@@ -1,0 +1,1 @@
+{"hourKey":"2026-02-02 11:00","summaryHash":"47387ff87e1d524b2d665f4fe860f888eb4e7ca6","sent":false,"reason":"send_failed: No active WhatsApp Web listener (account: default). Start the gateway, then link WhatsApp with: openclaw channels login --channel whatsapp --account default.","ts":"2026-02-02T03:08:02Z"}
