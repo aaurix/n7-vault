@@ -492,6 +492,10 @@ def build_summary(
         if threads:
             for i, th in enumerate(threads[:5], 1):
                 out.append(f"{i}) {th.get('title')}（{th.get('stance')}，热度{th.get('count')}）")
+                dex = th.get("_dex") if isinstance(th.get("_dex"), dict) else {}
+                mc = dex.get("marketCap") or dex.get("fdv")
+                if mc is not None:
+                    out.append(f"   - 市值：${_cn_num(mc)}")
                 # Prefer LLM fields if present
                 if th.get("thesis"):
                     out.append(f"   - 叙事：{th.get('thesis')}")
