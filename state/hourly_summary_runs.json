@@ -8,3 +8,6 @@
 {"hourKey":null,"summaryHash":null,"sent":false,"reason":"prep_failed","ts":"2026-02-02T20:18:06+08:00"}
 {"hourKey":null,"summaryHash":null,"sent":false,"reason":"prep_failed","ts":"2026-02-02T21:05:00+08:00"}
 {"hourKey":null,"summaryHash":null,"sent":false,"reason":"prep_failed","ts":"2026-02-02T22:05:00+08:00"}
+{"hourKey":null,"summaryHash":null,"sent":false,"reason":"prep_failed","ts":"2026-02-02T23:05:00+08:00"}
+{"hourKey":null,"summaryHash":null,"sent":false,"reason":"prep_failed","ts":"2026-02-02T16:08:12Z"}
+{"hourKey":"2026-02-03 01:00","summaryHash":"5cdb51fde312ae2dddb20d95a2c6e44b2521d86d","sent":true,"reason":"sent","ts":"2026-02-02T17:08:05Z"}
