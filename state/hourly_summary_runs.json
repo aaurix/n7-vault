@@ -36,3 +36,4 @@
 {"hourKey":null,"summaryHash":null,"sent":false,"reason":"prep_failed","ts":"2026-02-03T17:08:02Z"}
 {"hourKey":"2026-02-04 02:00","summaryHash":"6e83fc7fcaf81e374c50b63fa40a7aa3b8f39907","sent":true,"reason":"sent","ts":"2026-02-03T18:10:12Z"}
 {"hourKey":null,"summaryHash":null,"sent":false,"reason":"prep_failed","ts":"2026-02-03T19:05:00Z"}
+{"hourKey":"2026-02-04 04:00","summaryHash":"1fb529edf05bb3101a9c2473ad666ec3556ad15e","sent":false,"reason":"send_failed: No active WhatsApp Web listener (account: default). Start the gateway, then link WhatsApp with: openclaw channels login --channel whatsapp --account default.","ts":"2026-02-04T04:05:00+08:00"}
