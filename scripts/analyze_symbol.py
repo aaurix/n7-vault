@@ -118,16 +118,16 @@ def _llm_dashboard(prepared: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     system = (
         "你是加密交易员助手。输入是一份单币结构化数据（价格/OI/K线结构/Twitter证据统计/启发式分数）。\n"
         "请生成：『方案2 决策仪表盘』的可发WhatsApp内容要点（不要输出链接，不要引用原话，不要编造新闻）。\n"
-        "输出必须是JSON，字段：{verdict, oi_narrative, twitter_take, twitter_signals, bullets, actions, risks}。\n"
+        "输出必须是JSON，字段：{verdict, oi_narrative, twitter_view, twitter_signals, bullets, actions, risks}。\n"
         "约束：\n"
         "- verdict 只能是: 偏多/偏空/观望/高波动\n"
         "- oi_narrative：1~2句，基于价格/OI变化与区间位置解读资金意图（不确定可写“可能/需确认”）\n"
-        "- twitter_take：1~2句，概括观点分歧/共识与强度（不引用原话）\n"
+        "- twitter_view：四段式对象，字段为 {consensus, divergence, catalyst, risk}，每项1句，概括共识/分歧/催化/风险（不引用原话）\n"
         "- twitter_signals：3~5条短语，来自社交证据的“信号词”\n"
         "- bullets: 4~6条，每条<=26字，直接可执行/可验证\n"
         "- actions: 1~2条，每条<=20字\n"
         "- risks: 2~3条，每条<=20字\n"
-        "- 如果社交证据弱（kept少/ratio低），必须明确写在twitter_take或risks里\n"
+        "- 如果社交证据弱（kept少/ratio低），必须明确写在twitter_view的risk里\n"
     )
 
     try:
@@ -216,12 +216,27 @@ def _rule_dashboard(prepared: Dict[str, Any]) -> Dict[str, Any]:
                 return "1H 价↓OI↓：出清型回撤，谨慎追单"
         return flow or "OI/价格关系不明，等待确认"
 
-    def _twitter_take() -> str:
+    def _twitter_view() -> Dict[str, str]:
         if not total:
-            return "Twitter 证据缺失/抓取失败"
+            return {
+                "consensus": "证据缺失/抓取失败",
+                "divergence": "无足够样本判断分歧",
+                "catalyst": "暂无明确催化",
+                "risk": "样本为空，结论可靠性低",
+            }
         if kept <= 1:
-            return "Twitter 有效观点偏少，难形成共识"
-        return "Twitter 有一定观点密度，但方向需再确认"
+            return {
+                "consensus": "有效观点偏少，难形成共识",
+                "divergence": "缺少可比样本",
+                "catalyst": "未见明确事件驱动",
+                "risk": "社交证据弱，结论不稳",
+            }
+        return {
+            "consensus": "有一定观点密度，但未形成强一致",
+            "divergence": "多空观点并存，方向需再确认",
+            "catalyst": "催化多为预期/情绪，需验证",
+            "risk": "叙事与价格背离风险",
+        }
 
     bullets: List[str] = []
     bullets.append(f"价格24h {_fmt_pct(price.get('chg_24h_pct'))} | 4h {_fmt_pct(price.get('chg_4h_pct'))}")
@@ -252,7 +267,7 @@ def _rule_dashboard(prepared: Dict[str, Any]) -> Dict[str, Any]:
     return {
         "verdict": verdict,
         "oi_narrative": _oi_narrative(),
-        "twitter_take": _twitter_take(),
+        "twitter_view": _twitter_view(),
         "twitter_signals": [],
         "bullets": bullets[:6],
         "actions": actions[:2],
@@ -467,12 +482,23 @@ def _render_dashboard_text(prepared: Dict[str, Any], dash: Dict[str, Any]) -> st
         lines.append("*OI解读*")
         lines.append(f"- {oi_narr}")
 
-    tw_take = (dash.get("twitter_take") or "").strip()
+    tw_view = dash.get("twitter_view") if isinstance(dash.get("twitter_view"), dict) else {}
     tw_sig = dash.get("twitter_signals") if isinstance(dash.get("twitter_signals"), list) else []
-    if tw_take or tw_sig:
+    if tw_view or tw_sig:
         lines.append("*Twitter观点（无引用）*")
-        if tw_take:
-            lines.append(f"- {tw_take}")
+        if tw_view:
+            consensus = (tw_view.get("consensus") or "").strip()
+            divergence = (tw_view.get("divergence") or "").strip()
+            catalyst = (tw_view.get("catalyst") or "").strip()
+            risk = (tw_view.get("risk") or "").strip()
+            if consensus:
+                lines.append(f"- 共识：{consensus}")
+            if divergence:
+                lines.append(f"- 分歧：{divergence}")
+            if catalyst:
+                lines.append(f"- 催化：{catalyst}")
+            if risk:
+                lines.append(f"- 风险：{risk}")
         if tw_sig:
             lines.append("- 信号：" + "；".join(str(x) for x in tw_sig[:5] if str(x).strip()))
 
