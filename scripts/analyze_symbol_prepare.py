@@ -393,7 +393,7 @@ def run_prepare(symbol: str) -> Dict[str, Any]:
         # - include bare base for non-ambiguous tickers; market_hourly.twitter_context will drop it for ambiguous ones
         #   via its existing ambiguous list.
         aliases = _dedup_keep_order([sym, cashtag, base])
-        spec = TwitterQuerySpec(topic=sym, aliases=aliases, intent="plan", window_hours=24, snippet_limit=8)
+        spec = TwitterQuerySpec(topic=sym, aliases=aliases, intent="plan", window_hours=24, snippet_limit=12)
         out = twitter_evidence(spec)
         tw = {"total": out.get("total", 0), "kept": out.get("kept", 0), "snippets": out.get("snippets", [])}
     except Exception as e:
