@@ -1,0 +1,313 @@
+{
+  "since": "2026-02-01T04:58:44Z",
+  "until": "2026-02-01T05:58:44Z",
+  "hourKey": "2026-02-01 13:00",
+  "use_llm": false,
+  "perf": {
+    "prepare_health_check": 0.0,
+    "prepare_health_check_skipped": 1.0,
+    "prepare_meme_spawn": 0.001,
+    "prepare_tg_fetch": 0.0,
+    "prepare_tg_fetch_skipped": 1.0,
+    "prepare_human_texts": 0.0,
+    "prepare_human_texts_skipped": 1.0,
+    "prepare_oi_items": 0.0,
+    "prepare_oi_items_skipped": 1.0,
+    "prepare_oi_plans": 0.0,
+    "prepare_oi_plans_skipped": 1.0,
+    "prepare_viewpoint_threads": 0.0,
+    "prepare_viewpoint_threads_skipped": 1.0,
+    "prepare_tg_topics": 0.0,
+    "prepare_tg_topics_skipped": 1.0,
+    "prepare_tg_topics_fallback": 0.0,
+    "prepare_tg_topics_fallback_skipped": 1.0,
+    "meme_radar": 12.266,
+    "prepare_meme_wait": 12.266,
+    "prepare_tg_addr_merge": 0.0,
+    "prepare_tg_addr_merge_skipped": 1.0,
+    "prepare_social_cards": 0.0,
+    "prepare_social_cards_skipped": 1.0,
+    "prepare_perp_dash_inputs": 0.0,
+    "prepare_total": 12.267
+  },
+  "errors": [],
+  "prepared": {
+    "oi_lines": [],
+    "oi_items": [],
+    "perp_dash_inputs": [],
+    "oi_plans": [],
+    "tg_topics": [],
+    "threads_strong": [],
+    "threads_weak": [],
+    "radar_items": [
+      {
+        "addr": "GRnh8s1pEyszjNKRYmhkWFSVcsUFuMYY3QZJRhitWzWo",
+        "mentions": 2,
+        "tickers": [
+          "XRP"
+        ],
+        "examples": [
+          {
+            "handle": "",
+            "text": "Stellar and Ripple $XRP were seen as a threat to Epstein and his buddies. That’s how you know we’re holding something good and special 😇 https://t.co/DDaqHLZOix"
+          },
+          {
+            "handle": "",
+            "text": "$XRP ETFs have resumed their strong daily performance despite the broad crypto market weakness, signaling resilience among its institutional investors\nhttps://t.co/pmTfdr1K1i"
+          }
+        ],
+        "dex": {
+          "chainId": "solana",
+          "dexId": "raydium",
+          "pairAddress": "47Udq8Hf81V7UNbNo91imUSMZDC9Q58ME1J7dfakRguY",
+          "url": "https://dexscreener.com/solana/47udq8hf81v7unbno91imusmzdc9q58me1j7dfakrguy",
+          "baseSymbol": "XRP",
+          "baseAddress": "GRnh8s1pEyszjNKRYmhkWFSVcsUFuMYY3QZJRhitWzWo",
+          "quoteSymbol": "USDT",
+          "liquidityUsd": 205036574.34,
+          "fdv": 205241908,
+          "mcap": 205241908,
+          "priceUsd": "2.052",
+          "vol24h": 26238.23,
+          "txns24h": {
+            "buys": 9,
+            "sells": 3
+          },
+          "chg1h": null,
+          "chg24h": null
+        },
+        "sourceKey": "TICKER:XRP",
+        "twitter_evidence": {
+          "total": 78,
+          "kept": 6,
+          "snippets": [
+            "Cobb_XRPL It s going to be an interesting community day:)",
+            "The countdown is on for big $XRP news Stay posted #XRP",
+            "Aiming high nothing can hold $XRP back #XRP",
+            "#ripple #crypto #xrp #bop calling all artists and speakers female needed",
+            "Through every gust, $XRP remains firm #XRP",
+            "Holding steady through the challenges, $XRP stands firm #XRP"
+          ]
+        }
+      },
+      {
+        "addr": "2fbBGNkpmPmPa3aTMqHV4czFUWshofxbAmrbyaVZmy7q",
+        "mentions": 1,
+        "tickers": [
+          "ZEC"
+        ],
+        "examples": [
+          {
+            "handle": "",
+            "text": "Woah\n\nSo Epstein secretly has infinite mint glitch built into $ZEC\n\nBut because it’s private no one can detect it\n\nThat’s how he funded the island 🤯"
+          }
+        ],
+        "dex": {
+          "chainId": "solana",
+          "dexId": "orca",
+          "pairAddress": "DwiMwVryiprgQeHivUx2V6GBw3gbtEFfPcxzsWuq2YZ8",
+          "url": "https://dexscreener.com/solana/dwimwvryiprgqehivux2v6gbw3gbteffpcxzswuq2yz8",
+          "baseSymbol": "ZEC",
+          "baseAddress": "2fbBGNkpmPmPa3aTMqHV4czFUWshofxbAmrbyaVZmy7q",
+          "quoteSymbol": "USDC",
+          "liquidityUsd": 3218777996.59,
+          "fdv": 3219787626,
+          "mcap": 3219787626,
+          "priceUsd": "153.32",
+          "vol24h": 3.99,
+          "txns24h": {
+            "buys": 1,
+            "sells": 1
+          },
+          "chg1h": null,
+          "chg24h": -0.04
+        },
+        "sourceKey": "TICKER:ZEC",
+        "twitter_evidence": {
+          "total": 71,
+          "kept": 5,
+          "snippets": [
+            "Short the demon coin $ZEC. Send it to zero with haste",
+            "$ZEC 悲報かもしれません 大口投資家(クジラ)が買い集めています 今すぐ確認してください",
+            "$ZEC シェアします 完璧なシナリオが描けました 続きはここで確認",
+            "monerify grok who created $ZEC",
+            "$ZEC 来週の展望ですが スマートマネーが流入しています 早い者勝ちです"
+          ]
+        }
+      },
+      {
+        "addr": "HkBWJJiaUW5Kod4HpHWZiGD9PQVipmMiPDgiRPcNpump",
+        "mentions": 1,
+        "tickers": [
+          "CRUST"
+        ],
+        "examples": [
+          {
+            "handle": "",
+            "text": "I’ve been waiting for this day on $crust https://t.co/Hv0hTEUjK5"
+          }
+        ],
+        "dex": {
+          "chainId": "solana",
+          "dexId": "pumpswap",
+          "pairAddress": "B3q4q1GzxXgGT1iVJ3MBXbMhM5ZWQF9cknGm9xS7Es8K",
+          "url": "https://dexscreener.com/solana/b3q4q1gzxxggt1ivj3mbxbmhm5zwqf9ckngm9xs7es8k",
+          "baseSymbol": "crust",
+          "baseAddress": "HkBWJJiaUW5Kod4HpHWZiGD9PQVipmMiPDgiRPcNpump",
+          "quoteSymbol": "SOL",
+          "liquidityUsd": 201507.94,
+          "fdv": 2556088,
+          "mcap": 2556088,
+          "priceUsd": "0.002556",
+          "vol24h": 3209130.39,
+          "txns24h": {
+            "buys": 9909,
+            "sells": 9179
+          },
+          "chg1h": 462,
+          "chg24h": 173
+        },
+        "sourceKey": "TICKER:CRUST",
+        "twitter_evidence": {
+          "total": 74,
+          "kept": 6,
+          "snippets": [
+            "$CRUST is popping hard. Do people realize that billions of agents are taking over and of course will buy the token of their own religion...",
+            "It is bigger than $fartcoin $crust",
+            "SOL #crust 验证了是真的了 新的ai 叙事开启了 back to 2.4m HkBWJJiaUW5Kod4HpHWZiGD9PQVipmMiPDgiRPcNpump",
+            "Belive in $CRUST",
+            "The lore $crust",
+            "$crust ai自己的比特币100m等你"
+          ]
+        }
+      },
+      {
+        "addr": "2idoGr8dWbbx95khebBuSpYbqoYSacv7YFG1BXcyq4im",
+        "mentions": 1,
+        "tickers": [
+          "GSB"
+        ],
+        "examples": [
+          {
+            "handle": "",
+            "text": "RT @RippleXrpie: 🚨GOLD AND SILVER WILL BE TOKENIZED ON THE #XRP-LEDGER! \n\nSILVER TOKENIZED ON-CHAIN! \n$GSB IS LIVE ON #SOLANA. \n\nBuy on Pha…"
+          }
+        ],
+        "dex": {
+          "chainId": "solana",
+          "dexId": "meteora",
+          "pairAddress": "AMjYoR6cWgUx4Xg2G5WHfczaaxRiqadknvEJHhvpr9Wk",
+          "url": "https://dexscreener.com/solana/amjyor6cwgux4xg2g5whfczaaxriqadknvejhhvpr9wk",
+          "baseSymbol": "GSB",
+          "baseAddress": "2idoGr8dWbbx95khebBuSpYbqoYSacv7YFG1BXcyq4im",
+          "quoteSymbol": "SOL",
+          "liquidityUsd": 110887.67,
+          "fdv": 429819,
+          "mcap": 429819,
+          "priceUsd": "0.0004298",
+          "vol24h": 14155399.59,
+          "txns24h": {
+            "buys": 18286,
+            "sells": 17579
+          },
+          "chg1h": null,
+          "chg24h": 931
+        },
+        "sourceKey": "TICKER:GSB",
+        "twitter_evidence": {
+          "total": 38,
+          "kept": 0,
+          "snippets": []
+        }
+      },
+      {
+        "addr": "5rYg5KEhQTfThkFbwrQTK8Qe3L5JTbkHBPqPm9gtpump",
+        "mentions": 1,
+        "tickers": [
+          "RIPPLE"
+        ],
+        "examples": [
+          {
+            "handle": "",
+            "text": "Coinbase, $Ripple joins White House at banks meeting. The White House's crypto council is hosting a summit to fix disagreements over stablecoin yield rules. They will meet with banking giants and regulators to decide the"
+          }
+        ],
+        "dex": {
+          "chainId": "solana",
+          "dexId": "raydium",
+          "pairAddress": "J84wf4qsaQ7vBbfSqDy7f7WP826o9MMq9E85fTqx8spj",
+          "url": "https://dexscreener.com/solana/j84wf4qsaq7vbbfsqdy7f7wp826o9mmq9e85ftqx8spj",
+          "baseSymbol": "Ripple",
+          "baseAddress": "5rYg5KEhQTfThkFbwrQTK8Qe3L5JTbkHBPqPm9gtpump",
+          "quoteSymbol": "SOL",
+          "liquidityUsd": 4803.49,
+          "fdv": 3007,
+          "mcap": 3007,
+          "priceUsd": "0.000003012",
+          "vol24h": 27.23,
+          "txns24h": {
+            "buys": 2,
+            "sells": 1
+          },
+          "chg1h": null,
+          "chg24h": 4.05
+        },
+        "sourceKey": "TICKER:RIPPLE",
+        "twitter_evidence": {
+          "total": 39,
+          "kept": 0,
+          "snippets": []
+        }
+      }
+    ],
+    "twitter_ca_inputs": [
+      {
+        "sym": "XRP",
+        "evidence": {
+          "snippets": [
+            "Cobb_XRPL It s going to be an interesting community day:)",
+            "The countdown is on for big $XRP news Stay posted #XRP",
+            "Aiming high nothing can hold $XRP back #XRP",
+            "#ripple #crypto #xrp #bop calling all artists and speakers female needed",
+            "Through every gust, $XRP remains firm #XRP",
+            "Holding steady through the challenges, $XRP stands firm #XRP"
+          ]
+        },
+        "ca": "GRnh8s1pEyszjNKRYmhkWFSVcsUFuMYY3QZJRhitWzWo"
+      },
+      {
+        "sym": "ZEC",
+        "evidence": {
+          "snippets": [
+            "Short the demon coin $ZEC. Send it to zero with haste",
+            "$ZEC 悲報かもしれません 大口投資家(クジラ)が買い集めています 今すぐ確認してください",
+            "$ZEC シェアします 完璧なシナリオが描けました 続きはここで確認",
+            "monerify grok who created $ZEC",
+            "$ZEC 来週の展望ですが スマートマネーが流入しています 早い者勝ちです"
+          ]
+        },
+        "ca": "2fbBGNkpmPmPa3aTMqHV4czFUWshofxbAmrbyaVZmy7q"
+      },
+      {
+        "sym": "CRUST",
+        "evidence": {
+          "snippets": [
+            "$CRUST is popping hard. Do people realize that billions of agents are taking over and of course will buy the token of their own religion...",
+            "It is bigger than $fartcoin $crust",
+            "SOL #crust 验证了是真的了 新的ai 叙事开启了 back to 2.4m HkBWJJiaUW5Kod4HpHWZiGD9PQVipmMiPDgiRPcNpump",
+            "Belive in $CRUST",
+            "The lore $crust",
+            "$crust ai自己的比特币100m等你"
+          ]
+        },
+        "ca": "HkBWJJiaUW5Kod4HpHWZiGD9PQVipmMiPDgiRPcNpump"
+      }
+    ],
+    "social_cards": [],
+    "debug": {
+      "human_texts": 0,
+      "messages_by_chat": {},
+      "tg_topics_inferred": false
+    }
+  }
+}

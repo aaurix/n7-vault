@@ -1,0 +1,1047 @@
+{
+  "since": "2026-02-01T05:34:38Z",
+  "until": "2026-02-01T06:34:38Z",
+  "hourKey": "2026-02-01 14:00",
+  "use_llm": false,
+  "perf": {
+    "prepare_health_check": 0.015,
+    "prepare_meme_spawn": 0.002,
+    "tg_fetch_and_replay": 4.214,
+    "prepare_tg_fetch": 4.214,
+    "viewpoint_threads_msgs_in": 369.0,
+    "human_texts": 0.004,
+    "prepare_human_texts": 0.004,
+    "oi_items": 22.64,
+    "prepare_oi_items": 22.64,
+    "prepare_oi_plans": 0.0,
+    "prepare_oi_plans_skipped": 1.0,
+    "viewpoint_threads_extract": 12.607,
+    "viewpoint_threads": 12.607,
+    "prepare_viewpoint_threads": 12.607,
+    "tg_topics_candidates": 15.0,
+    "tg_topics_pipeline": 0.007,
+    "prepare_tg_topics": 0.007,
+    "meme_radar": 0.001,
+    "prepare_meme_wait": 0.001,
+    "tg_addr_to_radar": 0.001,
+    "prepare_tg_addr_merge": 0.002,
+    "social_cards_twitter": 0.0,
+    "social_cards_tg": 0.0,
+    "social_cards": 0.0,
+    "prepare_social_cards": 0.0,
+    "prepare_perp_dash_inputs": 0.0,
+    "prepare_total": 39.492
+  },
+  "errors": [],
+  "prepared": {
+    "oi_lines": [
+      "- RIVERUSDT 现价17.46；24h价-47.1%；24h OI+28.2%",
+      "- ZORAUSDT 现价0.039；24h价+56.9%；24h OI+173.8%"
+    ],
+    "oi_items": [
+      {
+        "symbol": "RIVERUSDT",
+        "price_now": 17.459,
+        "price_1h": -6.078863844208936,
+        "price_4h": -19.9679119871648,
+        "price_24h": -47.093939393939394,
+        "vol_1h": 2422533.7,
+        "vol_ratio": 2.245366987147559,
+        "oi_now": 1472474.1,
+        "oi_1h": -0.5443689469742866,
+        "oi_4h": 12.985397239424406,
+        "oi_24h": 28.17273524221883,
+        "oi_signal": 5.5,
+        "p1h": 23.0,
+        "p24h": -48.3,
+        "flow": "增仓跟涨",
+        "kline_1h": {
+          "symbol": "RIVERUSDT",
+          "interval": "1h",
+          "lookback": 120,
+          "chg_pct": -72.04874455547015,
+          "range": {
+            "lo": 17.028,
+            "hi": 75.2,
+            "pos": 0.007340301175823413,
+            "loc": "靠近区间低位"
+          },
+          "last": 17.455,
+          "atr14": 1.9339285714285708,
+          "swing": {
+            "hi": 32.335,
+            "lo": 17.028
+          },
+          "ema20": 25.26923900640596,
+          "ema20_slope_pct": -3.1525298157093697,
+          "rsi14": 11.410004533776643,
+          "volume": {
+            "last": 2416275.7,
+            "ma20": 1076116.16,
+            "ratio": 2.245366987147559
+          }
+        },
+        "kline_4h": {
+          "symbol": "RIVERUSDT",
+          "interval": "4h",
+          "lookback": 80,
+          "chg_pct": -34.622584993260446,
+          "range": {
+            "lo": 17.028,
+            "hi": 86.0,
+            "pos": 0.006277909876471609,
+            "loc": "靠近区间低位"
+          },
+          "last": 17.461,
+          "atr14": 4.2334999999999985,
+          "swing": {
+            "hi": 54.5,
+            "lo": 17.028
+          },
+          "ema20": 35.2598427403407,
+          "ema20_slope_pct": -5.045490406699972,
+          "rsi14": 1.7622111728575618,
+          "volume": {
+            "last": 8363792.1,
+            "ma20": 2861109.335,
+            "ratio": 2.9232689564448258
+          }
+        },
+        "twitter": {
+          "total": 77,
+          "kept": 8,
+          "snippets": [
+            "RiverdotInc Now it s like a waterfall, with no chance of rising just trash....",
+            "#RIVER %75 ÇAKILDI 60 dolardan 20 dolara düşüş senaryosunu söylemiştim... Tepeden shortladık, her şey kademeli şekilde ayağımıza geldi. Jübile hariç bunun hakkında yorum yapmayacak",
+            "tawang-tawa talaga ako kanina kay rivriv haha RIVERJOSEPH HATAW MOVES #riverjoseph",
+            "See wetin dem use my Rivers youths do",
+            "river13051305 いい決算出したら買えばいいと思うけど地獄のような決算だしたら絶対買っちゃダメ( )",
+            "$RIVERUSDT",
+            "Long or short #riverusdt",
+            "VTrinh50062 RiverdotInc What features are driving this increased attention"
+          ]
+        },
+        "twitter_summary": {
+          "total": 77,
+          "kept": 8,
+          "bull_points": [],
+          "bear_points": [
+            "#RIVER %75 ÇAKILDI 60 dolardan 20 dolara düşüş senaryosunu s"
+          ]
+        }
+      },
+      {
+        "symbol": "ZORAUSDT",
+        "price_now": 0.039,
+        "price_1h": 6.324972737186485,
+        "price_4h": -0.7888040712468313,
+        "price_24h": 56.941649899396374,
+        "vol_1h": 535998637.0,
+        "vol_ratio": 2.2221089980185478,
+        "oi_now": 223470447.0,
+        "oi_1h": 4.180596105455599,
+        "oi_4h": 127.45388960477324,
+        "oi_24h": 173.8042960234551,
+        "oi_signal": 5.2,
+        "p1h": null,
+        "p24h": 58.8,
+        "flow": "增仓但走弱",
+        "kline_1h": {
+          "symbol": "ZORAUSDT",
+          "interval": "1h",
+          "lookback": 120,
+          "chg_pct": 26.994464343861928,
+          "range": {
+            "lo": 0.02008,
+            "hi": 0.04219,
+            "pos": 0.855721393034826,
+            "loc": "靠近区间高位"
+          },
+          "last": 0.039,
+          "atr14": 0.0029799999999999996,
+          "swing": {
+            "hi": 0.04219,
+            "lo": 0.02008
+          },
+          "ema20": 0.028443480500101547,
+          "ema20_slope_pct": 4.065570343967716,
+          "rsi14": 81.68484392628808,
+          "volume": {
+            "last": 535998637.0,
+            "ma20": 241211676.6,
+            "ratio": 2.2221089980185478
+          }
+        },
+        "kline_4h": {
+          "symbol": "ZORAUSDT",
+          "interval": "4h",
+          "lookback": 80,
+          "chg_pct": 17.682558841279413,
+          "range": {
+            "lo": 0.02008,
+            "hi": 0.04219,
+            "pos": 0.855721393034826,
+            "loc": "靠近区间高位"
+          },
+          "last": 0.039,
+          "atr14": 0.002788571428571428,
+          "swing": {
+            "hi": 0.04219,
+            "lo": 0.02008
+          },
+          "ema20": 0.028205420486824062,
+          "ema20_slope_pct": 4.197662547199686,
+          "rsi14": 75.4877014418999,
+          "volume": {
+            "last": 1965294844.0,
+            "ma20": 263985995.5,
+            "ratio": 7.444693572769469
+          }
+        },
+        "twitter": null,
+        "twitter_summary": null
+      }
+    ],
+    "perp_dash_inputs": [
+      {
+        "symbol": "RIVERUSDT",
+        "price_now": 17.459,
+        "market_cap": null,
+        "fdv": null,
+        "price_chg": {
+          "1h_pct": -6.078863844208936,
+          "4h_pct": -19.9679119871648,
+          "24h_pct": -47.093939393939394
+        },
+        "oi_chg": {
+          "1h_pct": -0.5443689469742866,
+          "4h_pct": 12.985397239424406,
+          "24h_pct": 28.17273524221883
+        },
+        "structure": {
+          "1h": {
+            "swing_hi": 32.335,
+            "swing_lo": 17.028,
+            "ema20_slope_pct": -3.1525298157093697,
+            "rsi14": 11.410004533776643,
+            "atr_pct": 11.08,
+            "range_loc": "靠近区间低位",
+            "range_pos": 0.007340301175823413,
+            "vol_ratio": 2.245366987147559
+          },
+          "4h": {
+            "swing_hi": 54.5,
+            "swing_lo": 17.028,
+            "ema20_slope_pct": -5.045490406699972,
+            "rsi14": 1.7622111728575618,
+            "atr_pct": 24.25,
+            "range_loc": "靠近区间低位",
+            "range_pos": 0.006277909876471609
+          }
+        },
+        "key_levels": {
+          "resistance": 32.335,
+          "support": 17.028
+        },
+        "flow_label": "空头加仓（价↓OI↑）",
+        "bias_hint": "偏空",
+        "action_notes": [
+          "跌破17.03延续偏空",
+          "低位易反抽：别追空"
+        ]
+      },
+      {
+        "symbol": "ZORAUSDT",
+        "price_now": 0.039,
+        "market_cap": null,
+        "fdv": null,
+        "price_chg": {
+          "1h_pct": 6.324972737186485,
+          "4h_pct": -0.7888040712468313,
+          "24h_pct": 56.941649899396374
+        },
+        "oi_chg": {
+          "1h_pct": 4.180596105455599,
+          "4h_pct": 127.45388960477324,
+          "24h_pct": 173.8042960234551
+        },
+        "structure": {
+          "1h": {
+            "swing_hi": 0.04219,
+            "swing_lo": 0.02008,
+            "ema20_slope_pct": 4.065570343967716,
+            "rsi14": 81.68484392628808,
+            "atr_pct": 7.64,
+            "range_loc": "靠近区间高位",
+            "range_pos": 0.855721393034826,
+            "vol_ratio": 2.2221089980185478
+          },
+          "4h": {
+            "swing_hi": 0.04219,
+            "swing_lo": 0.02008,
+            "ema20_slope_pct": 4.197662547199686,
+            "rsi14": 75.4877014418999,
+            "atr_pct": 7.15,
+            "range_loc": "靠近区间高位",
+            "range_pos": 0.855721393034826
+          }
+        },
+        "key_levels": {
+          "resistance": 0.04219,
+          "support": 0.02008
+        },
+        "flow_label": "轻微/震荡（价/OI变化不大）",
+        "bias_hint": "偏多",
+        "action_notes": [
+          "上破并站稳0.04219才追",
+          "高位易回撤：等回踩确认"
+        ]
+      }
+    ],
+    "oi_plans": [],
+    "tg_topics": [
+      {
+        "one_liner": "BUNKERMEME 讨论升温（提及1）",
+        "sentiment": "分歧",
+        "triggers": "关注关键位/催化/风险",
+        "related_assets": [
+          "BUNKERMEME"
+        ],
+        "_inferred": true
+      },
+      {
+        "one_liner": "BUNKER 讨论升温（提及1）",
+        "sentiment": "分歧",
+        "triggers": "关注关键位/催化/风险",
+        "related_assets": [
+          "BUNKER"
+        ],
+        "_inferred": true
+      },
+      {
+        "one_liner": "CLAWNCH 讨论升温（提及1）",
+        "sentiment": "中性",
+        "triggers": "关注关键位/催化/风险",
+        "related_assets": [
+          "CLAWNCH"
+        ],
+        "_inferred": true
+      }
+    ],
+    "threads_strong": [
+      {
+        "title": "45M（MC≈$45.5B vol24≈$1.1K liq≈$1.8B）",
+        "stance": "中性",
+        "count": 8,
+        "entities": [
+          "45M"
+        ],
+        "points": [
+          "热度升温：讨论集中但共识不强，注意节奏与风险"
+        ],
+        "sym": "45M",
+        "_msgs": [
+          "企鵝 45M~170M~40M 剩我自己追蹤",
+          "企鵝 45M~170M~40M 剩我自己追蹤",
+          "企鵝 45M~170M~40M 剩我自己追蹤",
+          "企鵝 45M~170M~40M 剩我自己追蹤",
+          "企鵝 45M~170M~40M 剩我自己追蹤",
+          "企鵝 45M~170M~40M 剩我自己追蹤",
+          "企鵝 45M~170M~40M 剩我自己追蹤",
+          "企鵝 45M~170M~40M 剩我自己追蹤"
+        ],
+        "_dex": {
+          "chainId": "solana",
+          "dexId": "orca",
+          "url": "https://dexscreener.com/solana/gk8ne9veekpiebhsywdtub12wdeezpsdcuuxcuftfypc",
+          "pairAddress": "Gk8ne9vEEkPiEBHSywdTuB12wDeEZpSDCuUxCUFTfYPc",
+          "baseSymbol": "00",
+          "baseAddress": "45M4iwbxQz6eSNFp1kVxtRoTFxjwQjz2Xo65RyEZFmVt",
+          "priceUsd": "0.04551",
+          "liquidityUsd": 1820522175.46,
+          "vol24h": 1053.04,
+          "chg1h": null,
+          "chg24h": -0.02,
+          "fdv": 45513054382,
+          "marketCap": 45513054382
+        }
+      },
+      {
+        "title": "BUNKER（MC≈$1.4M vol24≈$3.2M liq≈$384.5K）",
+        "stance": "中性",
+        "count": 5,
+        "entities": [
+          "BUNKER"
+        ],
+        "points": [
+          "热度升温：讨论集中但共识不强，注意节奏与风险"
+        ],
+        "sym": "BUNKER",
+        "_msgs": [
+          "0xce16ef461d88256d2d80dfd31f0d9e7a9fd59213",
+          "0xce16ef461d88256d2d80dfd31f0d9e7a9fd59213",
+          "0xce16ef461d88256d2d80dfd31f0d9e7a9fd59213",
+          "0xce16ef461d88256d2d80dfd31f0d9e7a9fd59213",
+          "0xce16ef461d88256d2d80dfd31f0d9e7a9fd59213"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x22d0b6e5b2bfa4a1bb4567114a448fe3cbfb7ba1baa79c8d974464de7e4854b3",
+          "pairAddress": "0x22d0b6e5b2bfa4a1bb4567114a448fe3cbfb7ba1baa79c8d974464de7e4854b3",
+          "baseSymbol": "BUNKER",
+          "baseAddress": "0xCe16Ef461d88256D2D80DFD31F0D9E7a9fD59213",
+          "priceUsd": "0.00001391",
+          "liquidityUsd": 384510.24,
+          "vol24h": 3180570.22,
+          "chg1h": 188,
+          "chg24h": 5561,
+          "fdv": 1391611,
+          "marketCap": 1391611
+        }
+      }
+    ],
+    "threads_weak": [
+      {
+        "title": "CLAWMATES（MC≈$49.8K vol24≈$131.9K liq≈$50.2K）",
+        "stance": "中性",
+        "count": 2,
+        "entities": [
+          "CLAWMATES"
+        ],
+        "points": [],
+        "sym": "CLAWMATES",
+        "_msgs": [
+          "0xe4840abb190c87fe243fbd5b292111aa4dab2b07，这个还真的是配对的",
+          "0xe4840abb190c87fe243fbd5b292111aa4dab2b07"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x1ee4747d0c7e54717b64c9ca42cffa0036bce91bfa3f24bed2e510a5a616c72f",
+          "pairAddress": "0x1ee4747d0c7e54717b64c9ca42cffa0036bce91bfa3f24bed2e510a5a616c72f",
+          "baseSymbol": "ClawMates",
+          "baseAddress": "0xE4840ABb190C87fe243fBD5B292111AA4Dab2b07",
+          "priceUsd": "0.0000004984",
+          "liquidityUsd": 50181.09,
+          "vol24h": 131910.32,
+          "chg1h": 81.46,
+          "chg24h": 81.46,
+          "fdv": 49843,
+          "marketCap": 49843
+        }
+      },
+      {
+        "title": "15M（MC≈$6.1B vol24≈$2.1K liq≈$24.6M）",
+        "stance": "中性",
+        "count": 2,
+        "entities": [
+          "15M"
+        ],
+        "points": [],
+        "sym": "15M",
+        "_msgs": [
+          "15M~1B 後續不再追蹤",
+          "15M~1B 後續不再追蹤"
+        ],
+        "_dex": {
+          "chainId": "solana",
+          "dexId": "orca",
+          "url": "https://dexscreener.com/solana/8ssufuw15mhogucnpejcuh2dchnepwaahpubrcvp5cqy",
+          "pairAddress": "8ssUfuW15MHoGucNPejcUh2dcHNEPwAaHpuBRcVP5cqy",
+          "baseSymbol": "AI",
+          "baseAddress": "FcFeMYX9x1WzEPXbdqX6HfB9ADWmxMhbsNqXJmp35ecN",
+          "priceUsd": "0.006141",
+          "liquidityUsd": 24564548.47,
+          "vol24h": 2100.11,
+          "chg1h": null,
+          "chg24h": -0.02,
+          "fdv": 6141137065,
+          "marketCap": 6141137065
+        }
+      },
+      {
+        "title": "CLAWNCH（MC≈$21.9M vol24≈$23.8M liq≈$2.5M）",
+        "stance": "中性",
+        "count": 2,
+        "entities": [
+          "CLAWNCH"
+        ],
+        "points": [],
+        "sym": "CLAWNCH",
+        "_msgs": [
+          "0xa1f72459dfa10bad200ac160ecd78c6b77a747be\n\n要命，啊啊啊啊",
+          "Being followed by Justin Sun is seen by Chinese traders as a top signal\nBut $CLAWNCH might break the curse, given it has clear catalysts\n\nhttps://x.com/i/status/2017844357819469870"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x03d3c21ea1daf51dd2898ebaf9342a93374877ba6ab34cc7ffe5b5d43ee46e0a",
+          "pairAddress": "0x03d3c21ea1daf51dd2898ebaf9342a93374877ba6ab34cc7ffe5b5d43ee46e0a",
+          "baseSymbol": "CLAWNCH",
+          "baseAddress": "0xa1F72459dfA10BAD200Ac160eCd78C6b77a747be",
+          "priceUsd": "0.0002187",
+          "liquidityUsd": 2525973.71,
+          "vol24h": 23769201.34,
+          "chg1h": 52.25,
+          "chg24h": 307,
+          "fdv": 21871797,
+          "marketCap": 21871797
+        }
+      },
+      {
+        "title": "TIDE（MC≈$98.8K vol24≈$448.7K liq≈$73.8K）",
+        "stance": "中性",
+        "count": 2,
+        "entities": [
+          "TIDE"
+        ],
+        "points": [],
+        "sym": "TIDE",
+        "_msgs": [
+          "0xff56b82c4e04ef70c7e49a9d3ac3437420e86ed1",
+          "0xff56b82c4e04ef70c7e49a9d3ac3437420e86ed1"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x6772f1f5ebbc501347edce3ee8e127227d6a7833fb113ef1f522bd4957141d1f",
+          "pairAddress": "0x6772f1f5ebbc501347edce3ee8e127227d6a7833fb113ef1f522bd4957141d1f",
+          "baseSymbol": "TIDE",
+          "baseAddress": "0xFF56b82C4e04EF70c7e49a9d3Ac3437420E86eD1",
+          "priceUsd": "0.0000009876",
+          "liquidityUsd": 73822.23,
+          "vol24h": 448727.77,
+          "chg1h": 270,
+          "chg24h": 270,
+          "fdv": 98764,
+          "marketCap": 98764
+        }
+      }
+    ],
+    "radar_items": [
+      {
+        "addr": "GRnh8s1pEyszjNKRYmhkWFSVcsUFuMYY3QZJRhitWzWo",
+        "mentions": 2,
+        "tickers": [
+          "XRP"
+        ],
+        "examples": [
+          {
+            "handle": "",
+            "text": "Stellar and Ripple $XRP were seen as a threat to Epstein and his buddies. That’s how you know we’re holding something good and special 😇 https://t.co/DDaqHLZOix"
+          },
+          {
+            "handle": "",
+            "text": "$XRP ETFs have resumed their strong daily performance despite the broad crypto market weakness, signaling resilience among its institutional investors\nhttps://t.co/pmTfdr1K1i"
+          }
+        ],
+        "dex": {
+          "chainId": "solana",
+          "dexId": "raydium",
+          "pairAddress": "47Udq8Hf81V7UNbNo91imUSMZDC9Q58ME1J7dfakRguY",
+          "url": "https://dexscreener.com/solana/47udq8hf81v7unbno91imusmzdc9q58me1j7dfakrguy",
+          "baseSymbol": "XRP",
+          "baseAddress": "GRnh8s1pEyszjNKRYmhkWFSVcsUFuMYY3QZJRhitWzWo",
+          "quoteSymbol": "USDT",
+          "liquidityUsd": 205036574.34,
+          "fdv": 205241908,
+          "mcap": 205241908,
+          "priceUsd": "2.052",
+          "vol24h": 26238.23,
+          "txns24h": {
+            "buys": 9,
+            "sells": 3
+          },
+          "chg1h": null,
+          "chg24h": null
+        },
+        "sourceKey": "TICKER:XRP",
+        "twitter_evidence": {
+          "total": 72,
+          "kept": 6,
+          "snippets": [
+            "Ex-Ripple CTO: When XRP Was $0.006, $0.25 Felt As Ridiculous As $100 Does Today #Ripple #XRP $XRP",
+            "coinbureau SEC taking a breather while crypto keeps grinding. Regulatory clarity is coming but don t hold your breath. $XRP still ready to roll",
+            "In 5 years, everyone will wish they had bought $XRP today.",
+            "BRAD GARLINGHOUSE: #XRP COULD PROCESS 14% OF SWIFT S TOTAL VOLUME That s $21 TRILLION IN FLOWS putting XRP IN TRIPLE-DIGIT TERRITORY at today s supply WHILE THAT S HAPPENING A NEW ",
+            "$XRP 12:56AM $1.6610 (-2.41%) D:Range 4H:Range RSI 31 Hold BB 24% Neutral Sqz:Off BO:0 1H: NEUTRAL Wait 15m: NEUTRAL 5m: BEARISH Prob 29% Lean short #XRP #Crypto #Trading",
+            "0xChiefy Charts can be deceiving. $BTC might dip but remember the long-term game. $XRP is still the real deal for payments, just saying"
+          ]
+        }
+      },
+      {
+        "addr": "0xa1f72459dfa10bad200ac160ecd78c6b77a747be",
+        "mentions": 1,
+        "tickers": [
+          "CLAWNCH"
+        ],
+        "examples": [
+          {
+            "handle": "",
+            "text": "gm\n依然领先版本\n$CLAWNCH\n0xa1f72459dfa10bad200ac160ecd78c6b77a747be"
+          }
+        ],
+        "dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "pairAddress": "0x03d3c21ea1daf51dd2898ebaf9342a93374877ba6ab34cc7ffe5b5d43ee46e0a",
+          "url": "https://dexscreener.com/base/0x03d3c21ea1daf51dd2898ebaf9342a93374877ba6ab34cc7ffe5b5d43ee46e0a",
+          "baseSymbol": "CLAWNCH",
+          "baseAddress": "0xa1F72459dfA10BAD200Ac160eCd78C6b77a747be",
+          "quoteSymbol": "WETH",
+          "liquidityUsd": 2851390.2,
+          "fdv": 25472726,
+          "mcap": 25472726,
+          "priceUsd": "0.0002547",
+          "vol24h": 23615692.55,
+          "txns24h": {
+            "buys": 18430,
+            "sells": 13574
+          },
+          "chg1h": 36.58,
+          "chg24h": 192
+        },
+        "sourceKey": "0xa1f72459dfa10bad200ac160ecd78c6b77a747be",
+        "twitter_evidence": {
+          "total": 68,
+          "kept": 6,
+          "snippets": [
+            "Clawnch_Bot This is the best thing I ve seen in crypto wtf $Clawnch",
+            "Olalala, this is about to get ridiculous $CLAWNCH",
+            "$clawnch chart actually looks pretty decent",
+            "This is crazy Is this a simulation $clawnch",
+            "$MOLTMINT is $CLAWNCH but for Solana That is all Reprice it",
+            "$CLAWNCH $50m next stop"
+          ]
+        }
+      },
+      {
+        "addr": "5rYg5KEhQTfThkFbwrQTK8Qe3L5JTbkHBPqPm9gtpump",
+        "mentions": 1,
+        "tickers": [
+          "RIPPLE"
+        ],
+        "examples": [
+          {
+            "handle": "",
+            "text": "Coinbase, $Ripple joins White House at banks meeting. The White House's crypto council is hosting a summit to fix disagreements over stablecoin yield rules. They will meet with banking giants and regulators to decide the"
+          }
+        ],
+        "dex": {
+          "chainId": "solana",
+          "dexId": "raydium",
+          "pairAddress": "J84wf4qsaQ7vBbfSqDy7f7WP826o9MMq9E85fTqx8spj",
+          "url": "https://dexscreener.com/solana/j84wf4qsaq7vbbfsqdy7f7wp826o9mmq9e85ftqx8spj",
+          "baseSymbol": "Ripple",
+          "baseAddress": "5rYg5KEhQTfThkFbwrQTK8Qe3L5JTbkHBPqPm9gtpump",
+          "quoteSymbol": "SOL",
+          "liquidityUsd": 4803.49,
+          "fdv": 3007,
+          "mcap": 3007,
+          "priceUsd": "0.000003012",
+          "vol24h": 27.23,
+          "txns24h": {
+            "buys": 2,
+            "sells": 1
+          },
+          "chg1h": null,
+          "chg24h": 4.05
+        },
+        "sourceKey": "TICKER:RIPPLE",
+        "twitter_evidence": {
+          "total": 69,
+          "kept": 6,
+          "snippets": [
+            "$Ripple has released a new RLUSD attestation showing more than $1.473 billion in reserve",
+            "$Ripple scored another major win",
+            "$Ripple Treasury Officially Announced By GTreasury",
+            "$Ripple Secures Major Banking Partnership",
+            "$Ripple executive highlighted interoperability as one way RLUSD can scale natively across chains and support real-world use cases",
+            "Turkish Banking Giant Extends $Ripple Partnership"
+          ]
+        }
+      },
+      {
+        "addr": "0xce16ef461d88256d2d80dfd31f0d9e7a9fd59213",
+        "mentions": 5,
+        "tickers": [
+          "BUNKER"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0xce16ef461d88256d2d80dfd31f0d9e7a9fd59213"
+          }
+        ],
+        "dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x22d0b6e5b2bfa4a1bb4567114a448fe3cbfb7ba1baa79c8d974464de7e4854b3",
+          "pairAddress": "0x22d0b6e5b2bfa4a1bb4567114a448fe3cbfb7ba1baa79c8d974464de7e4854b3",
+          "baseSymbol": "BUNKER",
+          "baseAddress": "0xCe16Ef461d88256D2D80DFD31F0D9E7a9fD59213",
+          "priceUsd": "0.00001450",
+          "liquidityUsd": 393598.87,
+          "vol24h": 3174276.46,
+          "chg1h": 200,
+          "chg24h": 5803,
+          "fdv": 1450951,
+          "marketCap": 1450951
+        },
+        "sourceKey": "TG:0xce16ef461d88256d2d80dfd31f0d9e7a9fd59213"
+      },
+      {
+        "addr": "0xe4840abb190c87fe243fbd5b292111aa4dab2b07",
+        "mentions": 2,
+        "tickers": [
+          "ClawMates"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0xe4840abb190c87fe243fbd5b292111aa4dab2b07，这个还真的是配对的"
+          }
+        ],
+        "dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x1ee4747d0c7e54717b64c9ca42cffa0036bce91bfa3f24bed2e510a5a616c72f",
+          "pairAddress": "0x1ee4747d0c7e54717b64c9ca42cffa0036bce91bfa3f24bed2e510a5a616c72f",
+          "baseSymbol": "ClawMates",
+          "baseAddress": "0xE4840ABb190C87fe243fBD5B292111AA4Dab2b07",
+          "priceUsd": "0.0000004984",
+          "liquidityUsd": 50181.09,
+          "vol24h": 131910.32,
+          "chg1h": 81.46,
+          "chg24h": 81.46,
+          "fdv": 49843,
+          "marketCap": 49843
+        },
+        "sourceKey": "TG:0xe4840abb190c87fe243fbd5b292111aa4dab2b07"
+      },
+      {
+        "addr": "0xff56b82c4e04ef70c7e49a9d3ac3437420e86ed1",
+        "mentions": 2,
+        "tickers": [
+          "TIDE"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0xff56b82c4e04ef70c7e49a9d3ac3437420e86ed1"
+          }
+        ],
+        "dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x6772f1f5ebbc501347edce3ee8e127227d6a7833fb113ef1f522bd4957141d1f",
+          "pairAddress": "0x6772f1f5ebbc501347edce3ee8e127227d6a7833fb113ef1f522bd4957141d1f",
+          "baseSymbol": "TIDE",
+          "baseAddress": "0xFF56b82C4e04EF70c7e49a9d3Ac3437420E86eD1",
+          "priceUsd": "0.0000009876",
+          "liquidityUsd": 73822.23,
+          "vol24h": 448727.77,
+          "chg1h": 270,
+          "chg24h": 270,
+          "fdv": 98764,
+          "marketCap": 98764
+        },
+        "sourceKey": "TG:0xff56b82c4e04ef70c7e49a9d3ac3437420e86ed1"
+      },
+      {
+        "addr": "0x94fa5d6774eac21a391aced58086cce241d3507c",
+        "mentions": 2,
+        "tickers": [
+          "CLAWMEGLE"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0x94fa5d6774eac21a391aced58086cce241d3507c"
+          }
+        ],
+        "dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x82a8993ace701ed26bea531b60e02e1696257a7d006a534c142234d0b013a639",
+          "pairAddress": "0x82a8993ace701ed26bea531b60e02e1696257a7d006a534c142234d0b013a639",
+          "baseSymbol": "CLAWMEGLE",
+          "baseAddress": "0x94fa5D6774eaC21a391Aced58086CCE241d3507c",
+          "priceUsd": "0.000001039",
+          "liquidityUsd": 83531.13,
+          "vol24h": 746269.78,
+          "chg1h": 262,
+          "chg24h": 307,
+          "fdv": 103942,
+          "marketCap": 103942
+        },
+        "sourceKey": "TG:0x94fa5d6774eac21a391aced58086cce241d3507c"
+      },
+      {
+        "addr": "HkBWJJiaUW5Kod4HpHWZiGD9PQVipmMiPDgiRPcNpump",
+        "mentions": 2,
+        "tickers": [
+          "crust"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "HkBWJJiaUW5Kod4HpHWZiGD9PQVipmMiPDgiRPcNpump"
+          }
+        ],
+        "dex": {
+          "chainId": "solana",
+          "dexId": "pumpswap",
+          "url": "https://dexscreener.com/solana/b3q4q1gzxxggt1ivj3mbxbmhm5zwqf9ckngm9xs7es8k",
+          "pairAddress": "B3q4q1GzxXgGT1iVJ3MBXbMhM5ZWQF9cknGm9xS7Es8K",
+          "baseSymbol": "crust",
+          "baseAddress": "HkBWJJiaUW5Kod4HpHWZiGD9PQVipmMiPDgiRPcNpump",
+          "priceUsd": "0.001821",
+          "liquidityUsd": 171494.12,
+          "vol24h": 3767382.08,
+          "chg1h": -0.24,
+          "chg24h": 79.29,
+          "fdv": 1821694,
+          "marketCap": 1821694
+        },
+        "sourceKey": "TG:HkBWJJiaUW5Kod4HpHWZiGD9PQVipmMiPDgiRPcNpump"
+      },
+      {
+        "addr": "8Jx8AAHj86wbQgUTjGuj6GTTL5Ps3cqxKRTvpaJApump",
+        "mentions": 1,
+        "tickers": [
+          "PENGUIN"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "8Jx8AAHj86wbQgUTjGuj6GTTL5Ps3cqxKRTvpaJApump"
+          }
+        ],
+        "dex": {
+          "chainId": "solana",
+          "dexId": "pumpswap",
+          "url": "https://dexscreener.com/solana/draf8qxqy86h7yehdo9gytxaf6gottt8ozjknwxv6dcs",
+          "pairAddress": "DRAf8QxQY86h7yeHdo9GytXAF6GoTTT8oZjknwXV6dCS",
+          "baseSymbol": "PENGUIN",
+          "baseAddress": "8Jx8AAHj86wbQgUTjGuj6GTTL5Ps3cqxKRTvpaJApump",
+          "priceUsd": "0.03988",
+          "liquidityUsd": 1105645.86,
+          "vol24h": 12759352.19,
+          "chg1h": -6.45,
+          "chg24h": -25.49,
+          "fdv": 39887086,
+          "marketCap": 39887086
+        },
+        "sourceKey": "TG:8Jx8AAHj86wbQgUTjGuj6GTTL5Ps3cqxKRTvpaJApump"
+      },
+      {
+        "addr": "0xc51a9250795c0186a6fb4a7d20a90330651e4444",
+        "mentions": 1,
+        "tickers": [
+          "我踏马来了"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0xc51a9250795c0186a6fb4a7d20a90330651e4444"
+          }
+        ],
+        "dex": {
+          "chainId": "bsc",
+          "dexId": "pancakeswap",
+          "url": "https://dexscreener.com/bsc/0xa651c8deb3ff9f8d56a26e72042b7a8a1f433480",
+          "pairAddress": "0xa651C8Deb3ff9F8D56a26E72042b7A8A1f433480",
+          "baseSymbol": "我踏马来了",
+          "baseAddress": "0xc51A9250795c0186a6FB4A7D20A90330651e4444",
+          "priceUsd": "0.05132",
+          "liquidityUsd": 1688563.71,
+          "vol24h": 14598274.2,
+          "chg1h": -9.73,
+          "chg24h": 45.42,
+          "fdv": 51321350,
+          "marketCap": 51321350
+        },
+        "sourceKey": "TG:0xc51a9250795c0186a6fb4a7d20a90330651e4444"
+      },
+      {
+        "addr": "0x4b2c50f21dce40530c2e3d5afe1798ad7aaf2b07",
+        "mentions": 1,
+        "tickers": [
+          "Dilo"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0x4b2c50f21dce40530c2e3d5afe1798ad7aaf2b07"
+          }
+        ],
+        "dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x29ebe42d1008c2acb3653264f4dbfa790a92407f697282c8fd9a2149b843987f",
+          "pairAddress": "0x29ebe42d1008c2acb3653264f4dbfa790a92407f697282c8fd9a2149b843987f",
+          "baseSymbol": "Dilo",
+          "baseAddress": "0x4B2C50F21dcE40530c2E3D5afE1798ad7aAf2B07",
+          "priceUsd": "0.0000002709",
+          "liquidityUsd": 29178.89,
+          "vol24h": 311312.15,
+          "chg1h": 6.41,
+          "chg24h": 6.41,
+          "fdv": 27093,
+          "marketCap": 27093
+        },
+        "sourceKey": "TG:0x4b2c50f21dce40530c2e3d5afe1798ad7aaf2b07"
+      },
+      {
+        "addr": "0x4a04f76d2320b7d5b32df1699b31ef910fedfe36",
+        "mentions": 1,
+        "tickers": [
+          "Dilo"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0x4a04f76d2320b7d5b32df1699b31ef910fedfe36"
+          }
+        ],
+        "dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0xc8b421f7c4152d903bf585e5cea132dcb4628478a0fbcf9fd5bc4a0b8c1b6b92",
+          "pairAddress": "0xc8b421f7c4152d903bf585e5cea132dcb4628478a0fbcf9fd5bc4a0b8c1b6b92",
+          "baseSymbol": "Dilo",
+          "baseAddress": "0x4A04F76d2320b7d5b32df1699B31EF910FEDFE36",
+          "priceUsd": "0.0000002586",
+          "liquidityUsd": 32738.15,
+          "vol24h": 179937.8,
+          "chg1h": -0.26,
+          "chg24h": -0.26,
+          "fdv": 25861,
+          "marketCap": 25861
+        },
+        "sourceKey": "TG:0x4a04f76d2320b7d5b32df1699b31ef910fedfe36"
+      },
+      {
+        "addr": "G1g4yUyXNfRj6Yf3sfMvs4rEoJ8eLAyzQrnfdn7xpump",
+        "mentions": 1,
+        "tickers": [
+          "VIBEFAIL"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "G1g4yUyXNfRj6Yf3sfMvs4rEoJ8eLAyzQrnfdn7xpump"
+          }
+        ],
+        "dex": {
+          "chainId": "solana",
+          "dexId": "pumpswap",
+          "url": "https://dexscreener.com/solana/axqml83xwzcs75ttdqxjwvvaeammoemjsfa7hu22zjnm",
+          "pairAddress": "AXqmL83XWZCS75TTDqXJwVVAeAmMoEMJSFA7Hu22Zjnm",
+          "baseSymbol": "VIBEFAIL",
+          "baseAddress": "G1g4yUyXNfRj6Yf3sfMvs4rEoJ8eLAyzQrnfdn7xpump",
+          "priceUsd": "0.00002865",
+          "liquidityUsd": 14592.98,
+          "vol24h": 91083.79,
+          "chg1h": -33.4,
+          "chg24h": -33.4,
+          "fdv": 28653,
+          "marketCap": 28653
+        },
+        "sourceKey": "TG:G1g4yUyXNfRj6Yf3sfMvs4rEoJ8eLAyzQrnfdn7xpump"
+      },
+      {
+        "addr": "0x2fe2e5ce28b12ba1c11f63764b9c51caec104444",
+        "mentions": 1,
+        "tickers": [
+          "一个人的Strategy"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0x2fe2e5ce28b12ba1c11f63764b9c51caec104444"
+          }
+        ],
+        "dex": {
+          "chainId": "bsc",
+          "dexId": "fourmeme",
+          "url": "https://dexscreener.com/bsc/0x2fe2e5ce28b12ba1c11f63764b9c51caec104444:4meme",
+          "pairAddress": "0x2fe2e5Ce28B12ba1C11f63764B9c51CAEC104444:4meme",
+          "baseSymbol": "一个人的Strategy",
+          "baseAddress": "0x2fe2e5Ce28B12ba1C11f63764B9c51CAEC104444",
+          "priceUsd": "0.00003503",
+          "liquidityUsd": null,
+          "vol24h": 150157.97,
+          "chg1h": -21.71,
+          "chg24h": 479,
+          "fdv": 35030.98,
+          "marketCap": 35030.98
+        },
+        "sourceKey": "TG:0x2fe2e5ce28b12ba1c11f63764b9c51caec104444"
+      }
+    ],
+    "twitter_ca_inputs": [
+      {
+        "sym": "XRP",
+        "evidence": {
+          "snippets": [
+            "Ex-Ripple CTO: When XRP Was $0.006, $0.25 Felt As Ridiculous As $100 Does Today #Ripple #XRP $XRP",
+            "coinbureau SEC taking a breather while crypto keeps grinding. Regulatory clarity is coming but don t hold your breath. $XRP still ready to roll",
+            "In 5 years, everyone will wish they had bought $XRP today.",
+            "BRAD GARLINGHOUSE: #XRP COULD PROCESS 14% OF SWIFT S TOTAL VOLUME That s $21 TRILLION IN FLOWS putting XRP IN TRIPLE-DIGIT TERRITORY at today s supply WHILE THAT S HAPPENING A NEW ",
+            "$XRP 12:56AM $1.6610 (-2.41%) D:Range 4H:Range RSI 31 Hold BB 24% Neutral Sqz:Off BO:0 1H: NEUTRAL Wait 15m: NEUTRAL 5m: BEARISH Prob 29% Lean short #XRP #Crypto #Trading",
+            "0xChiefy Charts can be deceiving. $BTC might dip but remember the long-term game. $XRP is still the real deal for payments, just saying"
+          ]
+        },
+        "ca": "GRnh8s1pEyszjNKRYmhkWFSVcsUFuMYY3QZJRhitWzWo"
+      },
+      {
+        "sym": "CLAWNCH",
+        "evidence": {
+          "snippets": [
+            "Clawnch_Bot This is the best thing I ve seen in crypto wtf $Clawnch",
+            "Olalala, this is about to get ridiculous $CLAWNCH",
+            "$clawnch chart actually looks pretty decent",
+            "This is crazy Is this a simulation $clawnch",
+            "$MOLTMINT is $CLAWNCH but for Solana That is all Reprice it",
+            "$CLAWNCH $50m next stop"
+          ]
+        },
+        "ca": "0xa1f72459dfa10bad200ac160ecd78c6b77a747be"
+      },
+      {
+        "sym": "RIPPLE",
+        "evidence": {
+          "snippets": [
+            "$Ripple has released a new RLUSD attestation showing more than $1.473 billion in reserve",
+            "$Ripple scored another major win",
+            "$Ripple Treasury Officially Announced By GTreasury",
+            "$Ripple Secures Major Banking Partnership",
+            "$Ripple executive highlighted interoperability as one way RLUSD can scale natively across chains and support real-world use cases",
+            "Turkish Banking Giant Extends $Ripple Partnership"
+          ]
+        },
+        "ca": "5rYg5KEhQTfThkFbwrQTK8Qe3L5JTbkHBPqPm9gtpump"
+      }
+    ],
+    "social_cards": [],
+    "debug": {
+      "human_texts": 369,
+      "messages_by_chat": {
+        "3096206759": 2,
+        "1956264308": 172,
+        "2243200666": 0,
+        "2335179695": 260,
+        "2408369357": 0,
+        "2955560057": 2,
+        "3041253761": 1,
+        "3219058398": 0,
+        "3407266761": 4,
+        "5087005415": 0
+      },
+      "tg_topics_inferred": true
+    }
+  }
+}

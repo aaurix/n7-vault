@@ -1,0 +1,324 @@
+{
+  "since": "2026-02-01T14:30:44Z",
+  "until": "2026-02-01T15:30:44Z",
+  "hourKey": "2026-02-01 23:00",
+  "use_llm": true,
+  "perf": {
+    "prepare_health_check": 0.0,
+    "prepare_health_check_skipped": 1.0,
+    "prepare_meme_spawn": 0.0,
+    "prepare_meme_spawn_skipped": 1.0,
+    "tg_fetch_and_replay": 19.761,
+    "prepare_tg_fetch": 19.761,
+    "viewpoint_threads_msgs_in": 429.0,
+    "human_texts": 0.008,
+    "prepare_human_texts": 0.008,
+    "prepare_oi_items": 0.0,
+    "prepare_oi_items_skipped": 1.0,
+    "prepare_oi_plans": 0.0,
+    "prepare_oi_plans_skipped": 1.0,
+    "viewpoint_threads_extract": 26.649,
+    "viewpoint_threads": 26.649,
+    "prepare_viewpoint_threads": 26.649,
+    "tg_topics_candidates": 17.0,
+    "tg_topics_pipeline": 7.561,
+    "prepare_tg_topics": 7.561,
+    "prepare_twitter_following": 0.0,
+    "prepare_twitter_following_skipped": 1.0,
+    "prepare_meme_wait": 0.0,
+    "prepare_meme_wait_skipped": 1.0,
+    "prepare_tg_addr_merge": 0.0,
+    "prepare_tg_addr_merge_skipped": 1.0,
+    "social_cards_twitter": 0.0,
+    "social_cards_tg": 0.0,
+    "social_cards": 0.0,
+    "prepare_social_cards": 0.0,
+    "prepare_perp_dash_inputs": 0.0,
+    "prepare_perp_dash_inputs_skipped": 1.0,
+    "prepare_total": 53.99
+  },
+  "errors": [],
+  "prepared": {
+    "oi_lines": [],
+    "oi_items": [],
+    "perp_dash_inputs": [],
+    "oi_plans": [],
+    "tg_topics": [
+      {
+        "one_liner": "1011巨鲸在ETH爆仓后向Binance大量充值ETH，引发市场关注。",
+        "sentiment": "偏空",
+        "triggers": "巨鲸爆仓；ETH大额充值；链上转账；价格压力",
+        "related_assets": [
+          "ETH",
+          "Binance"
+        ]
+      }
+    ],
+    "threads_strong": [
+      {
+        "title": "COPPERINU（MC≈$19.0M vol24≈$4 liq≈$17.1M）",
+        "stance": "中性",
+        "count": 4,
+        "entities": [
+          "COPPERINU"
+        ],
+        "points": [
+          "热度升温：讨论集中但共识不强，注意节奏与风险"
+        ],
+        "sym": "COPPERINU",
+        "_msgs": [
+          "61Wj56QgGyyB966T7YsMzEAKRLcMvJpDbPzjkrCZc4Bi",
+          "61Wj56QgGyyB966T7YsMzEAKRLcMvJpDbPzjkrCZc4Bi",
+          "61Wj56QgGyyB966T7YsMzEAKRLcMvJpDbPzjkrCZc4Bi",
+          "61Wj56QgGyyB966T7YsMzEAKRLcMvJpDbPzjkrCZc4Bi"
+        ],
+        "_dex": {
+          "chainId": "solana",
+          "dexId": "raydium",
+          "url": "https://dexscreener.com/solana/72q49epbqbaz3zi4wvxdm3ecr2accjbtghcvzz8k6ak4",
+          "pairAddress": "72q49ePbQbAZ3Zi4wvXDm3ECr2aCCjbTgHCVZZ8k6ak4",
+          "baseSymbol": "COPPERINU",
+          "baseAddress": "5G5jDcs7NKbw9HuUt7FvLwCZeBqBvPxhXKsbMhZKmR5q",
+          "priceUsd": "0.01899",
+          "liquidityUsd": 17096828.56,
+          "vol24h": 3.79,
+          "chg1h": 99.96,
+          "chg24h": 99.96,
+          "fdv": 18996315,
+          "marketCap": 18996315
+        }
+      },
+      {
+        "title": "KELLYCLAUDE（MC≈$2.4M vol24≈$175 liq≈$1.8M）",
+        "stance": "中性",
+        "count": 3,
+        "entities": [
+          "KELLYCLAUDE"
+        ],
+        "points": [
+          "热度升温：讨论集中但共识不强，注意节奏与风险"
+        ],
+        "sym": "KELLYCLAUDE",
+        "_msgs": [
+          "0x50d2280441372486beecdd328c1854743ebacb07",
+          "0x50d2280441372486beecdd328c1854743ebacb07",
+          "0x50d2280441372486beecdd328c1854743ebacb07"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x0a628392f13e922bfbb78868d5a0e741b6d1acc742a32048d92816105dd47cc8",
+          "pairAddress": "0x0a628392f13e922bfbb78868d5a0e741b6d1acc742a32048d92816105dd47cc8",
+          "baseSymbol": "KellyClaude",
+          "baseAddress": "0xAd0BbBE6cBb804d4BfCcbb8941960b9E0d2c44cA",
+          "priceUsd": "0.00002382",
+          "liquidityUsd": 1786655.66,
+          "vol24h": 175.24,
+          "chg1h": null,
+          "chg24h": -6.46,
+          "fdv": 2382207,
+          "marketCap": 2382207
+        }
+      }
+    ],
+    "threads_weak": [
+      {
+        "title": "TCRUST（MC≈$475.5K vol24≈$553.5K liq≈$199.8K）",
+        "stance": "中性",
+        "count": 2,
+        "entities": [
+          "TCRUST"
+        ],
+        "points": [],
+        "sym": "TCRUST",
+        "_msgs": [
+          "0x383283f086365fa8da4fa3fecc6402479e8eb3bc",
+          "0x383283f086365fa8da4fa3fecc6402479e8eb3bc"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x1be25d80effc93f9a167be4572132f52630be8b08dfca842ef21a95e9313d850",
+          "pairAddress": "0x1be25d80effc93f9a167be4572132f52630be8b08dfca842ef21a95e9313d850",
+          "baseSymbol": "TCRUST",
+          "baseAddress": "0x383283f086365fA8DA4fA3feCc6402479e8EB3bc",
+          "priceUsd": "0.000004754",
+          "liquidityUsd": 199815.06,
+          "vol24h": 553512.82,
+          "chg1h": 949,
+          "chg24h": 1891,
+          "fdv": 475481,
+          "marketCap": 475481
+        }
+      },
+      {
+        "title": "我踏马来了（MC≈$49.2M vol24≈$0 liq≈$24.6M）",
+        "stance": "中性",
+        "count": 2,
+        "entities": [
+          "我踏马来了"
+        ],
+        "points": [],
+        "sym": "我踏马来了",
+        "_msgs": [
+          "0xc51a9250795c0186a6fb4a7d20a90330651e4444",
+          "0xc51a9250795c0186a6fb4a7d20a90330651e4444"
+        ],
+        "_dex": {
+          "chainId": "ethereum",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/ethereum/0x256e935d4f25d6291310de9c394d205fc32d940c",
+          "pairAddress": "0x256E935d4F25D6291310dE9c394D205Fc32D940C",
+          "baseSymbol": "我踏马来了",
+          "baseAddress": "0xC7abFEF26109964685BdC498bCB71fA3402a1dB1",
+          "priceUsd": "0.04923",
+          "liquidityUsd": 24617243.24,
+          "vol24h": 0.14,
+          "chg1h": null,
+          "chg24h": null,
+          "fdv": 49234486,
+          "marketCap": 49234486
+        }
+      },
+      {
+        "title": "PENGUIN（MC≈$79.0M vol24≈$2 liq≈$34.4M）",
+        "stance": "中性",
+        "count": 2,
+        "entities": [
+          "PENGUIN"
+        ],
+        "points": [
+          "动量情绪更强：注意冲高回落与二次派发"
+        ],
+        "sym": "PENGUIN",
+        "_msgs": [
+          "8Jx8AAHj86wbQgUTjGuj6GTTL5Ps3cqxKRTvpaJApump",
+          "8Jx8AAHj86wbQgUTjGuj6GTTL5Ps3cqxKRTvpaJApump"
+        ],
+        "_dex": {
+          "chainId": "solana",
+          "dexId": "raydium",
+          "url": "https://dexscreener.com/solana/2mm8aezgzfhvehx89q8viu3vhtmlvb2bqgjubfc8bynl",
+          "pairAddress": "2mm8aEzgZFHvehX89Q8viu3vhTmLvb2bqGJuBFc8bynL",
+          "baseSymbol": "PENGUIN",
+          "baseAddress": "2CgutEvhCpiQLXA54R28izTA7bCUkmicNcgcPU9wthDn",
+          "priceUsd": "0.07899",
+          "liquidityUsd": 34362777.69,
+          "vol24h": 2.2,
+          "chg1h": null,
+          "chg24h": null,
+          "fdv": 78994816,
+          "marketCap": 78994816
+        }
+      },
+      {
+        "title": "MOLT ETH（MC≈$5.7B vol24≈$6 liq≈$2.8B）",
+        "stance": "中性",
+        "count": 2,
+        "entities": [
+          "MOLT ETH"
+        ],
+        "points": [],
+        "sym": "MOLT ETH",
+        "_msgs": [
+          "0xb695559b26bb2c9703ef1935c37aeae9526bab07",
+          "0xb695559b26bb2c9703ef1935c37aeae9526bab07"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x6162c53786045657454b480fab3bf3539f1f1c00",
+          "pairAddress": "0x6162c53786045657454B480FaB3BF3539f1f1c00",
+          "baseSymbol": "MOLT ETH",
+          "baseAddress": "0xe3be78982dF5945A6Be9dA1F527aA740630d6777",
+          "priceUsd": "0.5688",
+          "liquidityUsd": 2844208723.7,
+          "vol24h": 5.68,
+          "chg1h": null,
+          "chg24h": null,
+          "fdv": 5688417447,
+          "marketCap": 5688417447
+        }
+      },
+      {
+        "title": "CLAWDSPIRACY（MC≈$372.7K vol24≈$1.6M liq≈$183.2K）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "CLAWDSPIRACY"
+        ],
+        "points": [],
+        "sym": "CLAWDSPIRACY",
+        "_msgs": [
+          "0x37fcc465b4c1ab03759060a9794a818538613b07"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x0c2ec21b9666817db7580213168d085274ff99ebb019d005555c5fecbfbf1926",
+          "pairAddress": "0x0c2ec21b9666817db7580213168d085274ff99ebb019d005555c5fecbfbf1926",
+          "baseSymbol": "clawdspiracy",
+          "baseAddress": "0x37fCc465B4C1ab03759060a9794a818538613B07",
+          "priceUsd": "0.000003726",
+          "liquidityUsd": 183209.86,
+          "vol24h": 1610698.96,
+          "chg1h": -2.61,
+          "chg24h": 1398,
+          "fdv": 372682,
+          "marketCap": 372682
+        }
+      },
+      {
+        "title": "SWARM（MC≈$450.3K vol24≈$551 liq≈$123.5K）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "SWARM"
+        ],
+        "points": [],
+        "sym": "SWARM",
+        "_msgs": [
+          "0xaae575de3d165649ca80fab0d06a3443d1527b07"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0xd420ed70750fc9e0046e3b719f3e665a50941f6e",
+          "pairAddress": "0xd420eD70750Fc9E0046E3b719F3e665a50941F6E",
+          "baseSymbol": "SWARM",
+          "baseAddress": "0xea87169699dabd028a78d4B91544b4298086BAF6",
+          "priceUsd": "0.0008724",
+          "liquidityUsd": 123459.73,
+          "vol24h": 551.03,
+          "chg1h": null,
+          "chg24h": -4.26,
+          "fdv": 872423,
+          "marketCap": 450315
+        }
+      }
+    ],
+    "twitter_following": {},
+    "twitter_following_summary": {},
+    "radar_items": [],
+    "twitter_ca_inputs": [],
+    "social_cards": [],
+    "debug": {
+      "human_texts": 429,
+      "messages_by_chat": {
+        "3096206759": 2,
+        "1956264308": 260,
+        "2243200666": 1,
+        "2335179695": 260,
+        "2408369357": 0,
+        "2955560057": 0,
+        "3041253761": 1,
+        "3219058398": 0,
+        "3407266761": 6,
+        "5087005415": 0
+      },
+      "tg_topics_inferred": false,
+      "tg_topics_fallback_used": false,
+      "tg_topics_fallback_reason": ""
+    }
+  }
+}

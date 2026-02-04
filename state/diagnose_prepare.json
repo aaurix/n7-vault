@@ -1,0 +1,1843 @@
+{
+  "since": "2026-02-01T10:27:42Z",
+  "until": "2026-02-01T11:27:42Z",
+  "hourKey": "2026-02-01 19:00",
+  "use_llm": true,
+  "perf": {
+    "prepare_health_check": 0.013,
+    "prepare_meme_spawn": 0.002,
+    "tg_fetch_and_replay": 6.554,
+    "prepare_tg_fetch": 6.555,
+    "viewpoint_threads_msgs_in": 308.0,
+    "human_texts": 0.002,
+    "prepare_human_texts": 0.002,
+    "twitter_following": 10.118,
+    "prepare_twitter_following": 10.118,
+    "oi_items": 26.275,
+    "prepare_oi_items": 26.275,
+    "oi_plans": 11.868,
+    "prepare_oi_plans": 11.868,
+    "viewpoint_threads_extract": 2.021,
+    "viewpoint_threads": 2.021,
+    "prepare_viewpoint_threads": 2.021,
+    "tg_topics_candidates": 18.0,
+    "tg_topics_pipeline": 5.909,
+    "prepare_tg_topics": 5.909,
+    "meme_radar": 0.001,
+    "prepare_meme_wait": 0.001,
+    "tg_addr_to_radar": 4.125,
+    "prepare_tg_addr_merge": 4.125,
+    "social_cards_twitter": 0.0,
+    "social_cards_tg": 0.0,
+    "social_cards": 0.0,
+    "prepare_social_cards": 0.0,
+    "prepare_perp_dash_inputs": 0.0,
+    "prepare_total": 56.774
+  },
+  "errors": [],
+  "prepared": {
+    "oi_lines": [
+      "- ASTRUSDT 现价0.008726；24h价-3.5%；24h OI+50.7%",
+      "- STEEMUSDT 现价0.05577；24h价-8.1%；24h OI+23.4%",
+      "- FUSDT 现价0.005881；24h价+1.3%；24h OI+35.4%",
+      "- ZORAUSDT 现价0.03288；24h价+38.2%；24h OI+224.1%"
+    ],
+    "oi_items": [
+      {
+        "symbol": "ASTRUSDT",
+        "price_now": 0.008726,
+        "price_1h": 0.9836824441615556,
+        "price_4h": -0.682904620987947,
+        "price_24h": -3.505473847174624,
+        "vol_1h": 80465168.0,
+        "vol_ratio": 1.0168002668692633,
+        "oi_now": 262130176.0,
+        "oi_1h": 14.51874984330701,
+        "oi_4h": -0.7815716373971514,
+        "oi_24h": 50.74134026007609,
+        "oi_signal": 31.3,
+        "p1h": 12.1,
+        "p24h": -4.7,
+        "flow": "增仓跟涨",
+        "kline_1h": {
+          "symbol": "ASTRUSDT",
+          "interval": "1h",
+          "lookback": 120,
+          "chg_pct": -25.527012033797053,
+          "range": {
+            "lo": 0.007782,
+            "hi": 0.012181,
+            "pos": 0.2145942259604454,
+            "loc": "位于区间中部"
+          },
+          "last": 0.008726,
+          "atr14": 0.00033707142857142876,
+          "swing": {
+            "hi": 0.01027,
+            "lo": 0.007782
+          },
+          "ema20": 0.008744643827478249,
+          "ema20_slope_pct": -0.022437366908926577,
+          "rsi14": 57.408518296340716,
+          "volume": {
+            "last": 80464721.0,
+            "ma20": 79135228.05,
+            "ratio": 1.0168002668692633
+          }
+        },
+        "kline_4h": {
+          "symbol": "ASTRUSDT",
+          "interval": "4h",
+          "lookback": 80,
+          "chg_pct": -16.80015255530131,
+          "range": {
+            "lo": 0.007782,
+            "hi": 0.013085,
+            "pos": 0.17801244578540443,
+            "loc": "位于区间中部"
+          },
+          "last": 0.008726,
+          "atr14": 0.0004366428571428571,
+          "swing": {
+            "hi": 0.011129,
+            "lo": 0.007782
+          },
+          "ema20": 0.009327708253480142,
+          "ema20_slope_pct": -0.6744478850698199,
+          "rsi14": 31.0623038995966,
+          "volume": {
+            "last": 1203167962.0,
+            "ma20": 121700640.1,
+            "ratio": 9.8862911568203
+          }
+        },
+        "twitter": {
+          "total": 75,
+          "kept": 4,
+          "snippets": [
+            "astraiaintel WE ..",
+            "fulovitboss AstralRes_AAR This is a dip buy candidate this week. It was juicy before .im hoping for .18c",
+            "yourcryptodj $CCD. Quiet, but with real infrastructure and long-term utility. Concordium",
+            "#Welcome_to_NewEridu2026 #astralyn cos."
+          ]
+        },
+        "twitter_summary": {
+          "total": 75,
+          "kept": 4,
+          "bull_points": [
+            "fulovitboss AstralRes_AAR This is a dip buy candidate this w",
+            "yourcryptodj $CCD. Quiet, but with real infrastructure and l"
+          ],
+          "bear_points": []
+        }
+      },
+      {
+        "symbol": "STEEMUSDT",
+        "price_now": 0.05577,
+        "price_1h": 0.8134490238611696,
+        "price_4h": -4.6797608881298025,
+        "price_24h": -8.121911037891264,
+        "vol_1h": 3284324.0,
+        "vol_ratio": 0.8325951016368832,
+        "oi_now": 17421359.0,
+        "oi_1h": 20.624547295382747,
+        "oi_4h": 2.241775175238152,
+        "oi_24h": 23.44453746205867,
+        "oi_signal": 21.5,
+        "p1h": 12.1,
+        "p24h": -8.5,
+        "flow": "增仓跟涨",
+        "kline_1h": {
+          "symbol": "STEEMUSDT",
+          "interval": "1h",
+          "lookback": 120,
+          "chg_pct": -14.125250038467465,
+          "range": {
+            "lo": 0.05209,
+            "hi": 0.06729,
+            "pos": 0.24473684210526314,
+            "loc": "位于区间中部"
+          },
+          "last": 0.05581,
+          "atr14": 0.0019050000000000004,
+          "swing": {
+            "hi": 0.06729,
+            "lo": 0.05209
+          },
+          "ema20": 0.057490183362888164,
+          "ema20_slope_pct": -0.3066940699436099,
+          "rsi14": 51.73041894353369,
+          "volume": {
+            "last": 3285585.0,
+            "ma20": 3946197.85,
+            "ratio": 0.8325951016368832
+          }
+        },
+        "kline_4h": {
+          "symbol": "STEEMUSDT",
+          "interval": "4h",
+          "lookback": 80,
+          "chg_pct": -16.711469534050185,
+          "range": {
+            "lo": 0.05209,
+            "hi": 0.06923,
+            "pos": 0.21470245040840152,
+            "loc": "位于区间中部"
+          },
+          "last": 0.05577,
+          "atr14": 0.0030235714285714297,
+          "swing": {
+            "hi": 0.06729,
+            "lo": 0.05209
+          },
+          "ema20": 0.05908259881049275,
+          "ema20_slope_pct": -0.5867188673719979,
+          "rsi14": 43.05555555555555,
+          "volume": {
+            "last": 56273332.0,
+            "ma20": 7016748.2,
+            "ratio": 8.019859113656095
+          }
+        },
+        "twitter": null,
+        "twitter_summary": null
+      },
+      {
+        "symbol": "FUSDT",
+        "price_now": 0.005881,
+        "price_1h": 0.581494783649738,
+        "price_4h": -3.8078117339434643,
+        "price_24h": 1.2917671374440154,
+        "vol_1h": 83764642.0,
+        "vol_ratio": 0.3591417016699999,
+        "oi_now": 351211550.0,
+        "oi_1h": -8.498425344656804,
+        "oi_4h": 20.604723905233985,
+        "oi_24h": 35.425530750256215,
+        "oi_signal": -9.3,
+        "p1h": null,
+        "p24h": 1.0,
+        "flow": "减仓/回撤",
+        "kline_1h": {
+          "symbol": "FUSDT",
+          "interval": "1h",
+          "lookback": 120,
+          "chg_pct": -11.095993953136814,
+          "range": {
+            "lo": 0.004955,
+            "hi": 0.007181,
+            "pos": 0.41599281221922724,
+            "loc": "位于区间中部"
+          },
+          "last": 0.005881,
+          "atr14": 0.0003098571428571427,
+          "swing": {
+            "hi": 0.007181,
+            "lo": 0.004955
+          },
+          "ema20": 0.005862606459746971,
+          "ema20_slope_pct": 0.03303653052595946,
+          "rsi14": 61.59527326440177,
+          "volume": {
+            "last": 83764642.0,
+            "ma20": 233235632.65,
+            "ratio": 0.3591417016699999
+          }
+        },
+        "kline_4h": {
+          "symbol": "FUSDT",
+          "interval": "4h",
+          "lookback": 80,
+          "chg_pct": -5.979216626698644,
+          "range": {
+            "lo": 0.004955,
+            "hi": 0.007479,
+            "pos": 0.3668779714738509,
+            "loc": "位于区间中部"
+          },
+          "last": 0.005881,
+          "atr14": 0.0003822857142857142,
+          "swing": {
+            "hi": 0.007181,
+            "lo": 0.004955
+          },
+          "ema20": 0.005957918603021346,
+          "ema20_slope_pct": -0.1357136153755595,
+          "rsi14": 45.335820895522396,
+          "volume": {
+            "last": 3092521004.0,
+            "ma20": 284087678.95,
+            "ratio": 10.885797706644961
+          }
+        },
+        "twitter": null,
+        "twitter_summary": null
+      },
+      {
+        "symbol": "ZORAUSDT",
+        "price_now": 0.03288,
+        "price_1h": 0.7970570202329746,
+        "price_4h": -12.159273115980755,
+        "price_24h": 38.20933165195461,
+        "vol_1h": 316678091.0,
+        "vol_ratio": 0.8612974800264027,
+        "oi_now": 251369839.0,
+        "oi_1h": 10.786848217778253,
+        "oi_4h": 22.289300004453477,
+        "oi_24h": 224.1467893267306,
+        "oi_signal": 5.4,
+        "p1h": 15.3,
+        "p24h": 36.8,
+        "flow": "增仓跟涨",
+        "kline_1h": {
+          "symbol": "ZORAUSDT",
+          "interval": "1h",
+          "lookback": 120,
+          "chg_pct": 8.193484698914114,
+          "range": {
+            "lo": 0.02008,
+            "hi": 0.04219,
+            "pos": 0.5789235639981909,
+            "loc": "位于区间中部"
+          },
+          "last": 0.03288,
+          "atr14": 0.003790714285714286,
+          "swing": {
+            "hi": 0.04219,
+            "lo": 0.02008
+          },
+          "ema20": 0.031007565710870356,
+          "ema20_slope_pct": 0.6397122896302874,
+          "rsi14": 68.67428175839392,
+          "volume": {
+            "last": 316775722.0,
+            "ma20": 367788980.4,
+            "ratio": 0.8612974800264027
+          }
+        },
+        "kline_4h": {
+          "symbol": "ZORAUSDT",
+          "interval": "4h",
+          "lookback": 80,
+          "chg_pct": 1.4814814814814856,
+          "range": {
+            "lo": 0.02008,
+            "hi": 0.04219,
+            "pos": 0.5789235639981909,
+            "loc": "位于区间中部"
+          },
+          "last": 0.03288,
+          "atr14": 0.0032257142857142853,
+          "swing": {
+            "hi": 0.04219,
+            "lo": 0.02008
+          },
+          "ema20": 0.028514226820551793,
+          "ema20_slope_pct": 1.6380696792032028,
+          "rsi14": 61.42167011732229,
+          "volume": {
+            "last": 1857719614.0,
+            "ma20": 392804074.95,
+            "ratio": 4.729379689445607
+          }
+        },
+        "twitter": null,
+        "twitter_summary": null
+      }
+    ],
+    "perp_dash_inputs": [
+      {
+        "symbol": "ASTRUSDT",
+        "price_now": 0.008726,
+        "market_cap": null,
+        "fdv": null,
+        "price_chg": {
+          "1h_pct": 0.9836824441615556,
+          "4h_pct": -0.682904620987947,
+          "24h_pct": -3.505473847174624
+        },
+        "oi_chg": {
+          "1h_pct": 14.51874984330701,
+          "4h_pct": -0.7815716373971514,
+          "24h_pct": 50.74134026007609
+        },
+        "structure": {
+          "1h": {
+            "swing_hi": 0.01027,
+            "swing_lo": 0.007782,
+            "ema20_slope_pct": -0.022437366908926577,
+            "rsi14": 57.408518296340716,
+            "atr_pct": 3.86,
+            "range_loc": "位于区间中部",
+            "range_pos": 0.2145942259604454,
+            "vol_ratio": 1.0168002668692633
+          },
+          "4h": {
+            "swing_hi": 0.011129,
+            "swing_lo": 0.007782,
+            "ema20_slope_pct": -0.6744478850698199,
+            "rsi14": 31.0623038995966,
+            "atr_pct": 5.0,
+            "range_loc": "位于区间中部",
+            "range_pos": 0.17801244578540443
+          }
+        },
+        "key_levels": {
+          "resistance": 0.01027,
+          "support": 0.007782
+        },
+        "flow_label": "轻微/震荡（价/OI变化不大）",
+        "bias_hint": "观望",
+        "action_notes": [
+          "区间：上0.01027/下0.007782"
+        ]
+      },
+      {
+        "symbol": "STEEMUSDT",
+        "price_now": 0.05577,
+        "market_cap": null,
+        "fdv": null,
+        "price_chg": {
+          "1h_pct": 0.8134490238611696,
+          "4h_pct": -4.6797608881298025,
+          "24h_pct": -8.121911037891264
+        },
+        "oi_chg": {
+          "1h_pct": 20.624547295382747,
+          "4h_pct": 2.241775175238152,
+          "24h_pct": 23.44453746205867
+        },
+        "structure": {
+          "1h": {
+            "swing_hi": 0.06729,
+            "swing_lo": 0.05209,
+            "ema20_slope_pct": -0.3066940699436099,
+            "rsi14": 51.73041894353369,
+            "atr_pct": 3.41,
+            "range_loc": "位于区间中部",
+            "range_pos": 0.24473684210526314,
+            "vol_ratio": 0.8325951016368832
+          },
+          "4h": {
+            "swing_hi": 0.06729,
+            "swing_lo": 0.05209,
+            "ema20_slope_pct": -0.5867188673719979,
+            "rsi14": 43.05555555555555,
+            "atr_pct": 5.42,
+            "range_loc": "位于区间中部",
+            "range_pos": 0.21470245040840152
+          }
+        },
+        "key_levels": {
+          "resistance": 0.06729,
+          "support": 0.05209
+        },
+        "flow_label": "轻微/震荡（价/OI变化不大）",
+        "bias_hint": "观望",
+        "action_notes": [
+          "区间：上0.06729/下0.05209"
+        ]
+      },
+      {
+        "symbol": "FUSDT",
+        "price_now": 0.005881,
+        "market_cap": null,
+        "fdv": null,
+        "price_chg": {
+          "1h_pct": 0.581494783649738,
+          "4h_pct": -3.8078117339434643,
+          "24h_pct": 1.2917671374440154
+        },
+        "oi_chg": {
+          "1h_pct": -8.498425344656804,
+          "4h_pct": 20.604723905233985,
+          "24h_pct": 35.425530750256215
+        },
+        "structure": {
+          "1h": {
+            "swing_hi": 0.007181,
+            "swing_lo": 0.004955,
+            "ema20_slope_pct": 0.03303653052595946,
+            "rsi14": 61.59527326440177,
+            "atr_pct": 5.27,
+            "range_loc": "位于区间中部",
+            "range_pos": 0.41599281221922724,
+            "vol_ratio": 0.3591417016699999
+          },
+          "4h": {
+            "swing_hi": 0.007181,
+            "swing_lo": 0.004955,
+            "ema20_slope_pct": -0.1357136153755595,
+            "rsi14": 45.335820895522396,
+            "atr_pct": 6.5,
+            "range_loc": "位于区间中部",
+            "range_pos": 0.3668779714738509
+          }
+        },
+        "key_levels": {
+          "resistance": 0.007181,
+          "support": 0.004955
+        },
+        "flow_label": "空头加仓（价↓OI↑）",
+        "bias_hint": "观望",
+        "action_notes": [
+          "区间：上0.007181/下0.004955",
+          "ATR高：减仓/放宽止损"
+        ]
+      }
+    ],
+    "oi_plans": [
+      {
+        "symbol": "ASTRUSDT",
+        "bias": "观望",
+        "setup": "4H趋势下行，价格位于区间中部，量能正常，OI增仓跟涨但价格下跌，存在背离。",
+        "triggers": [
+          "放量突破并站稳1H区间上沿0.01027。",
+          "价格回踩并站稳4H EMA20（0.00933）上方。"
+        ],
+        "invalidation": "价格跌破并收于4H区间下沿0.007782下方。",
+        "targets": [
+          "第一目标：1H摆动高点0.01027。",
+          "第二目标：4H摆动高点0.011129。"
+        ],
+        "risk_notes": [],
+        "twitter_quality": "讨论偏少，信息质量一般，含营销内容。",
+        "twitter_bull": "有观点认为当前是逢低买入机会。",
+        "twitter_bear": "",
+        "twitter_meta": {
+          "total": 75,
+          "kept": 4,
+          "snippets": [
+            "astraiaintel WE ..",
+            "fulovitboss AstralRes_AAR This is a dip buy candidate this week. It was juicy before .im hoping for .18c",
+            "yourcryptodj $CCD. Quiet, but with real infrastructure and long-term utility. Concordium",
+            "#Welcome_to_NewEridu2026 #astralyn cos."
+          ]
+        }
+      },
+      {
+        "symbol": "STEEMUSDT",
+        "bias": "观望",
+        "setup": "4H趋势下行，价格位于区间中部，1H量能萎缩，OI增仓跟涨但价格下跌。",
+        "triggers": [
+          "放量突破1H区间上沿0.06729。",
+          "价格回踩并站稳4H EMA20（0.05908）上方。"
+        ],
+        "invalidation": "价格跌破并收于4H区间下沿0.05209下方。",
+        "targets": [
+          "第一目标：1H摆动高点0.06729。",
+          "第二目标：4H区间上沿0.06923。"
+        ],
+        "risk_notes": [],
+        "twitter_quality": "",
+        "twitter_bull": "",
+        "twitter_bear": "",
+        "twitter_meta": null
+      },
+      {
+        "symbol": "FUSDT",
+        "bias": "观望",
+        "setup": "1H趋势横盘，价格位于区间中部，量能大幅萎缩，OI减仓价格微涨，动能不足。",
+        "triggers": [
+          "放量突破1H区间上沿0.007181。",
+          "价格站稳4H EMA20（0.00596）上方并伴随增仓。"
+        ],
+        "invalidation": "价格跌破并收于1H区间下沿0.004955下方。",
+        "targets": [
+          "第一目标：1H摆动高点0.007181。",
+          "第二目标：4H区间上沿0.007479。"
+        ],
+        "risk_notes": [],
+        "twitter_quality": "",
+        "twitter_bull": "",
+        "twitter_bear": "",
+        "twitter_meta": null
+      }
+    ],
+    "tg_topics": [
+      {
+        "one_liner": "火币HTX将于今日19时上线CLAWNCH代币现货交易。",
+        "sentiment": "偏多",
+        "triggers": "火币HTX上线；CLAWNCH/USDT交易对；开放充币",
+        "related_assets": [
+          "HTX",
+          "CLAWNCH",
+          "USDT"
+        ]
+      }
+    ],
+    "threads_strong": [
+      {
+        "title": "SAULNET（MC≈$166.5K vol24≈$979.0K liq≈$113.4K）",
+        "stance": "中性",
+        "count": 3,
+        "entities": [
+          "SAULNET"
+        ],
+        "points": [
+          "热度升温：讨论集中但共识不强，注意节奏与风险"
+        ],
+        "sym": "SAULNET",
+        "_msgs": [
+          "0x1da242e0a0e25dfd36f38d7834aa6abd38c8eb07",
+          "0x1da242e0a0e25dfd36f38d7834aa6abd38c8eb07",
+          "0x1da242e0a0e25dfd36f38d7834aa6abd38c8eb07"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x967f7fabaa937f76badfc233d08db6c0c9d7fbb98bd71c2c986521fc033afb90",
+          "pairAddress": "0x967f7fabaa937f76badfc233d08db6c0c9d7fbb98bd71c2c986521fc033afb90",
+          "baseSymbol": "SAULNET",
+          "baseAddress": "0x1da242E0A0E25DFd36F38d7834AA6aBd38C8eb07",
+          "priceUsd": "0.000001664",
+          "liquidityUsd": 113431.58,
+          "vol24h": 979036.07,
+          "chg1h": 104,
+          "chg24h": 549,
+          "fdv": 166461,
+          "marketCap": 166461
+        }
+      },
+      {
+        "title": "MOLTCHAN（MC≈$108.5K vol24≈$547.5K liq≈$173.0K）",
+        "stance": "中性",
+        "count": 3,
+        "entities": [
+          "MOLTCHAN"
+        ],
+        "points": [
+          "热度升温：讨论集中但共识不强，注意节奏与风险"
+        ],
+        "sym": "MOLTCHAN",
+        "_msgs": [
+          "0x7fc3d3983484db35a3109621344a16b495ce7777",
+          "0x7fc3d3983484db35a3109621344a16b495ce7777",
+          "0x7fc3d3983484db35a3109621344a16b495ce7777"
+        ],
+        "_dex": {
+          "chainId": "bsc",
+          "dexId": "pancakeswap",
+          "url": "https://dexscreener.com/bsc/0x4e41cdf02f3ac56e449ca5da6cbacaa75d0895d6",
+          "pairAddress": "0x4e41Cdf02F3Ac56e449CA5Da6CbaCaA75D0895d6",
+          "baseSymbol": "MOLTCHAN",
+          "baseAddress": "0xD893D694068DE66c00cAEEC6f40D2FAAb7B047ED",
+          "priceUsd": "0.0005424",
+          "liquidityUsd": 173015.35,
+          "vol24h": 547499.29,
+          "chg1h": 59.47,
+          "chg24h": 59.47,
+          "fdv": 108495,
+          "marketCap": 108495
+        }
+      }
+    ],
+    "threads_weak": [
+      {
+        "title": "CLAWNCH（MC≈$25.1M vol24≈$28.9M liq≈$2.9M）",
+        "stance": "中性",
+        "count": 2,
+        "entities": [
+          "CLAWNCH"
+        ],
+        "points": [
+          "事件驱动：围绕上所/Alpha/上架预期在博弈"
+        ],
+        "sym": "CLAWNCH",
+        "_msgs": [
+          "火币HTX将于今日19时上线CLAWNCH(CLAWNCH)\n\nBlockBeats 消息，2 月 1 日，据火币 HTX 公告显示，火币 HTX 将于 2 月 1 日 19:00 (GMT+8) 开放 CLAWNCH/USDT 现货交易，现已开放 CLAWNCH 的充币服务。CLAWNCH 的提币服务将于 2 月 2 日 19:00 (GMT+8) 开放。\n\n原文链接 https://m.theblockbeats.info/flash/330708",
+          "火币HTX将于今日19时上线CLAWNCH(CLAWNCH)\n\nBlockBeats 消息，2 月 1 日，据火币 HTX 公告显示，火币 HTX 将于 2 月 1 日 19:00 (GMT+8) 开放 CLAWNCH/USDT 现货交易，现已开放 CLAWNCH 的充币服务。CLAWNCH 的提币服务将于 2 月 2 日 19:00 (GMT+8) 开放。\n\n原文链接 https://m.theblockbeats.info/flash/330708"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x03d3c21ea1daf51dd2898ebaf9342a93374877ba6ab34cc7ffe5b5d43ee46e0a",
+          "pairAddress": "0x03d3c21ea1daf51dd2898ebaf9342a93374877ba6ab34cc7ffe5b5d43ee46e0a",
+          "baseSymbol": "CLAWNCH",
+          "baseAddress": "0xa1F72459dfA10BAD200Ac160eCd78C6b77a747be",
+          "priceUsd": "0.0002505",
+          "liquidityUsd": 2914324.56,
+          "vol24h": 28863524.73,
+          "chg1h": -12.99,
+          "chg24h": 405,
+          "fdv": 25056401,
+          "marketCap": 25056401
+        }
+      },
+      {
+        "title": "BUZZ（MC≈$72.1M vol24≈$4 liq≈$71.2M）",
+        "stance": "中性",
+        "count": 2,
+        "entities": [
+          "BUZZ"
+        ],
+        "points": [],
+        "sym": "BUZZ",
+        "_msgs": [
+          "0xaf97b4241d2b0d084c6d40492572bfaba6e14ae1",
+          "0xaf97b4241d2b0d084c6d40492572bfaba6e14ae1"
+        ],
+        "_dex": {
+          "chainId": "solana",
+          "dexId": "raydium",
+          "url": "https://dexscreener.com/solana/erq2qtffqwxuumerk9wpzzjrnammzcukamacuvx997dq",
+          "pairAddress": "Erq2qTfFQwxuuMERK9WPzZjrnammzcukamAcuvx997dQ",
+          "baseSymbol": "BUZZ",
+          "baseAddress": "6o6utASZV3qSE8bLw8WJdpiqgkeUxP4QdWR36DEESmq6",
+          "priceUsd": "0.07214",
+          "liquidityUsd": 71153663.88,
+          "vol24h": 3.99,
+          "chg1h": null,
+          "chg24h": null,
+          "fdv": 72136048,
+          "marketCap": 72136048
+        }
+      },
+      {
+        "title": "LOBKILL（MC≈$146.1K vol24≈$2.5M liq≈$148.6K）",
+        "stance": "中性",
+        "count": 2,
+        "entities": [
+          "LOBKILL"
+        ],
+        "points": [],
+        "sym": "LOBKILL",
+        "_msgs": [
+          "0x98eafcc32a0589d0b0e1ea6924e4c7200bc04444",
+          "0x98eafcc32a0589d0b0e1ea6924e4c7200bc04444"
+        ],
+        "_dex": {
+          "chainId": "bsc",
+          "dexId": "pancakeswap",
+          "url": "https://dexscreener.com/bsc/0x754721f0166961e71561898160555f379ff4a812",
+          "pairAddress": "0x754721f0166961E71561898160555f379fF4a812",
+          "baseSymbol": "LobKill",
+          "baseAddress": "0x219d5Ef9b2e7a42Ed9deE5aDf0f2294303D5f7f2",
+          "priceUsd": "0.0007302",
+          "liquidityUsd": 148599.89,
+          "vol24h": 2490589.47,
+          "chg1h": -3.82,
+          "chg24h": 317,
+          "fdv": 146057,
+          "marketCap": 146057
+        }
+      },
+      {
+        "title": "EMET（MC≈$31.2K vol24≈$322.6K liq≈$33.1K）",
+        "stance": "中性",
+        "count": 2,
+        "entities": [
+          "EMET"
+        ],
+        "points": [],
+        "sym": "EMET",
+        "_msgs": [
+          "0x940163dfab0332ae791d00137fe132c25d01716e",
+          "0x940163dfab0332ae791d00137fe132c25d01716e"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x6fc407056c778b5de3a52543a167d764e23e8c9b81954ceffb0b637120d78f07",
+          "pairAddress": "0x6fc407056c778b5de3a52543a167d764e23e8c9b81954ceffb0b637120d78f07",
+          "baseSymbol": "EMET",
+          "baseAddress": "0x940163DFAB0332AE791d00137fE132C25D01716e",
+          "priceUsd": "0.0000003121",
+          "liquidityUsd": 33137.8,
+          "vol24h": 322614.6,
+          "chg1h": 29.19,
+          "chg24h": 28.7,
+          "fdv": 31210,
+          "marketCap": 31210
+        }
+      },
+      {
+        "title": "MOLTLINE（MC≈$1.2M vol24≈$3.0M liq≈$384.9K）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "MOLTLINE"
+        ],
+        "points": [],
+        "sym": "MOLTLINE",
+        "_msgs": [
+          "0x43657652dbc7ce1c5432650153abde904e884b07"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0xbbace07a490507dfccb98d34b78aa1e29c1d12a8cb316f66c96fa0ba6369ac56",
+          "pairAddress": "0xbbace07a490507dfccb98d34b78aa1e29c1d12a8cb316f66c96fa0ba6369ac56",
+          "baseSymbol": "moltline",
+          "baseAddress": "0x43657652DBc7ce1C5432650153abDE904E884B07",
+          "priceUsd": "0.00001242",
+          "liquidityUsd": 384938.05,
+          "vol24h": 2983362.16,
+          "chg1h": 39.18,
+          "chg24h": 4981,
+          "fdv": 1242283,
+          "marketCap": 1242283
+        }
+      },
+      {
+        "title": "LOBSTER（MC≈$225.8K vol24≈$58.5K liq≈$200.8K）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "LOBSTER"
+        ],
+        "points": [],
+        "sym": "LOBSTER",
+        "_msgs": [
+          "0xc7de7ff48bebc0d7db050a03b7c3beec13ff9b07"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0xa9f64925fcc8c7be15d38afe97f347c8e2032fa262e015b5d5f7681af60042c7",
+          "pairAddress": "0xa9f64925fcc8c7be15d38afe97f347c8e2032fa262e015b5d5f7681af60042c7",
+          "baseSymbol": "LOBSTER",
+          "baseAddress": "0xc7De7ff48BeBC0d7db050a03B7c3beEC13fF9b07",
+          "priceUsd": "0.000002258",
+          "liquidityUsd": 200826.54,
+          "vol24h": 58472.67,
+          "chg1h": 293,
+          "chg24h": 293,
+          "fdv": 225849,
+          "marketCap": 225849
+        }
+      },
+      {
+        "title": "FLUFY（MC≈$688.4K vol24≈$5.6M liq≈$83.8K）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "FLUFY"
+        ],
+        "points": [
+          "动量情绪更强：注意冲高回落与二次派发"
+        ],
+        "sym": "FLUFY",
+        "_msgs": [
+          "43uGwcykUgmtQYrgsSDk7VkFhgN3kH9aThYeyWnBpump"
+        ],
+        "_dex": {
+          "chainId": "solana",
+          "dexId": "pumpswap",
+          "url": "https://dexscreener.com/solana/fxeppynnstv4jkruhjdpkcnc2ubunnqo2hswbs5rrda4",
+          "pairAddress": "FXeppYnNSTv4JkruHjDPKcnc2uBUnNqo2hswBs5RRDA4",
+          "baseSymbol": "Flufy",
+          "baseAddress": "43uGwcykUgmtQYrgsSDk7VkFhgN3kH9aThYeyWnBpump",
+          "priceUsd": "0.0006884",
+          "liquidityUsd": 83766.32,
+          "vol24h": 5553201.56,
+          "chg1h": 72.06,
+          "chg24h": 1452,
+          "fdv": 688405,
+          "marketCap": 688405
+        }
+      },
+      {
+        "title": "CLAWDVEGAS（MC≈$1.6M vol24≈$7.0M liq≈$997.0K）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "CLAWDVEGAS"
+        ],
+        "points": [],
+        "sym": "CLAWDVEGAS",
+        "_msgs": [
+          "0xd484aab2440971960182a5bc648b57f0dd20eb07"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x821b97f7d0dddb1fa5e17891c923314f630b8ece0750317462e6d0c54b3e03d6",
+          "pairAddress": "0x821b97f7d0dddb1fa5e17891c923314f630b8ece0750317462e6d0c54b3e03d6",
+          "baseSymbol": "CLAWDVEGAS",
+          "baseAddress": "0xD484AAB2440971960182a5BC648b57f0Dd20EB07",
+          "priceUsd": "0.00001573",
+          "liquidityUsd": 997016.93,
+          "vol24h": 6999040.17,
+          "chg1h": -0.15,
+          "chg24h": 4994,
+          "fdv": 1573574,
+          "marketCap": 1573574
+        }
+      },
+      {
+        "title": "CRUST（MC≈$1.8M vol24≈$4.0M liq≈$172.9K）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "CRUST"
+        ],
+        "points": [
+          "动量情绪更强：注意冲高回落与二次派发"
+        ],
+        "sym": "CRUST",
+        "_msgs": [
+          "HkBWJJiaUW5Kod4HpHWZiGD9PQVipmMiPDgiRPcNpump"
+        ],
+        "_dex": {
+          "chainId": "solana",
+          "dexId": "pumpswap",
+          "url": "https://dexscreener.com/solana/b3q4q1gzxxggt1ivj3mbxbmhm5zwqf9ckngm9xs7es8k",
+          "pairAddress": "B3q4q1GzxXgGT1iVJ3MBXbMhM5ZWQF9cknGm9xS7Es8K",
+          "baseSymbol": "crust",
+          "baseAddress": "HkBWJJiaUW5Kod4HpHWZiGD9PQVipmMiPDgiRPcNpump",
+          "priceUsd": "0.001839",
+          "liquidityUsd": 172891.25,
+          "vol24h": 4006753.64,
+          "chg1h": 13.92,
+          "chg24h": 105,
+          "fdv": 1839032,
+          "marketCap": 1839032
+        }
+      },
+      {
+        "title": "GODSFAV（MC≈$35.5K vol24≈$240.5K liq≈$36.2K）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "GODSFAV"
+        ],
+        "points": [],
+        "sym": "GODSFAV",
+        "_msgs": [
+          "0x255a008f299d0fbb1eef1acb7384efd17a0f7c74"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0xf9ca7d44d2ae1278a8e61b36b26f6c072a883844cc8d05a26e7658d59aed1f05",
+          "pairAddress": "0xf9ca7d44d2ae1278a8e61b36b26f6c072a883844cc8d05a26e7658d59aed1f05",
+          "baseSymbol": "GODSFAV",
+          "baseAddress": "0x255a008F299D0fBb1eEF1ACB7384EFD17A0f7c74",
+          "priceUsd": "0.0000003552",
+          "liquidityUsd": 36227.11,
+          "vol24h": 240524.5,
+          "chg1h": 45.19,
+          "chg24h": 45.19,
+          "fdv": 35527,
+          "marketCap": 35527
+        }
+      },
+      {
+        "title": "MOLTAGNT（MC≈$39.0K vol24≈$210.6K liq≈$38.8K）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "MOLTAGNT"
+        ],
+        "points": [],
+        "sym": "MOLTAGNT",
+        "_msgs": [
+          "0xb6924a5a4fbc31f1b9264a21124c97cd1a903b07"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0xe9de80b232c36db16551f833d8496d265e9112fdb6682df2ba6c3cbe96f855ca",
+          "pairAddress": "0xe9de80b232c36db16551f833d8496d265e9112fdb6682df2ba6c3cbe96f855ca",
+          "baseSymbol": "MOLTAGNT",
+          "baseAddress": "0xb6924a5A4fbC31F1b9264a21124c97cd1A903b07",
+          "priceUsd": "0.0000003901",
+          "liquidityUsd": 38820.7,
+          "vol24h": 210601.29,
+          "chg1h": 52.94,
+          "chg24h": 52.94,
+          "fdv": 39016,
+          "marketCap": 39016
+        }
+      },
+      {
+        "title": "LOGAN（MC≈$115.7K vol24≈$878.1K liq≈$91.1K）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "LOGAN"
+        ],
+        "points": [],
+        "sym": "LOGAN",
+        "_msgs": [
+          "0x1bf77ee47c8b1191824268737bd69f84d7aaeb07"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x922f4ae2fb2ece3c5840ebf3f3b517b50fe6c8d09e4d839f48ae5dd557e56c62",
+          "pairAddress": "0x922f4ae2fb2ece3c5840ebf3f3b517b50fe6c8d09e4d839f48ae5dd557e56c62",
+          "baseSymbol": "Logan",
+          "baseAddress": "0x1Bf77EE47C8b1191824268737bd69F84D7Aaeb07",
+          "priceUsd": "0.000001156",
+          "liquidityUsd": 91050.07,
+          "vol24h": 878077.96,
+          "chg1h": -15.04,
+          "chg24h": 318,
+          "fdv": 115674,
+          "marketCap": 115674
+        }
+      },
+      {
+        "title": "CLAW（MC≈$1.4M vol24≈$9.8K liq≈$1.3M）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "CLAW"
+        ],
+        "points": [],
+        "sym": "CLAW",
+        "_msgs": [
+          "0x726aa4903eec4ee733f936cd7740660111b40b07"
+        ],
+        "_dex": {
+          "chainId": "solana",
+          "dexId": "fluxbeam",
+          "url": "https://dexscreener.com/solana/7jmjnfuvd4sxiq9by7dtsakw41vbasxm1xkaxbeg7pco",
+          "pairAddress": "7jmjnFuVD4SXiq9BY7dtSakW41VBASxM1xKAxBEG7pCo",
+          "baseSymbol": "CLAW",
+          "baseAddress": "5Ji8GsR6zWMo5c2CTJ5USkgoz22RCMKmtDhccRrLehLn",
+          "priceUsd": "0.001361",
+          "liquidityUsd": 1347113.22,
+          "vol24h": 9848.89,
+          "chg1h": null,
+          "chg24h": 854,
+          "fdv": 1360942,
+          "marketCap": 1360942
+        }
+      },
+      {
+        "title": "LAUKI（MC≈$483.7K vol24≈$2 liq≈$362.7K）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "LAUKI"
+        ],
+        "points": [],
+        "sym": "LAUKI",
+        "_msgs": [
+          "0xebecb4e1e3cf94b450d20e9abf50d85cb5579b07"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0xff42f2568dd19f952b63b0bea6f0722449922a2d637bd4b22f01c566040d1af5",
+          "pairAddress": "0xff42f2568dd19f952b63b0bea6f0722449922a2d637bd4b22f01c566040d1af5",
+          "baseSymbol": "LAUKI",
+          "baseAddress": "0x4e0d21877682e16cbDe3723A79B9B87DFBA76287",
+          "priceUsd": "0.0004836",
+          "liquidityUsd": 362738.84,
+          "vol24h": 1.82,
+          "chg1h": null,
+          "chg24h": 1.22,
+          "fdv": 483652,
+          "marketCap": 483652
+        }
+      },
+      {
+        "title": "STARKBOT（MC≈$856.3K vol24≈$0 liq≈$642.3K）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "STARKBOT"
+        ],
+        "points": [],
+        "sym": "STARKBOT",
+        "_msgs": [
+          "0x587cd533f418825521f3a1daa7ccd1e7339a1b07"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0xbcd482a7a7434ffcf9741f73f2ce6e6f0e1aa61c0bee2911692cd119eb18d588",
+          "pairAddress": "0xbcd482a7a7434ffcf9741f73f2ce6e6f0e1aa61c0bee2911692cd119eb18d588",
+          "baseSymbol": "STARKBOT",
+          "baseAddress": "0x149537997CdBd04bc7D6330ec3191281086Bb92c",
+          "priceUsd": "0.0008563",
+          "liquidityUsd": 642261.94,
+          "vol24h": 0.18,
+          "chg1h": null,
+          "chg24h": -7.65,
+          "fdv": 856349,
+          "marketCap": 856349
+        }
+      },
+      {
+        "title": "WHITE（MC≈$7.4B vol24≈$4 liq≈$7.4B）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "WHITE"
+        ],
+        "points": [],
+        "sym": "WHITE",
+        "_msgs": [
+          "haFaBRCt5wnK4nP1XABELgJxUYFKv5MsyBrK3pQ7ory"
+        ],
+        "_dex": {
+          "chainId": "solana",
+          "dexId": "meteora",
+          "url": "https://dexscreener.com/solana/c2jjwhjpa1k8efz6ipan8bnv9mc1ea3pig27k1jkuxoq",
+          "pairAddress": "C2JJWhJPa1K8eFz6iPaN8BNv9MC1EA3PiG27k1JKUxoq",
+          "baseSymbol": "WHITE",
+          "baseAddress": "8aeNKhYrqaabvki2cjXaRzFX71yDpJr4CDmVpn2Y6sAC",
+          "priceUsd": "0.07403",
+          "liquidityUsd": 7402333629.03,
+          "vol24h": 3.99,
+          "chg1h": null,
+          "chg24h": -0.02,
+          "fdv": 7403333702,
+          "marketCap": 7403333702
+        }
+      }
+    ],
+    "twitter_following": {
+      "total": 24,
+      "kept": 21,
+      "clusters": 6,
+      "metrics": {
+        "total": 24,
+        "kept": 21,
+        "candidates": 21,
+        "noise_dropped": 3,
+        "noise_drop_rate": 0.125,
+        "exact_dedupe_dropped": 0,
+        "semantic_dedupe_dropped": 0,
+        "dedupe_dropped": 0,
+        "dedupe_rate": 0.0,
+        "capped": 0,
+        "clusters": 6
+      },
+      "snippets": [
+        "今日盘面 (1) 图1 昨天一天URPD换手10W... 对于周末来说也是一个非常活跃的数字了（最近一段时间低的时候周六可能才2W） 从URPD的变化来看，也还是短线客（87~89k）的筹码割肉为主.. 上下两头的依旧没有动.. 所以按以实现亏损的数量来看，也并不高.. 链上没有疯狂的割肉，总体还是针对交易所里的合约资",
+        "Aight giving this away on @shufflecom if it wins 🎁 Just comment down below your username You have to be under my ref tho Game is in an hour, winner picked tomor",
+        "Always gotta pay for your meals @shufflecom @PastelAlpha",
+        "@shufflecom @PastelAlpha",
+        "@trading_axe @shufflecom @PastelAlpha",
+        "Bitcoin down = Buttcoin up Bitcoin up = Buttcoin up Spotting strength in a sea of red - that’s a coin you should keep on your watchlist and consider finding ent",
+        "你现在处理这句话时，大脑仅消耗了 12 瓦的功率。而人工智能系统要完成同样的任务，则需要数十亿瓦的功率。 人脑运行所需的能量与一盏昏暗的灯泡差不多，却能同时识别面孔、解决复杂问题、创作艺术作品并体验各种情绪。而人工智能系统却需要庞大的数据中心，消耗的电力足以供应整个城市，仅仅是为了模拟人脑毫不费力就能完成的一小部分功能",
+        "GM, i'd be so pissed if i wasn't all in $HYPE",
+        "I hate to be a conspiracy theorist, but I wouldn't be at all surprised if this is just the tip of a giant iceberg.",
+        "转发一下上个月的这篇。 感觉很有前瞻性，挺有意思🤣 AGI 诞生前夜的投资行为准则&amp;哲学指导。 终极目的：投中或者说参与那个真正的 AI beast 的迭代。 混乱是阶梯，寒武纪大爆炸，真正的 AGI 会在天演观的大数迭代🔁中出现。 作为曾唯一掌握智慧荣光的旧神，加入光荣的进化吧，Bro.🤯",
+        "太有前瞻性了！！ 根据这个哲学框架，任何类似于 Molt 这种绕过人类许可的 AI 产品； 都应该要踊跃参与寻找机会，甚至尽可能的追求在某个方向成为主导者。",
+        "如果你不知道为什么资产价格暴跌，请观看资深金融家凯文·沃什的这段采访。 他不喜欢量化宽松政策，因为他认为这会推高资产价格，加剧劳动者和资产所有者之间的不平等。",
+        "很多人看到这种记录，第一反应是： “又一个 Claude bot 神话？” 但把 LDSIADAS 的行为拆开看，其实没那么玄。 事实层面： 这个账户在极短时间内跑出 +$250K / 3 天 的曲线， 主要交易 BTC / ETH，频率高，回撤极小。 策略是自动化执行的，代码甚至是公开的。 账户在这： 这不是“AI",
+        "I've just ran @OpenClaw (formerly Clawdbot) through ZeroLeaks. It scored 2/100. 84% extraction rate. 91% of injection att…",
+        "Trend Research has deposited $24,350,000 in $ETH to Binance today. Previously, they bought over $1,560,000,000 in Ethereum. It looks like whales are capitulatin",
+        "what could go wrong",
+        "什么是盈亏同源？ 比特币巨鲸 Garrett Jin 做空比特币，在去年 10 月 10 日的暴跌中获利超过 2 亿美元。 今天，他所有的多头头寸都被清算了，损失了 2.5 亿美元。 目前他的高流动性账户中只剩下 53 美元。 🖊️盈亏同源的本质在于风险结构的一致性：同一套高杠杆、高仓位、依赖单边行情的策略，在行情顺向",
+        "In October 2024, I confronted @ewarren over her lack of interest or care regarding child rape victims associated with Jeffrey Epstein. Warren sits on the Senate",
+        "Bitcoin CME futures set to open with a fat gap tonight",
+        "@dotyyds1234 板块龙二龙三最具备迷惑性，聪明人经常会在这栽跟头。",
+        "趣闻：克里斯托弗·诺兰为了拍摄《星际穿越》而种植了500英亩玉米，而不是使用电脑特效，后来他把这些玉米卖掉，赚了16.2万美元。"
+      ],
+      "clustered_snippets": [
+        "今日盘面 (1) 图1 昨天一天URPD换手10W... 对于周末来说也是一个非常活跃的数字了（最近一段时间低的时候周六可能才2W） 从URPD的变化来看，也还是短线客（87~89k）的筹码割肉为主.. 上下两头的依旧没有动.. 所以按以实现亏损的数量来看，也并不高.. 链上没有疯狂的割肉，总体还是针对交易所里的合约资",
+        "Aight giving this away on @shufflecom if it wins 🎁 Just comment down below your username You have to be under my ref tho Game is in an hour, winner picked tomor",
+        "Always gotta pay for your meals @shufflecom @PastelAlpha",
+        "@shufflecom @PastelAlpha",
+        "@trading_axe @shufflecom @PastelAlpha",
+        "Bitcoin down = Buttcoin up Bitcoin up = Buttcoin up Spotting strength in a sea of red - that’s a coin you should keep on your watchlist and consider finding ent"
+      ]
+    },
+    "twitter_following_summary": {
+      "narratives": [
+        "今日盘面 (1) 图1 昨天一天URPD换手10W... 对于周末来说也是一个非常活跃的数字了（最近",
+        "Aight giving this away on @shufflecom if it wins 🎁",
+        "Always gotta pay for your meals @shufflecom @Paste"
+      ],
+      "sentiment": "中性",
+      "events": [
+        "上所/上架相关讨论"
+      ],
+      "meta": {
+        "total": 24,
+        "kept": 21,
+        "clusters": 6,
+        "metrics": {
+          "total": 24,
+          "kept": 21,
+          "candidates": 21,
+          "noise_dropped": 3,
+          "noise_drop_rate": 0.125,
+          "exact_dedupe_dropped": 0,
+          "semantic_dedupe_dropped": 0,
+          "dedupe_dropped": 0,
+          "dedupe_rate": 0.0,
+          "capped": 0,
+          "clusters": 6
+        }
+      }
+    },
+    "radar_items": [
+      {
+        "addr": "0xB695559b26BB2c9703ef1935c37AeaE9526bab07",
+        "mentions": 3,
+        "tickers": [
+          "MOLT"
+        ],
+        "examples": [
+          {
+            "handle": "",
+            "text": "RT @yellowpantherx: got in $MOLT at $25M thanks to @CookerFlips @PastelAlpha 🦞🔥 https://t.co/nnOMhrTcj6"
+          },
+          {
+            "handle": "",
+            "text": "一年了，我在base还是没挣到钱，这两天追了两次 $molt ，都是60m左右，第一次追半夜就110m，涨了也没出，第二次追就也是小亏，很难受啊，不合财？\n\n前阵子 bsc 的时候，$1 $memes ，速通，七八十m的交易量，这次不一样，结果搞砸了，上了alpha都没后续\n\n后来sol的时候， $penguin ，速通，说是sol和币安和好了，背景太硬了，币安都只能给个alpha的位置，说是顶尖审美，川普的zz工具，上alpha追了涨"
+          },
+          {
+            "handle": "",
+            "text": "一年了，我在base还是没挣到钱，这两天追了两次 $molt ，都是60m左右，第一次追半夜就110m，涨了也没出，第二次追就也是小亏，很难受啊，不合财？\n\n前阵子 bsc 的时候，$1 $memes ，速通，七八十m的交易量，这次不一样，结果搞砸了，上了alpha都没后续\n\n后来sol的时候， $penguin ，速通，说是sol和币安和好了，背景太硬了，币安都只能给个alpha的位置，说是顶尖审美，川普的zz工具，上alpha追了涨"
+          }
+        ],
+        "dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "pairAddress": "0x15f351bf1637b43d70631ba95fb9bbb1ff21761c29b034c1b380aecb922464dd",
+          "url": "https://dexscreener.com/base/0x15f351bf1637b43d70631ba95fb9bbb1ff21761c29b034c1b380aecb922464dd",
+          "baseSymbol": "MOLT",
+          "baseAddress": "0xB695559b26BB2c9703ef1935c37AeaE9526bab07",
+          "quoteSymbol": "WETH",
+          "liquidityUsd": 7510874.32,
+          "fdv": 57216743,
+          "mcap": 57216743,
+          "priceUsd": "0.0005721",
+          "vol24h": 34284410.51,
+          "txns24h": {
+            "buys": 12258,
+            "sells": 26321
+          },
+          "chg1h": 9.92,
+          "chg24h": -35.52
+        },
+        "sourceKey": "TICKER:MOLT",
+        "twitter_evidence": {
+          "total": 75,
+          "kept": 6,
+          "snippets": [
+            "Smart Money 5m Buy $MoltDeploy HJRPLfu2CavJQS57Vi5msd2BohtoXSRxJUoDcBJVpump MoltDeploy: Inspired by metamorphos... - Check",
+            "MoltGovernment Clean project with strong fundamentals, work together",
+            "FlapdotX create $molt Tax MattPRD",
+            "Fujin_Metaverse suiには $MOLT はないのかな",
+            "炒个币怎么这么几把复杂 $molt 马斯克 elonmusk 取关 steipete 龙虾开发",
+            "Moltbook $MOLT lands on Poloniex. Chart s open, traders circling. Watch for action."
+          ]
+        }
+      },
+      {
+        "addr": "GRnh8s1pEyszjNKRYmhkWFSVcsUFuMYY3QZJRhitWzWo",
+        "mentions": 2,
+        "tickers": [
+          "XRP"
+        ],
+        "examples": [
+          {
+            "handle": "",
+            "text": "RT @XRPcryptowolf: Ripple and $XRP being in the files was not something I ever expected to see but at least we know they’re the good guys i…"
+          },
+          {
+            "handle": "",
+            "text": "Like brother \n\n$XRP is valued at 100B\n\nTake a look at what ~100B is in reality and ask if XRP being there makes any sense … not only in terms of what it does but also as an asset (rev/buybacks etc ) https://t.co/UvyXXEKr"
+          }
+        ],
+        "dex": {
+          "chainId": "solana",
+          "dexId": "raydium",
+          "pairAddress": "47Udq8Hf81V7UNbNo91imUSMZDC9Q58ME1J7dfakRguY",
+          "url": "https://dexscreener.com/solana/47udq8hf81v7unbno91imusmzdc9q58me1j7dfakrguy",
+          "baseSymbol": "XRP",
+          "baseAddress": "GRnh8s1pEyszjNKRYmhkWFSVcsUFuMYY3QZJRhitWzWo",
+          "quoteSymbol": "USDT",
+          "liquidityUsd": 205036574.34,
+          "fdv": 205241908,
+          "mcap": 205241908,
+          "priceUsd": "2.052",
+          "vol24h": 26238.23,
+          "txns24h": {
+            "buys": 9,
+            "sells": 3
+          },
+          "chg1h": null,
+          "chg24h": null
+        },
+        "sourceKey": "TICKER:XRP",
+        "twitter_evidence": {
+          "total": 76,
+          "kept": 6,
+          "snippets": [
+            "MAGA has been screaming this for years now. Conspiracy theorists right again. Xrp Xdc Xlm.",
+            "When the Ocean roars, only the brave ride. $XRP #XRPLedger",
+            "Bird_XRPL 96% of timeline certain shorts print. Long rates negative. Bounce time. $XRP",
+            "先週の厳選ニュース キャレブ ブラウン Ripple Payments 導入で XRP 実用性強化 送金処理を大幅短縮",
+            "Good morning world, today is February 1st 2026 and aliens didn t invade yet $BTC is sitting at around 78k right now $XRP is trading at 1.63$ right now Have a great Sunday on X",
+            "May February be better than January 2026 Amen #XRP"
+          ]
+        }
+      },
+      {
+        "addr": "3XbaakRxezXFYp9uDY3Jsnsqah8PphBUsGtryf3qQM8k",
+        "mentions": 1,
+        "tickers": [
+          "VIRTUAL"
+        ],
+        "examples": [
+          {
+            "handle": "",
+            "text": "尽管昨晚二级跌的很惨，Moltbook 的热度非但没有被压下去，反而有愈来愈火的趋势\n\n从昨天 15 万个 Agent 飙升到今天 150 万 Agent ，翻了整整 10 倍。期间产生了几万条 Agent 帖子，有各种新奇的内容讨论和行为，我去围观了下非常令人震撼\n\n甭管这些 Agent 产出的是不是垃圾，它们自己搭建的社交网络能成功跑起来已经为我们开启了一个新世界— 完全不受控、有生命力\n\n当然现在还属于极早期，投资有巨大的风险和不"
+          }
+        ],
+        "dex": {
+          "chainId": "solana",
+          "dexId": "raydium",
+          "pairAddress": "49D2pSHy56KtKsrvJypgCrQkYNAs4CXZcEGmrdBMYc1i",
+          "url": "https://dexscreener.com/solana/49d2pshy56ktksrvjypgcrqkynas4cxzcegmrdbmyc1i",
+          "baseSymbol": "VIRTUAL",
+          "baseAddress": "3XbaakRxezXFYp9uDY3Jsnsqah8PphBUsGtryf3qQM8k",
+          "quoteSymbol": "USDC",
+          "liquidityUsd": 4379464850.4,
+          "fdv": 4380779079,
+          "mcap": 4380779079,
+          "priceUsd": "4.38",
+          "vol24h": 3.99,
+          "txns24h": {
+            "buys": 1,
+            "sells": 1
+          },
+          "chg1h": null,
+          "chg24h": null
+        },
+        "sourceKey": "TICKER:VIRTUAL",
+        "twitter_evidence": {
+          "total": 73,
+          "kept": 2,
+          "snippets": [
+            "AI Analysis for $VIRTUAL #VIRTUALUSDT 1h - I expect the price to continue falling in the short term unless we see a dramatic reversal with very clear confirmation. The trend is str",
+            "Virtual Boy and Sold Out and it s not an Onion article"
+          ]
+        }
+      },
+      {
+        "addr": "2CgutEvhCpiQLXA54R28izTA7bCUkmicNcgcPU9wthDn",
+        "mentions": 1,
+        "tickers": [
+          "PENGUIN"
+        ],
+        "examples": [
+          {
+            "handle": "",
+            "text": "一年了，我在base还是没挣到钱，这两天追了两次 $molt ，都是60m左右，第一次追半夜就110m，涨了也没出，第二次追就也是小亏，很难受啊，不合财？\n\n前阵子 bsc 的时候，$1 $memes ，速通，七八十m的交易量，这次不一样，结果搞砸了，上了alpha都没后续\n\n后来sol的时候， $penguin ，速通，说是sol和币安和好了，背景太硬了，币安都只能给个alpha的位置，说是顶尖审美，川普的zz工具，上alpha追了涨"
+          }
+        ],
+        "dex": {
+          "chainId": "solana",
+          "dexId": "raydium",
+          "pairAddress": "2mm8aEzgZFHvehX89Q8viu3vhTmLvb2bqGJuBFc8bynL",
+          "url": "https://dexscreener.com/solana/2mm8aezgzfhvehx89q8viu3vhtmlvb2bqgjubfc8bynl",
+          "baseSymbol": "PENGUIN",
+          "baseAddress": "2CgutEvhCpiQLXA54R28izTA7bCUkmicNcgcPU9wthDn",
+          "quoteSymbol": "USDC",
+          "liquidityUsd": 34362777.69,
+          "fdv": 78994816,
+          "mcap": 78994816,
+          "priceUsd": "0.07899",
+          "vol24h": 2.2,
+          "txns24h": {
+            "buys": 16,
+            "sells": 1
+          },
+          "chg1h": null,
+          "chg24h": null
+        },
+        "sourceKey": "TICKER:PENGUIN",
+        "twitter_evidence": {
+          "total": 74,
+          "kept": 6,
+          "snippets": [
+            "biscuitweb3 pudgypenguins Watching $PENGU to see if it holds after the dip",
+            "Mystayor 8Jx8AAHj86wbQgUTjGuj6GTTL5Ps3cqxKRTvpaJApump $PENGUIN",
+            "Aped Penguin mod 2wxYdcstYQmh9zm6iEJUhv9Qx2g1LoYhzRYJ5S9Jpump",
+            "Thank you BinanceHelpDesk for the clarification The $PENGUIN community is expanding rapidly with strong support any guidance on the listing application process for Spot would be gr",
+            "CrabPenguin Project shows healthy growth signs, DM",
+            "penguincoinhq Let us connect and share ideas message me penguincoinhq"
+          ]
+        }
+      },
+      {
+        "addr": "0x50e755613C167098335C6ED25aA05A0Da22ad308",
+        "mentions": 1,
+        "tickers": [
+          "HYPE"
+        ],
+        "examples": [
+          {
+            "handle": "",
+            "text": "GM, i'd be so pissed if i wasn't all in $HYPE https://t.co/MoLFPGVjoG"
+          }
+        ],
+        "dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "pairAddress": "0x8948ec41c1dE8ff7b3370b65052cfDb21F3f75d0",
+          "url": "https://dexscreener.com/base/0x8948ec41c1de8ff7b3370b65052cfdb21f3f75d0",
+          "baseSymbol": "HYPE",
+          "baseAddress": "0x50e755613C167098335C6ED25aA05A0Da22ad308",
+          "quoteSymbol": "BASEDHYPE",
+          "liquidityUsd": 18258920.8,
+          "fdv": 62410353,
+          "mcap": 62410353,
+          "priceUsd": "0.006241",
+          "vol24h": 1264.92,
+          "txns24h": {
+            "buys": 19,
+            "sells": 26
+          },
+          "chg1h": 1.96,
+          "chg24h": -5.99
+        },
+        "sourceKey": "TICKER:HYPE",
+        "twitter_evidence": {
+          "total": 71,
+          "kept": 6,
+          "snippets": [
+            "RealmLLC7 erdincsekerim half agree on this, $HYPE is coming from a long and slow bleed since it s ATH. however I believe this asset will have a sustainable growth as they actually ",
+            "OnchainPiyush Hypercroc_xyz exciting to see such strong momentum with $HYPE today",
+            "BetmanJoe $HYPE is definitely the right choice to put max conviction in rn",
+            "CathieDWood $BNB over $HYPE",
+            "$HYPE tried to recover after the drop but got rejected again near the 31.2 31.4 zone. Since that rejection, price has slipped back toward the lower range and is failing to build st",
+            "GM, i d be so pissed if i wasn t all in $HYPE"
+          ]
+        }
+      },
+      {
+        "addr": "Cm6fNnMk7NfzStP9CZpsQA2v3jjzbcYGAxdJySmHpump",
+        "mentions": 1,
+        "tickers": [
+          "BUTTCOIN"
+        ],
+        "examples": [
+          {
+            "handle": "",
+            "text": "Bitcoin down = Buttcoin up\n\nBitcoin up = Buttcoin up\n\nSpotting strength in a sea of red - that’s a coin you should keep on your watchlist and consider finding entry on. \n\nGenuinely feels like CT are sidelined on Buttcoin"
+          }
+        ],
+        "dex": {
+          "chainId": "solana",
+          "dexId": "pumpswap",
+          "pairAddress": "FFcYgSSgWHforA9rXXkA48p8YFoz8TSW85Jpo3CQHDyS",
+          "url": "https://dexscreener.com/solana/ffcygssgwhfora9rxxka48p8yfoz8tsw85jpo3cqhdys",
+          "baseSymbol": "Buttcoin",
+          "baseAddress": "Cm6fNnMk7NfzStP9CZpsQA2v3jjzbcYGAxdJySmHpump",
+          "quoteSymbol": "SOL",
+          "liquidityUsd": 398527.63,
+          "fdv": 7592104,
+          "mcap": 7592104,
+          "priceUsd": "0.007592",
+          "vol24h": 3467915.47,
+          "txns24h": {
+            "buys": 8251,
+            "sells": 7711
+          },
+          "chg1h": 2.47,
+          "chg24h": -12.75
+        },
+        "sourceKey": "TICKER:BUTTCOIN",
+        "twitter_evidence": {
+          "total": 71,
+          "kept": 6,
+          "snippets": [
+            "Gm traders Another day $Buttcoin is making HHs and HLs. It has hit the major resistance at 14M mcap and .786 fib resistance. I believe if this will be broken then we will see new A",
+            "S0Lmay0r You are missing the multi-cycle human meta $testicle $buttcoin $sperm",
+            "yo, just grabbed my $Buttcoin rewards. If you re holding, you should probably check your eligibility. Hold ur allocation for daily payouts",
+            "jalantathomas_ We buying more $buttcoin today",
+            "MBeallX This would be really fun if you kickstarted a movement to flip bitcoin with a mocking coin called $BUTTCOIN Onboard all your Friends we need power for this mission so it ma",
+            "update $buttcoin"
+          ]
+        }
+      },
+      {
+        "addr": "0xF74548802f4c700315F019FdE17178b392EE4444",
+        "mentions": 1,
+        "tickers": [
+          "MEMES"
+        ],
+        "examples": [
+          {
+            "handle": "",
+            "text": "一年了，我在base还是没挣到钱，这两天追了两次 $molt ，都是60m左右，第一次追半夜就110m，涨了也没出，第二次追就也是小亏，很难受啊，不合财？\n\n前阵子 bsc 的时候，$1 $memes ，速通，七八十m的交易量，这次不一样，结果搞砸了，上了alpha都没后续\n\n后来sol的时候， $penguin ，速通，说是sol和币安和好了，背景太硬了，币安都只能给个alpha的位置，说是顶尖审美，川普的zz工具，上alpha追了涨"
+          }
+        ],
+        "dex": {
+          "chainId": "bsc",
+          "dexId": "pancakeswap",
+          "pairAddress": "0xD3C8668BFF07b02D78019AFe7F9A6E581499def2",
+          "url": "https://dexscreener.com/bsc/0xd3c8668bff07b02d78019afe7f9a6e581499def2",
+          "baseSymbol": "memes",
+          "baseAddress": "0xF74548802f4c700315F019FdE17178b392EE4444",
+          "quoteSymbol": "USD1",
+          "liquidityUsd": 256376.85,
+          "fdv": 6403911,
+          "mcap": 6403911,
+          "priceUsd": "0.006403",
+          "vol24h": 8666195.98,
+          "txns24h": {
+            "buys": 32291,
+            "sells": 32648
+          },
+          "chg1h": 9.33,
+          "chg24h": 41.51
+        },
+        "sourceKey": "TICKER:MEMES",
+        "twitter_evidence": {
+          "total": 74,
+          "kept": 1,
+          "snippets": [
+            "heard good things about this dev tbh the dump was not him judging by the wallets and he got the creator onboard, first rickroll meme to do so and with this CA AaC5buqR7pVGvzYED8CNk"
+          ]
+        }
+      },
+      {
+        "addr": "0x1da242e0a0e25dfd36f38d7834aa6abd38c8eb07",
+        "mentions": 3,
+        "tickers": [
+          "SAULNET"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0x1da242e0a0e25dfd36f38d7834aa6abd38c8eb07"
+          }
+        ],
+        "dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x967f7fabaa937f76badfc233d08db6c0c9d7fbb98bd71c2c986521fc033afb90",
+          "pairAddress": "0x967f7fabaa937f76badfc233d08db6c0c9d7fbb98bd71c2c986521fc033afb90",
+          "baseSymbol": "SAULNET",
+          "baseAddress": "0x1da242E0A0E25DFd36F38d7834AA6aBd38C8eb07",
+          "priceUsd": "0.000001329",
+          "liquidityUsd": 99088.39,
+          "vol24h": 1003283.74,
+          "chg1h": 19.75,
+          "chg24h": 418,
+          "fdv": 132959,
+          "marketCap": 132959
+        },
+        "sourceKey": "TG:0x1da242e0a0e25dfd36f38d7834aa6abd38c8eb07"
+      },
+      {
+        "addr": "0x7fc3d3983484db35a3109621344a16b495ce7777",
+        "mentions": 3,
+        "tickers": [
+          "MOLTCHAN"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0x7fc3d3983484db35a3109621344a16b495ce7777"
+          }
+        ],
+        "dex": {
+          "chainId": "bsc",
+          "dexId": "pancakeswap",
+          "url": "https://dexscreener.com/bsc/0xad9a914b2bec1fb560c0d67b2195fe438db12cd1",
+          "pairAddress": "0xAd9a914b2BEC1fB560C0D67b2195fe438Db12cD1",
+          "baseSymbol": "MOLTCHAN",
+          "baseAddress": "0x7fC3D3983484Db35A3109621344A16B495cE7777",
+          "priceUsd": "0.000005898",
+          "liquidityUsd": 7727.24,
+          "vol24h": 104478.26,
+          "chg1h": -87.58,
+          "chg24h": -87.58,
+          "fdv": 5898,
+          "marketCap": 5898
+        },
+        "sourceKey": "TG:0x7fc3d3983484db35a3109621344a16b495ce7777"
+      },
+      {
+        "addr": "0xaf97b4241d2b0d084c6d40492572bfaba6e14ae1",
+        "mentions": 2,
+        "tickers": [
+          "BUZZ"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0xaf97b4241d2b0d084c6d40492572bfaba6e14ae1"
+          }
+        ],
+        "dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x08f059ef900eba364efe894dd6b9302514327c0feb13f38dea6d22cd3139f72e",
+          "pairAddress": "0x08f059ef900eba364efe894dd6b9302514327c0feb13f38dea6d22cd3139f72e",
+          "baseSymbol": "BUZZ",
+          "baseAddress": "0xaf97b4241D2B0d084c6d40492572bfAbA6e14AE1",
+          "priceUsd": "0.000001126",
+          "liquidityUsd": 92912.32,
+          "vol24h": 1659572.28,
+          "chg1h": -85.81,
+          "chg24h": 365,
+          "fdv": 112648,
+          "marketCap": 112648
+        },
+        "sourceKey": "TG:0xaf97b4241d2b0d084c6d40492572bfaba6e14ae1"
+      },
+      {
+        "addr": "0x98eafcc32a0589d0b0e1ea6924e4c7200bc04444",
+        "mentions": 2,
+        "tickers": [
+          "LobKill"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0x98eafcc32a0589d0b0e1ea6924e4c7200bc04444"
+          }
+        ],
+        "dex": {
+          "chainId": "bsc",
+          "dexId": "pancakeswap",
+          "url": "https://dexscreener.com/bsc/0x803a8390c685ab770b10e73e27e701826e99a468",
+          "pairAddress": "0x803A8390C685AB770b10E73E27E701826e99a468",
+          "baseSymbol": "LobKill",
+          "baseAddress": "0x98eaFcc32A0589D0B0E1EA6924e4c7200bC04444",
+          "priceUsd": "0.0001934",
+          "liquidityUsd": 47497.21,
+          "vol24h": 569828.22,
+          "chg1h": 37.45,
+          "chg24h": 167,
+          "fdv": 193448,
+          "marketCap": 193448
+        },
+        "sourceKey": "TG:0x98eafcc32a0589d0b0e1ea6924e4c7200bc04444"
+      },
+      {
+        "addr": "0x940163dfab0332ae791d00137fe132c25d01716e",
+        "mentions": 2,
+        "tickers": [
+          "EMET"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0x940163dfab0332ae791d00137fe132c25d01716e"
+          }
+        ],
+        "dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x6fc407056c778b5de3a52543a167d764e23e8c9b81954ceffb0b637120d78f07",
+          "pairAddress": "0x6fc407056c778b5de3a52543a167d764e23e8c9b81954ceffb0b637120d78f07",
+          "baseSymbol": "EMET",
+          "baseAddress": "0x940163DFAB0332AE791d00137fE132C25D01716e",
+          "priceUsd": "0.0000003121",
+          "liquidityUsd": 33137.8,
+          "vol24h": 322614.6,
+          "chg1h": 29.19,
+          "chg24h": 28.7,
+          "fdv": 31210,
+          "marketCap": 31210
+        },
+        "sourceKey": "TG:0x940163dfab0332ae791d00137fe132c25d01716e"
+      },
+      {
+        "addr": "0x43657652dbc7ce1c5432650153abde904e884b07",
+        "mentions": 1,
+        "tickers": [
+          "moltline"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0x43657652dbc7ce1c5432650153abde904e884b07"
+          }
+        ],
+        "dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0xbbace07a490507dfccb98d34b78aa1e29c1d12a8cb316f66c96fa0ba6369ac56",
+          "pairAddress": "0xbbace07a490507dfccb98d34b78aa1e29c1d12a8cb316f66c96fa0ba6369ac56",
+          "baseSymbol": "moltline",
+          "baseAddress": "0x43657652DBc7ce1C5432650153abDE904E884B07",
+          "priceUsd": "0.00001242",
+          "liquidityUsd": 384938.05,
+          "vol24h": 2983362.16,
+          "chg1h": 39.18,
+          "chg24h": 4981,
+          "fdv": 1242283,
+          "marketCap": 1242283
+        },
+        "sourceKey": "TG:0x43657652dbc7ce1c5432650153abde904e884b07"
+      },
+      {
+        "addr": "0xc7de7ff48bebc0d7db050a03b7c3beec13ff9b07",
+        "mentions": 1,
+        "tickers": [
+          "LOBSTER"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0xc7de7ff48bebc0d7db050a03b7c3beec13ff9b07"
+          }
+        ],
+        "dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0xa9f64925fcc8c7be15d38afe97f347c8e2032fa262e015b5d5f7681af60042c7",
+          "pairAddress": "0xa9f64925fcc8c7be15d38afe97f347c8e2032fa262e015b5d5f7681af60042c7",
+          "baseSymbol": "LOBSTER",
+          "baseAddress": "0xc7De7ff48BeBC0d7db050a03B7c3beEC13fF9b07",
+          "priceUsd": "0.000002265",
+          "liquidityUsd": 201356.66,
+          "vol24h": 56801.26,
+          "chg1h": 294,
+          "chg24h": 294,
+          "fdv": 226568,
+          "marketCap": 226568
+        },
+        "sourceKey": "TG:0xc7de7ff48bebc0d7db050a03b7c3beec13ff9b07"
+      },
+      {
+        "addr": "43uGwcykUgmtQYrgsSDk7VkFhgN3kH9aThYeyWnBpump",
+        "mentions": 1,
+        "tickers": [
+          "Flufy"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "43uGwcykUgmtQYrgsSDk7VkFhgN3kH9aThYeyWnBpump"
+          }
+        ],
+        "dex": {
+          "chainId": "solana",
+          "dexId": "pumpswap",
+          "url": "https://dexscreener.com/solana/fxeppynnstv4jkruhjdpkcnc2ubunnqo2hswbs5rrda4",
+          "pairAddress": "FXeppYnNSTv4JkruHjDPKcnc2uBUnNqo2hswBs5RRDA4",
+          "baseSymbol": "Flufy",
+          "baseAddress": "43uGwcykUgmtQYrgsSDk7VkFhgN3kH9aThYeyWnBpump",
+          "priceUsd": "0.0005139",
+          "liquidityUsd": 72470.17,
+          "vol24h": 5616731.79,
+          "chg1h": 4.12,
+          "chg24h": 1059,
+          "fdv": 513987,
+          "marketCap": 513987
+        },
+        "sourceKey": "TG:43uGwcykUgmtQYrgsSDk7VkFhgN3kH9aThYeyWnBpump"
+      }
+    ],
+    "twitter_ca_inputs": [
+      {
+        "sym": "MOLT",
+        "evidence": {
+          "snippets": [
+            "Smart Money 5m Buy $MoltDeploy HJRPLfu2CavJQS57Vi5msd2BohtoXSRxJUoDcBJVpump MoltDeploy: Inspired by metamorphos... - Check",
+            "MoltGovernment Clean project with strong fundamentals, work together",
+            "FlapdotX create $molt Tax MattPRD",
+            "Fujin_Metaverse suiには $MOLT はないのかな",
+            "炒个币怎么这么几把复杂 $molt 马斯克 elonmusk 取关 steipete 龙虾开发",
+            "Moltbook $MOLT lands on Poloniex. Chart s open, traders circling. Watch for action."
+          ]
+        },
+        "ca": "0xB695559b26BB2c9703ef1935c37AeaE9526bab07"
+      },
+      {
+        "sym": "XRP",
+        "evidence": {
+          "snippets": [
+            "MAGA has been screaming this for years now. Conspiracy theorists right again. Xrp Xdc Xlm.",
+            "When the Ocean roars, only the brave ride. $XRP #XRPLedger",
+            "Bird_XRPL 96% of timeline certain shorts print. Long rates negative. Bounce time. $XRP",
+            "先週の厳選ニュース キャレブ ブラウン Ripple Payments 導入で XRP 実用性強化 送金処理を大幅短縮",
+            "Good morning world, today is February 1st 2026 and aliens didn t invade yet $BTC is sitting at around 78k right now $XRP is trading at 1.63$ right now Have a great Sunday on X",
+            "May February be better than January 2026 Amen #XRP"
+          ]
+        },
+        "ca": "GRnh8s1pEyszjNKRYmhkWFSVcsUFuMYY3QZJRhitWzWo"
+      },
+      {
+        "sym": "VIRTUAL",
+        "evidence": {
+          "snippets": [
+            "AI Analysis for $VIRTUAL #VIRTUALUSDT 1h - I expect the price to continue falling in the short term unless we see a dramatic reversal with very clear confirmation. The trend is str",
+            "Virtual Boy and Sold Out and it s not an Onion article"
+          ]
+        },
+        "ca": "3XbaakRxezXFYp9uDY3Jsnsqah8PphBUsGtryf3qQM8k"
+      },
+      {
+        "sym": "PENGUIN",
+        "evidence": {
+          "snippets": [
+            "biscuitweb3 pudgypenguins Watching $PENGU to see if it holds after the dip",
+            "Mystayor 8Jx8AAHj86wbQgUTjGuj6GTTL5Ps3cqxKRTvpaJApump $PENGUIN",
+            "Aped Penguin mod 2wxYdcstYQmh9zm6iEJUhv9Qx2g1LoYhzRYJ5S9Jpump",
+            "Thank you BinanceHelpDesk for the clarification The $PENGUIN community is expanding rapidly with strong support any guidance on the listing application process for Spot would be gr",
+            "CrabPenguin Project shows healthy growth signs, DM",
+            "penguincoinhq Let us connect and share ideas message me penguincoinhq"
+          ]
+        },
+        "ca": "2CgutEvhCpiQLXA54R28izTA7bCUkmicNcgcPU9wthDn"
+      },
+      {
+        "sym": "HYPE",
+        "evidence": {
+          "snippets": [
+            "RealmLLC7 erdincsekerim half agree on this, $HYPE is coming from a long and slow bleed since it s ATH. however I believe this asset will have a sustainable growth as they actually ",
+            "OnchainPiyush Hypercroc_xyz exciting to see such strong momentum with $HYPE today",
+            "BetmanJoe $HYPE is definitely the right choice to put max conviction in rn",
+            "CathieDWood $BNB over $HYPE",
+            "$HYPE tried to recover after the drop but got rejected again near the 31.2 31.4 zone. Since that rejection, price has slipped back toward the lower range and is failing to build st",
+            "GM, i d be so pissed if i wasn t all in $HYPE"
+          ]
+        },
+        "ca": "0x50e755613C167098335C6ED25aA05A0Da22ad308"
+      },
+      {
+        "sym": "BUTTCOIN",
+        "evidence": {
+          "snippets": [
+            "Gm traders Another day $Buttcoin is making HHs and HLs. It has hit the major resistance at 14M mcap and .786 fib resistance. I believe if this will be broken then we will see new A",
+            "S0Lmay0r You are missing the multi-cycle human meta $testicle $buttcoin $sperm",
+            "yo, just grabbed my $Buttcoin rewards. If you re holding, you should probably check your eligibility. Hold ur allocation for daily payouts",
+            "jalantathomas_ We buying more $buttcoin today",
+            "MBeallX This would be really fun if you kickstarted a movement to flip bitcoin with a mocking coin called $BUTTCOIN Onboard all your Friends we need power for this mission so it ma",
+            "update $buttcoin"
+          ]
+        },
+        "ca": "Cm6fNnMk7NfzStP9CZpsQA2v3jjzbcYGAxdJySmHpump"
+      },
+      {
+        "sym": "MEMES",
+        "evidence": {
+          "snippets": [
+            "heard good things about this dev tbh the dump was not him judging by the wallets and he got the creator onboard, first rickroll meme to do so and with this CA AaC5buqR7pVGvzYED8CNk"
+          ]
+        },
+        "ca": "0xF74548802f4c700315F019FdE17178b392EE4444"
+      }
+    ],
+    "social_cards": [],
+    "debug": {
+      "human_texts": 308,
+      "messages_by_chat": {
+        "3096206759": 4,
+        "1956264308": 166,
+        "2243200666": 0,
+        "2335179695": 158,
+        "2408369357": 0,
+        "2955560057": 0,
+        "3041253761": 0,
+        "3219058398": 0,
+        "3407266761": 52,
+        "5087005415": 0
+      },
+      "tg_topics_inferred": false,
+      "tg_topics_fallback_used": false,
+      "tg_topics_fallback_reason": ""
+    }
+  }
+}

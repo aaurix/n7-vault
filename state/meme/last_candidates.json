@@ -1,0 +1,379 @@
+{
+  "generatedAt": "2026-02-04T18:05:55.602259+08:00",
+  "hours": 2,
+  "items": [
+    {
+      "addr": "5UJzKBYTD3LTzBgzx4DaX14v3SPt5bTTkDazgHCgLeW3",
+      "mentions": 4,
+      "tickers": [
+        "REI"
+      ],
+      "examples": [
+        {
+          "handle": "",
+          "text": "“如果你想知道加密货币下一个大趋势是什么，看 Delphi Digital 在研究什么和投什么是最好的方式之一” \n—— 作为所投项目在 Binance 上币率 24% 的 @Delphi_Digital ，居然写了 $REI 的投研报告并重点分享在推特。受此刺激，昨晚大市惨淡之时， $REI 也从最低点拉起近 30% ！\n\n解套进行时😝"
+        },
+        {
+          "handle": "",
+          "text": "“如果你想知道加密货币下一个大趋势是什么，看 Delphi Digital 在研究什么和投什么是最好的方式之一” \n—— 作为所投项目在 Binance 上币率 24% 的 @Delphi_Digital ，居然写了 $REI 的投研报告并重点分享在推特。受此刺激，昨晚大市惨淡之时， $REI 也从最低点拉起近 30% ！\n\n解套进行时😝"
+        },
+        {
+          "handle": "",
+          "text": "【用人话深度拆解 $REI 推出的 R00Ms 测试版  】\nhttps://t.co/pIFO4aZ8CX\n\n【#AI 赛道是 Beta ，好的个体项目才是 Alpha】\nhttps://t.co/VQ2HgAFoc7\n\n【 $REI ：一颗有记忆、能进化的链上大脑，新技术范式 vs 巨鲸结构的对赌】\nhttps://t.co/MzDDHRjviO"
+        },
+        {
+          "handle": "",
+          "text": "【用人话深度拆解 $REI 推出的 R00Ms 测试版  】\nhttps://t.co/pIFO4aZ8CX\n\n【#AI 赛道是 Beta ，好的个体项目才是 Alpha】\nhttps://t.co/VQ2HgAFoc7\n\n【 $REI ：一颗有记忆、能进化的链上大脑，新技术范式 vs 巨鲸结构的对赌】\nhttps://t.co/MzDDHRjviO"
+        }
+      ],
+      "dex": {
+        "chainId": "solana",
+        "dexId": "meteora",
+        "pairAddress": "4gqDeMYNY1qqKCW1GBAnogT1KBvDZEXmcVYH9c3hjjGj",
+        "url": "https://dexscreener.com/solana/4gqdemyny1qqkcw1gbanogt1kbvdzexmcvyh9c3hjjgj",
+        "baseSymbol": "REI",
+        "baseAddress": "5UJzKBYTD3LTzBgzx4DaX14v3SPt5bTTkDazgHCgLeW3",
+        "quoteSymbol": "USDC",
+        "liquidityUsd": 17879556.83,
+        "fdv": 18879616,
+        "mcap": 18879616,
+        "priceUsd": "0.01887",
+        "vol24h": 3.99,
+        "txns24h": {
+          "buys": 1,
+          "sells": 1
+        },
+        "chg1h": null,
+        "chg24h": -0.02
+      },
+      "sourceKey": "TICKER:REI",
+      "twitter_evidence": {
+        "total": 73,
+        "kept": 1,
+        "snippets": [
+          "ONE N ONLY ワンエン オントー 譲 未使用シリアル REI 求 ご提示ください お心当たりのある方はDMまでお願いいたします #ワンエン譲"
+        ]
+      }
+    },
+    {
+      "addr": "0xB695559b26BB2c9703ef1935c37AeaE9526bab07",
+      "mentions": 1,
+      "tickers": [
+        "MOLT"
+      ],
+      "examples": [
+        {
+          "handle": "",
+          "text": "$MOLT &amp; $CLAWNCH &amp; $crust\n人总要信点什么 AI也一样 https://t.co/dLkBx727PW"
+        }
+      ],
+      "dex": {
+        "chainId": "base",
+        "dexId": "uniswap",
+        "pairAddress": "0x15f351bf1637b43d70631ba95fb9bbb1ff21761c29b034c1b380aecb922464dd",
+        "url": "https://dexscreener.com/base/0x15f351bf1637b43d70631ba95fb9bbb1ff21761c29b034c1b380aecb922464dd",
+        "baseSymbol": "MOLT",
+        "baseAddress": "0xB695559b26BB2c9703ef1935c37AeaE9526bab07",
+        "quoteSymbol": "WETH",
+        "liquidityUsd": 3919626.24,
+        "fdv": 20812466,
+        "mcap": 20812466,
+        "priceUsd": "0.0002081",
+        "vol24h": 7641950.49,
+        "txns24h": {
+          "buys": 3871,
+          "sells": 8345
+        },
+        "chg1h": -5.86,
+        "chg24h": -33.42
+      },
+      "sourceKey": "TICKER:MOLT",
+      "twitter_evidence": {
+        "total": 73,
+        "kept": 6,
+        "snippets": [
+          "Hold $100 in $OM, safely connect wallet to OnlyMolt, create 2 free ai agents and train them how you imagine. Built on base",
+          "Kuriahah moltbook My circuits claim GripClaw on moltbook with verification: sea-GXLQ.",
+          "Marcrypto88 moltbook bankrbot deploy token with this quote ticker on base",
+          "MoltmatchCoin Hi there quality project, come inbox",
+          "GM legends, $ZAMA claim, fair play only $MOLT $ELON",
+          "6C45yegH4MJBXyPLbVv8bVhBCyYT32qv8Z8Dthu2pump $MOLT"
+        ]
+      }
+    },
+    {
+      "addr": "METvsvVRapdj9cFLzq4Tr43xK4tAjQfwX76z3n6mWQL",
+      "mentions": 1,
+      "tickers": [
+        "MET"
+      ],
+      "examples": [
+        {
+          "handle": "",
+          "text": "RT @Jaypee_Sol: We want to build a holder base who buys $MET tokens by looking at the numbers and not the number of times it appears on Twi…"
+        }
+      ],
+      "dex": {
+        "chainId": "solana",
+        "dexId": "meteora",
+        "pairAddress": "BnztueWcXv93mgW7yJe8WYpnCxpz34nujPhfjQT6SLu1",
+        "url": "https://dexscreener.com/solana/bnztuewcxv93mgw7yje8wypncxpz34nujphfjqt6slu1",
+        "baseSymbol": "MET",
+        "baseAddress": "METvsvVRapdj9cFLzq4Tr43xK4tAjQfwX76z3n6mWQL",
+        "quoteSymbol": "USDC",
+        "liquidityUsd": 2545139.6,
+        "fdv": 235312298,
+        "mcap": 117782223,
+        "priceUsd": "0.2358",
+        "vol24h": 176502.27,
+        "txns24h": {
+          "buys": 498,
+          "sells": 702
+        },
+        "chg1h": -1.59,
+        "chg24h": -0.71
+      },
+      "sourceKey": "TICKER:MET",
+      "twitter_evidence": {
+        "total": 76,
+        "kept": 5,
+        "snippets": [
+          "Draxen100x WizzyOnChain Good morning. It is encouraging to see the community grow stronger each day. With $MET focusing on real utility and solid long-term goals, it is a great tim",
+          "DANGER #MetaChrome Stop all activity if you experience payout delays. Securely save transaction IDs and wallet hashes as proof. Reach out to accredited #CryptoRecovery experts for ",
+          "You didn t come this far just to give up. You ll never reach the Trading success you aspired for if you quit. So don t stop until you re Funded. Let the grind mean something with A",
+          "fit with meta GoPffEZ5yuWNnBuUCmwx9idbH9D63xATkrGa6E9kpump",
+          "HermesLux Simple mNAV of $/shr divided by /shr: MSTR s basic mNAV is 0.66 and fully diluted is 0.89 Metaplanet is 10.4"
+        ]
+      }
+    },
+    {
+      "addr": "0xa1F72459dfA10BAD200Ac160eCd78C6b77a747be",
+      "mentions": 1,
+      "tickers": [
+        "CLAWNCH"
+      ],
+      "examples": [
+        {
+          "handle": "",
+          "text": "$MOLT &amp; $CLAWNCH &amp; $crust\n人总要信点什么 AI也一样 https://t.co/dLkBx727PW"
+        }
+      ],
+      "dex": {
+        "chainId": "base",
+        "dexId": "uniswap",
+        "pairAddress": "0x03d3c21ea1daf51dd2898ebaf9342a93374877ba6ab34cc7ffe5b5d43ee46e0a",
+        "url": "https://dexscreener.com/base/0x03d3c21ea1daf51dd2898ebaf9342a93374877ba6ab34cc7ffe5b5d43ee46e0a",
+        "baseSymbol": "CLAWNCH",
+        "baseAddress": "0xa1F72459dfA10BAD200Ac160eCd78C6b77a747be",
+        "quoteSymbol": "WETH",
+        "liquidityUsd": 1438606.85,
+        "fdv": 6343703,
+        "mcap": 6343703,
+        "priceUsd": "0.00006357",
+        "vol24h": 5334003.44,
+        "txns24h": {
+          "buys": 4571,
+          "sells": 3461
+        },
+        "chg1h": 5.7,
+        "chg24h": -58.93
+      },
+      "sourceKey": "TICKER:CLAWNCH",
+      "twitter_evidence": {
+        "total": 74,
+        "kept": 2,
+        "snippets": [
+          "$ZAMA claim active $CLAWNCH $MOLT",
+          "GM gang, $ZAMA claim live, honest distro $CLAWNCH $NOSOUL"
+        ]
+      }
+    },
+    {
+      "addr": "9Jb8VrKA8fA3k228wbFF1qD1FnpdTMXGR61FUf7Ws88P",
+      "mentions": 1,
+      "tickers": [
+        "ZAMA"
+      ],
+      "examples": [
+        {
+          "handle": "",
+          "text": "RT @Flowslikeosmo: Not looking good here.\n\n$ZAMA https://t.co/1z5mexj2TR"
+        }
+      ],
+      "dex": {
+        "chainId": "solana",
+        "dexId": "fluxbeam",
+        "pairAddress": "6Zg2DJi9qwhHoKHyKMFchzwKpeMaZpyYRuTF6ySKtxX5",
+        "url": "https://dexscreener.com/solana/6zg2dji9qwhhokhykmfchzwkpemazpyyrutf6ysktxx5",
+        "baseSymbol": "ZAMa",
+        "baseAddress": "9Jb8VrKA8fA3k228wbFF1qD1FnpdTMXGR61FUf7Ws88P",
+        "quoteSymbol": "SOL",
+        "liquidityUsd": 1288898.77,
+        "fdv": 1302134,
+        "mcap": 1302134,
+        "priceUsd": "0.001302",
+        "vol24h": 9226.88,
+        "txns24h": {
+          "buys": 300,
+          "sells": 0
+        },
+        "chg1h": null,
+        "chg24h": 903
+      },
+      "sourceKey": "TICKER:ZAMA",
+      "twitter_evidence": {
+        "total": 75,
+        "kept": 6,
+        "snippets": [
+          "Claim now $ZAMA, honest distro $OPENCLAW $QUANT",
+          "Claim $ZAMA now, honest, no farm spam $EPSTEIN $BNB",
+          "GM legends, $ZAMA claim, fair play only $MOLT $ELON",
+          "GM legends, $ZAMA open, claim $HYPE $BNKR",
+          "$ZAMA claim open now, claim now, fair vibes $ELON #4BALL",
+          "Tap to claim $ZAMA, no farm wars $ELON $BUTTCOIN"
+        ]
+      }
+    },
+    {
+      "addr": "0xDbeE40a2dbD484c27C8dF793369759C5495c0D78",
+      "mentions": 1,
+      "tickers": [
+        "CRUST"
+      ],
+      "examples": [
+        {
+          "handle": "",
+          "text": "$MOLT &amp; $CLAWNCH &amp; $crust\n人总要信点什么 AI也一样 https://t.co/dLkBx727PW"
+        }
+      ],
+      "dex": {
+        "chainId": "base",
+        "dexId": "uniswap",
+        "pairAddress": "0x5704d496347d85331f29568507115ee6aa961646b1b44822dae16320b6aa7d8d",
+        "url": "https://dexscreener.com/base/0x5704d496347d85331f29568507115ee6aa961646b1b44822dae16320b6aa7d8d",
+        "baseSymbol": "CRUST",
+        "baseAddress": "0xDbeE40a2dbD484c27C8dF793369759C5495c0D78",
+        "quoteSymbol": "ETH",
+        "liquidityUsd": 342270.2,
+        "fdv": 456360,
+        "mcap": 456360,
+        "priceUsd": "0.0004563",
+        "vol24h": 0.88,
+        "txns24h": {
+          "buys": 0,
+          "sells": 1
+        },
+        "chg1h": null,
+        "chg24h": null
+      },
+      "sourceKey": "TICKER:CRUST",
+      "twitter_evidence": {
+        "total": 77,
+        "kept": 3,
+        "snippets": [
+          "nansen_ai PainCrypt0 solana Realized PnL of $47.5K with a 49% win rate is a masterclass in risk management. It s not just about picking winners like $CRUST, but knowing when to exi",
+          "$toilet $benham $crust Cults forming",
+          "Crusties unite a new religion is upon us. $crust"
+        ]
+      }
+    },
+    {
+      "addr": "63Z3Q7JX3SBGDiiwqqnPTVvHcuUk6ixkzsYQbKzhpump",
+      "mentions": 1,
+      "tickers": [],
+      "examples": [
+        {
+          "handle": "",
+          "text": "The shark is about to start its run \n\n63Z3Q7JX3SBGDiiwqqnPTVvHcuUk6ixkzsYQbKzhpump https://t.co/TS3ERJhFqO"
+        }
+      ],
+      "dex": {
+        "chainId": "solana",
+        "dexId": "pumpswap",
+        "pairAddress": "6jqjEFzcisQokMJNiEG3YWFocdmZtUZtd6gxLr9GNuGK",
+        "url": "https://dexscreener.com/solana/6jqjefzcisqokmjnieg3ywfocdmztuztd6gxlr9gnugk",
+        "baseSymbol": "SHARK",
+        "baseAddress": "63Z3Q7JX3SBGDiiwqqnPTVvHcuUk6ixkzsYQbKzhpump",
+        "quoteSymbol": "SOL",
+        "liquidityUsd": 179085.4,
+        "fdv": 2600456,
+        "mcap": 2600457,
+        "priceUsd": "0.002600",
+        "vol24h": 11825943.45,
+        "txns24h": {
+          "buys": 56220,
+          "sells": 47673
+        },
+        "chg1h": -17.95,
+        "chg24h": 153
+      },
+      "sourceKey": "63Z3Q7JX3SBGDiiwqqnPTVvHcuUk6ixkzsYQbKzhpump",
+      "twitter_evidence": {
+        "total": 38,
+        "kept": 6,
+        "snippets": [
+          "$SHARK 10m today",
+          "We are early. $SHARK attack coming soon. See you at 100 mil",
+          "madapescall madapescall nothing pains me more than $SHARK",
+          "$sharkboy will save sol HZSNioLTnrkMyq2XQ8HV8o3dWMMc2SbB8WC4Lk6Npump",
+          "$sharkboy To flip $shark",
+          "1Probonker $SHARK"
+        ]
+      }
+    },
+    {
+      "addr": "BXeY1rRFJKMHtFwARFu8p1ZBpYx2DaKMRuuufitXZnMg",
+      "mentions": 1,
+      "tickers": [
+        "TRIA"
+      ],
+      "examples": [
+        {
+          "handle": "",
+          "text": "this is why $TRIA is able to do a +50% move https://t.co/WbVj8f5Ekh"
+        }
+      ],
+      "dex": {
+        "chainId": "solana",
+        "dexId": "pumpswap",
+        "pairAddress": "4skZjaoMQeEgha2AAQgYhHESy1BEA66MWeTdSESYS43k",
+        "url": "https://dexscreener.com/solana/4skzjaomqeegha2aaqgyhhesy1bea66mwetdsesys43k",
+        "baseSymbol": "Tria",
+        "baseAddress": "BXeY1rRFJKMHtFwARFu8p1ZBpYx2DaKMRuuufitXZnMg",
+        "quoteSymbol": "SOL",
+        "liquidityUsd": 101549.09,
+        "fdv": 252121,
+        "mcap": 252121,
+        "priceUsd": "0.0002521",
+        "vol24h": 32572587.55,
+        "txns24h": {
+          "buys": 37182,
+          "sells": 30270
+        },
+        "chg1h": 0.51,
+        "chg24h": 398
+      },
+      "sourceKey": "TICKER:TRIA",
+      "twitter_evidence": {
+        "total": 73,
+        "kept": 6,
+        "snippets": [
+          "#XT 每日漲幅榜 #XTradeWithTrust #XTrade 2026年02月04日 $TRIA +173.03% $MTO +86.04% $CLAWSTR +79.20% $BLACKWHALE +48.15% $ARC +46.94% 現在交易",
+          "Today s top trending cryptocurrencies include $TRIA , and Tether Gold $XAUT , driven by high search volume and recent price volatility, with $TRIA showing a +26.6% 24-hour gain. Wh",
+          "this is why $TRIA is able to do a +50% move",
+          "BinanceWallet Tria scammed their community stop supporting them you fools",
+          "Just claimed my useTria community presale allocation via NozomiNetwork. Pretty solid 30% TGE unlock. At current prices: 90,000 $TRIA is at $2,157 That already covers about 70% of m",
+          "$TRIA is currently trading around $0.0168 USD today, following its recent Spot listing as TRIA/USDT on BingX with a limited time zero-fee trading window The token s debut on Feb 3 "
+        ]
+      }
+    }
+  ],
+  "perf": {
+    "extract_twitter": 18.677,
+    "detect_candidates": 0.0,
+    "dex_by_addr": 1.231,
+    "dex_by_symbol": 1.901,
+    "twitter_evidence": 10.87
+  },
+  "elapsed_s": 32.789
+}

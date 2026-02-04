@@ -1,0 +1,1549 @@
+{
+  "since": "2026-02-01T13:07:57Z",
+  "until": "2026-02-01T14:07:57Z",
+  "hourKey": "2026-02-01 22:00",
+  "use_llm": true,
+  "perf": {
+    "prepare_health_check": 0.013,
+    "prepare_meme_spawn": 0.001,
+    "tg_fetch_and_replay": 5.675,
+    "prepare_tg_fetch": 5.675,
+    "viewpoint_threads_msgs_in": 447.0,
+    "human_texts": 0.002,
+    "prepare_human_texts": 0.002,
+    "twitter_following": 11.552,
+    "prepare_twitter_following": 11.552,
+    "oi_items": 28.041,
+    "prepare_oi_items": 28.041,
+    "oi_plans": 52.489,
+    "prepare_oi_plans": 52.49,
+    "viewpoint_threads_extract": 25.495,
+    "viewpoint_threads": 25.495,
+    "prepare_viewpoint_threads": 25.495,
+    "tg_topics_candidates": 17.0,
+    "tg_topics_fallback_used": 1.0,
+    "tg_topics_pipeline": 7.18,
+    "prepare_tg_topics": 7.18,
+    "meme_radar": 0.001,
+    "prepare_meme_wait": 0.001,
+    "tg_addr_to_radar": 4.984,
+    "prepare_tg_addr_merge": 4.984,
+    "social_cards_twitter": 0.0,
+    "social_cards_tg": 0.0,
+    "social_cards": 0.0,
+    "prepare_social_cards": 0.0,
+    "prepare_perp_dash_inputs": 0.0,
+    "prepare_total": 123.897
+  },
+  "errors": [],
+  "prepared": {
+    "oi_lines": [
+      "- ARKUSDT 现价0.2478；24h价+10.2%；24h OI+81.4%",
+      "- AVAAIUSDT 现价0.00983；24h价+26.5%；24h OI+42.7%",
+      "- RIVERUSDT 现价18.81；24h价-39.1%；24h OI+31.5%",
+      "- ZORAUSDT 现价0.02898；24h价+28.4%；24h OI+238.7%",
+      "- HYPEUSDT 现价29.56；24h价+0.8%；24h OI+4.1%"
+    ],
+    "oi_items": [
+      {
+        "symbol": "ARKUSDT",
+        "price_now": 0.2478,
+        "price_1h": 0.8957654723126953,
+        "price_4h": 10.892857142857144,
+        "price_24h": 10.231316725978644,
+        "vol_1h": 3761284.0,
+        "vol_ratio": 1.0282997311222513,
+        "oi_now": 9099235.0,
+        "oi_1h": 90.1315638235042,
+        "oi_4h": -2.1253939787683267,
+        "oi_24h": 81.38425099825497,
+        "oi_signal": 39.9,
+        "p1h": 14.8,
+        "p24h": 11.0,
+        "flow": "增仓跟涨",
+        "kline_1h": {
+          "symbol": "ARKUSDT",
+          "interval": "1h",
+          "lookback": 120,
+          "chg_pct": -3.281250000000007,
+          "range": {
+            "lo": 0.2029,
+            "hi": 0.266,
+            "pos": 0.7083993660855781,
+            "loc": "位于区间中部"
+          },
+          "last": 0.2476,
+          "atr14": 0.00807857142857143,
+          "swing": {
+            "hi": 0.266,
+            "lo": 0.2127
+          },
+          "ema20": 0.2283242726771754,
+          "ema20_slope_pct": 0.8966268359322791,
+          "rsi14": 78.43551797040166,
+          "volume": {
+            "last": 3766665.0,
+            "ma20": 3663003.0,
+            "ratio": 1.0282997311222513
+          }
+        },
+        "kline_4h": {
+          "symbol": "ARKUSDT",
+          "interval": "4h",
+          "lookback": 80,
+          "chg_pct": -5.35168195718655,
+          "range": {
+            "lo": 0.2029,
+            "hi": 0.266,
+            "pos": 0.7083993660855781,
+            "loc": "位于区间中部"
+          },
+          "last": 0.2476,
+          "atr14": 0.012214285714285717,
+          "swing": {
+            "hi": 0.266,
+            "lo": 0.2029
+          },
+          "ema20": 0.23459777380505645,
+          "ema20_slope_pct": 0.5868286937051834,
+          "rsi14": 61.4987080103359,
+          "volume": {
+            "last": 58478771.0,
+            "ma20": 5034481.85,
+            "ratio": 11.615648390906406
+          }
+        },
+        "twitter": {
+          "total": 79,
+          "kept": 8,
+          "snippets": [
+            "#Cryptocurrency #ARKUSDT Short Entry Targets: 0.255100 TP: 1) 0.249998 2) 0.247498 3) 0.245023 4) 0.242573 5) 0.240147 6) 0.220935 7) 0.203260 8) 0.187000 9) 0.164560 0.082280 SL: ",
+            "Your Vision, Your Market Your Voice, Your Choice",
+            "Top gainer: #Ark #ARK $ARK increased by 39.85% in 1h Create your ARK #crypto alert:",
+            "Today Something is different And the market knows it before we do. $LUNC $USTC $LUNA",
+            "黒ひよこ #KuroHiyo23 ことぴよぴよから ARK鯖招待いただきました こっちのARKは初見だから楽しみ",
+            "That s where the Ark comes in $WKC $Ocicat",
+            "AI Analysis for $ARK #ARKUSDT 1h - After the strong bullish impulse and all indicators turning bullish, I expect ARKUSDT to RISE in the short term. - Most likely scenario: a pullba",
+            "そういえばここ最近やってるゲーム ARC Raiders ARK Survival Ascended アークナイツ:エンドフィールド どいつもこいつもアークで草"
+          ]
+        },
+        "twitter_summary": {
+          "total": 79,
+          "kept": 8,
+          "bull_points": [],
+          "bear_points": [
+            "#Cryptocurrency #ARKUSDT Short Entry Targets: 0.255100 TP: 1"
+          ]
+        }
+      },
+      {
+        "symbol": "AVAAIUSDT",
+        "price_now": 0.00983,
+        "price_1h": 3.3648790746582633,
+        "price_4h": 10.87202718006796,
+        "price_24h": 26.512226512226515,
+        "vol_1h": 76091230.0,
+        "vol_ratio": 0.8585092701492337,
+        "oi_now": 440030528.0,
+        "oi_1h": 12.65408352719576,
+        "oi_4h": 13.223200151586385,
+        "oi_24h": 42.707415996145826,
+        "oi_signal": 11.3,
+        "p1h": 12.2,
+        "p24h": 31.8,
+        "flow": "增仓跟涨",
+        "kline_1h": {
+          "symbol": "AVAAIUSDT",
+          "interval": "1h",
+          "lookback": 120,
+          "chg_pct": 10.57367829021372,
+          "range": {
+            "lo": 0.006,
+            "hi": 0.01016,
+            "pos": 0.9206730769230769,
+            "loc": "靠近区间高位"
+          },
+          "last": 0.00983,
+          "atr14": 0.0004078571428571426,
+          "swing": {
+            "hi": 0.01016,
+            "lo": 0.00682
+          },
+          "ema20": 0.008462010385798979,
+          "ema20_slope_pct": 1.7311698489577636,
+          "rsi14": 81.89300411522632,
+          "volume": {
+            "last": 76091230.0,
+            "ma20": 88631809.4,
+            "ratio": 0.8585092701492337
+          }
+        },
+        "kline_4h": {
+          "symbol": "AVAAIUSDT",
+          "interval": "4h",
+          "lookback": 80,
+          "chg_pct": 3.8054968287526525,
+          "range": {
+            "lo": 0.006,
+            "hi": 0.01145,
+            "pos": 0.7009174311926606,
+            "loc": "位于区间中部"
+          },
+          "last": 0.00982,
+          "atr14": 0.0007028571428571429,
+          "swing": {
+            "hi": 0.01016,
+            "lo": 0.006
+          },
+          "ema20": 0.008386538288776387,
+          "ema20_slope_pct": 1.8321656546875782,
+          "rsi14": 68.65284974093265,
+          "volume": {
+            "last": 1146206990.0,
+            "ma20": 139803767.65,
+            "ratio": 8.198684550973901
+          }
+        },
+        "twitter": null,
+        "twitter_summary": null
+      },
+      {
+        "symbol": "RIVERUSDT",
+        "price_now": 18.812,
+        "price_1h": 6.487037246688558,
+        "price_4h": -10.042081101759745,
+        "price_24h": -39.10003237293622,
+        "vol_1h": 829637.8,
+        "vol_ratio": 0.3163268620950926,
+        "oi_now": 1587681.2,
+        "oi_1h": 3.415073210804779,
+        "oi_4h": -2.3676524779683845,
+        "oi_24h": 31.49877629749182,
+        "oi_signal": 6.0,
+        "p1h": 24.5,
+        "p24h": -44.2,
+        "flow": "增仓跟涨",
+        "kline_1h": {
+          "symbol": "RIVERUSDT",
+          "interval": "1h",
+          "lookback": 120,
+          "chg_pct": -69.64435551539404,
+          "range": {
+            "lo": 14.4,
+            "hi": 75.2,
+            "pos": 0.07256578947368422,
+            "loc": "靠近区间低位"
+          },
+          "last": 18.812,
+          "atr14": 3.147357142857142,
+          "swing": {
+            "hi": 27.943,
+            "lo": 14.4
+          },
+          "ema20": 21.11079873331336,
+          "ema20_slope_pct": -1.1332427994270877,
+          "rsi14": 34.72909476485508,
+          "volume": {
+            "last": 829637.8,
+            "ma20": 2622723.2,
+            "ratio": 0.3163268620950926
+          }
+        },
+        "kline_4h": {
+          "symbol": "RIVERUSDT",
+          "interval": "4h",
+          "lookback": 80,
+          "chg_pct": -35.546941995677976,
+          "range": {
+            "lo": 14.4,
+            "hi": 86.0,
+            "pos": 0.061312849162011164,
+            "loc": "靠近区间低位"
+          },
+          "last": 18.79,
+          "atr14": 4.429499999999998,
+          "swing": {
+            "hi": 54.5,
+            "lo": 14.4
+          },
+          "ema20": 32.45595212506738,
+          "ema20_slope_pct": -4.244117497526534,
+          "rsi14": 14.296622186670533,
+          "volume": {
+            "last": 13078805.6,
+            "ma20": 4524105.3950000005,
+            "ratio": 2.8909153209504304
+          }
+        },
+        "twitter": null,
+        "twitter_summary": null
+      },
+      {
+        "symbol": "ZORAUSDT",
+        "price_now": 0.02898,
+        "price_1h": -1.092150170648467,
+        "price_4h": -3.943008614976806,
+        "price_24h": 28.400531679220197,
+        "vol_1h": 58147292.0,
+        "vol_ratio": 0.13265845897817077,
+        "oi_now": 269036982.0,
+        "oi_1h": -3.519024245307599,
+        "oi_4h": 15.689096990466656,
+        "oi_24h": 238.71557229976878,
+        "oi_signal": 5.4,
+        "p1h": 7.0,
+        "p24h": 18.7,
+        "flow": "增仓跟涨",
+        "kline_1h": {
+          "symbol": "ZORAUSDT",
+          "interval": "1h",
+          "lookback": 120,
+          "chg_pct": -4.732172198488335,
+          "range": {
+            "lo": 0.02008,
+            "hi": 0.04219,
+            "pos": 0.4029850746268656,
+            "loc": "位于区间中部"
+          },
+          "last": 0.02899,
+          "atr14": 0.004093571428571428,
+          "swing": {
+            "hi": 0.04219,
+            "lo": 0.02118
+          },
+          "ema20": 0.03031118410648559,
+          "ema20_slope_pct": -0.4567186912040302,
+          "rsi14": 57.889641819941914,
+          "volume": {
+            "last": 57994593.0,
+            "ma20": 437172219.9,
+            "ratio": 0.13265845897817077
+          }
+        },
+        "kline_4h": {
+          "symbol": "ZORAUSDT",
+          "interval": "4h",
+          "lookback": 80,
+          "chg_pct": -12.556595230908544,
+          "range": {
+            "lo": 0.02008,
+            "hi": 0.04219,
+            "pos": 0.4020805065581185,
+            "loc": "位于区间中部"
+          },
+          "last": 0.02897,
+          "atr14": 0.003497142857142857,
+          "swing": {
+            "hi": 0.04219,
+            "lo": 0.02008
+          },
+          "ema20": 0.02832522398692507,
+          "ema20_slope_pct": 0.24018937543442792,
+          "rsi14": 54.16920267802799,
+          "volume": {
+            "last": 1207860549.0,
+            "ma20": 466975635.95,
+            "ratio": 2.5865601029543392
+          }
+        },
+        "twitter": null,
+        "twitter_summary": null
+      },
+      {
+        "symbol": "HYPEUSDT",
+        "price_now": 29.557,
+        "price_1h": 0.2305944589507879,
+        "price_4h": -4.418033845756358,
+        "price_24h": 0.7533406053995094,
+        "vol_1h": 160528.24,
+        "vol_ratio": 0.13266953473438012,
+        "oi_now": 5854978.92,
+        "oi_1h": -1.7249403204769846,
+        "oi_4h": -1.714652235805196,
+        "oi_24h": 4.103531681532862,
+        "oi_signal": 2.0,
+        "p1h": 3.0,
+        "p24h": -1.5,
+        "flow": "增仓跟涨",
+        "kline_1h": {
+          "symbol": "HYPEUSDT",
+          "interval": "1h",
+          "lookback": 120,
+          "chg_pct": 5.100699747806628,
+          "range": {
+            "lo": 27.317,
+            "hi": 34.849,
+            "pos": 0.3016463090812533,
+            "loc": "位于区间中部"
+          },
+          "last": 29.589,
+          "atr14": 0.813071428571429,
+          "swing": {
+            "hi": 32.59,
+            "lo": 28.57
+          },
+          "ema20": 30.51332296450287,
+          "ema20_slope_pct": -0.3178542407211145,
+          "rsi14": 30.15133876600696,
+          "volume": {
+            "last": 164153.04,
+            "ma20": 1237307.7234999998,
+            "ratio": 0.13266953473438012
+          }
+        },
+        "kline_4h": {
+          "symbol": "HYPEUSDT",
+          "interval": "4h",
+          "lookback": 80,
+          "chg_pct": 22.79478881420629,
+          "range": {
+            "lo": 20.475,
+            "hi": 34.849,
+            "pos": 0.6345484903297622,
+            "loc": "位于区间中部"
+          },
+          "last": 29.596,
+          "atr14": 1.9942857142857144,
+          "swing": {
+            "hi": 34.566,
+            "lo": 27.417
+          },
+          "ema20": 30.39205407386016,
+          "ema20_slope_pct": -0.27495596598766314,
+          "rsi14": 51.364574123194814,
+          "volume": {
+            "last": 2615789.3,
+            "ma20": 5676333.3925,
+            "ratio": 0.460823760538128
+          }
+        },
+        "twitter": null,
+        "twitter_summary": null
+      }
+    ],
+    "perp_dash_inputs": [
+      {
+        "symbol": "ARKUSDT",
+        "price_now": 0.2478,
+        "market_cap": null,
+        "fdv": null,
+        "price_chg": {
+          "1h_pct": 0.8957654723126953,
+          "4h_pct": 10.892857142857144,
+          "24h_pct": 10.231316725978644
+        },
+        "oi_chg": {
+          "1h_pct": 90.1315638235042,
+          "4h_pct": -2.1253939787683267,
+          "24h_pct": 81.38425099825497
+        },
+        "structure": {
+          "1h": {
+            "swing_hi": 0.266,
+            "swing_lo": 0.2127,
+            "ema20_slope_pct": 0.8966268359322791,
+            "rsi14": 78.43551797040166,
+            "atr_pct": 3.26,
+            "range_loc": "位于区间中部",
+            "range_pos": 0.7083993660855781,
+            "vol_ratio": 1.0282997311222513
+          },
+          "4h": {
+            "swing_hi": 0.266,
+            "swing_lo": 0.2029,
+            "ema20_slope_pct": 0.5868286937051834,
+            "rsi14": 61.4987080103359,
+            "atr_pct": 4.93,
+            "range_loc": "位于区间中部",
+            "range_pos": 0.7083993660855781
+          }
+        },
+        "key_levels": {
+          "resistance": 0.266,
+          "support": 0.2127
+        },
+        "flow_label": "轻微/震荡（价/OI变化不大）",
+        "bias_hint": "偏多",
+        "action_notes": [
+          "上破并站稳0.266才追",
+          "高位易回撤：等回踩确认"
+        ]
+      },
+      {
+        "symbol": "AVAAIUSDT",
+        "price_now": 0.00983,
+        "market_cap": null,
+        "fdv": null,
+        "price_chg": {
+          "1h_pct": 3.3648790746582633,
+          "4h_pct": 10.87202718006796,
+          "24h_pct": 26.512226512226515
+        },
+        "oi_chg": {
+          "1h_pct": 12.65408352719576,
+          "4h_pct": 13.223200151586385,
+          "24h_pct": 42.707415996145826
+        },
+        "structure": {
+          "1h": {
+            "swing_hi": 0.01016,
+            "swing_lo": 0.00682,
+            "ema20_slope_pct": 1.7311698489577636,
+            "rsi14": 81.89300411522632,
+            "atr_pct": 4.15,
+            "range_loc": "靠近区间高位",
+            "range_pos": 0.9206730769230769,
+            "vol_ratio": 0.8585092701492337
+          },
+          "4h": {
+            "swing_hi": 0.01016,
+            "swing_lo": 0.006,
+            "ema20_slope_pct": 1.8321656546875782,
+            "rsi14": 68.65284974093265,
+            "atr_pct": 7.16,
+            "range_loc": "位于区间中部",
+            "range_pos": 0.7009174311926606
+          }
+        },
+        "key_levels": {
+          "resistance": 0.01016,
+          "support": 0.00682
+        },
+        "flow_label": "多头加仓（价↑OI↑）",
+        "bias_hint": "偏多",
+        "action_notes": [
+          "上破并站稳0.01016才追",
+          "高位易回撤：等回踩确认"
+        ]
+      },
+      {
+        "symbol": "RIVERUSDT",
+        "price_now": 18.812,
+        "market_cap": null,
+        "fdv": null,
+        "price_chg": {
+          "1h_pct": 6.487037246688558,
+          "4h_pct": -10.042081101759745,
+          "24h_pct": -39.10003237293622
+        },
+        "oi_chg": {
+          "1h_pct": 3.415073210804779,
+          "4h_pct": -2.3676524779683845,
+          "24h_pct": 31.49877629749182
+        },
+        "structure": {
+          "1h": {
+            "swing_hi": 27.943,
+            "swing_lo": 14.4,
+            "ema20_slope_pct": -1.1332427994270877,
+            "rsi14": 34.72909476485508,
+            "atr_pct": 16.73,
+            "range_loc": "靠近区间低位",
+            "range_pos": 0.07256578947368422,
+            "vol_ratio": 0.3163268620950926
+          },
+          "4h": {
+            "swing_hi": 54.5,
+            "swing_lo": 14.4,
+            "ema20_slope_pct": -4.244117497526534,
+            "rsi14": 14.296622186670533,
+            "atr_pct": 23.57,
+            "range_loc": "靠近区间低位",
+            "range_pos": 0.061312849162011164
+          }
+        },
+        "key_levels": {
+          "resistance": 27.943,
+          "support": 14.4
+        },
+        "flow_label": "轻微/震荡（价/OI变化不大）",
+        "bias_hint": "偏空",
+        "action_notes": [
+          "跌破14.40延续偏空",
+          "低位易反抽：别追空"
+        ]
+      }
+    ],
+    "oi_plans": [
+      {
+        "symbol": "ARKUSDT",
+        "bias": "观望",
+        "setup": "1h/4h均处区间中部，1h RSI超买(78.4)，量能平稳，OI增仓跟涨但价格下跌，信号矛盾。",
+        "triggers": [
+          "突破区间上沿0.266并站稳。",
+          "跌破区间下沿0.2029确认转弱。"
+        ],
+        "invalidation": "价格在0.2029-0.266区间内持续震荡，未出现有效突破。",
+        "targets": [
+          "上行目标：区间上沿0.266。",
+          "下行目标：摆动低点0.2127。"
+        ],
+        "risk_notes": [],
+        "twitter_quality": "讨论偏少，内容混杂营销与游戏无关信息，交易共识低。",
+        "twitter_bull": "",
+        "twitter_bear": "有推文提及ARKUSDT空单入场目标。",
+        "twitter_meta": {
+          "total": 79,
+          "kept": 8,
+          "snippets": [
+            "#Cryptocurrency #ARKUSDT Short Entry Targets: 0.255100 TP: 1) 0.249998 2) 0.247498 3) 0.245023 4) 0.242573 5) 0.240147 6) 0.220935 7) 0.203260 8) 0.187000 9) 0.164560 0.082280 SL: ",
+            "Your Vision, Your Market Your Voice, Your Choice",
+            "Top gainer: #Ark #ARK $ARK increased by 39.85% in 1h Create your ARK #crypto alert:",
+            "Today Something is different And the market knows it before we do. $LUNC $USTC $LUNA",
+            "黒ひよこ #KuroHiyo23 ことぴよぴよから ARK鯖招待いただきました こっちのARKは初見だから楽しみ",
+            "That s where the Ark comes in $WKC $Ocicat",
+            "AI Analysis for $ARK #ARKUSDT 1h - After the strong bullish impulse and all indicators turning bullish, I expect ARKUSDT to RISE in the short term. - Most likely scenario: a pullba",
+            "そういえばここ最近やってるゲーム ARC Raiders ARK Survival Ascended アークナイツ:エンドフィールド どいつもこいつもアークで草"
+          ]
+        }
+      },
+      {
+        "symbol": "AVAAIUSDT",
+        "bias": "观望",
+        "setup": "1h趋势强劲(EMA斜率+1.73%)且靠近区间高位，RSI超买(81.9)，但量能萎缩(量比0.86)，OI增仓跟涨。",
+        "triggers": [
+          "放量突破前高0.01016。",
+          "回踩EMA20(0.00846)获支撑后再次上行。"
+        ],
+        "invalidation": "价格跌破1小时EMA20支撑0.00846。",
+        "targets": [
+          "上行目标：前高0.01016。",
+          "进一步目标：4小时区间上沿0.01145。"
+        ],
+        "risk_notes": [],
+        "twitter_quality": "",
+        "twitter_bull": "",
+        "twitter_bear": "",
+        "twitter_meta": null
+      },
+      {
+        "symbol": "RIVERUSDT",
+        "bias": "观望",
+        "setup": "1h/4h均呈强烈下跌趋势(EMA斜率负)，价格靠近区间低位，1h量能萎缩(量比0.32)，OI增仓但价格大跌，背离。",
+        "triggers": [
+          "价格反弹突破1小时EMA20阻力21.11。",
+          "价格跌破前低14.4确认跌势延续。"
+        ],
+        "invalidation": "价格反弹并站稳在1小时EMA20(21.11)之上。",
+        "targets": [
+          "反弹目标：1小时摆动高点27.943。",
+          "下行目标：区间下沿14.4。"
+        ],
+        "risk_notes": [],
+        "twitter_quality": "",
+        "twitter_bull": "",
+        "twitter_bear": "",
+        "twitter_meta": null
+      }
+    ],
+    "tg_topics": [
+      {
+        "one_liner": "N 讨论集中：xbe6c9dda502c523886ef30ee92233864865ceb07/x9e2f1eb96d27b31ec65ccc",
+        "sentiment": "中性",
+        "triggers": "xbe6c9dda502c523886ef30ee92233864865ceb07；x9e2f1eb96d27b31ec65ccc98c00cdfa195d57777；xd484aab2440971960182a5bc648b57f0dd20eb07；x826719a96e3edf9208ad220462cef280d29d6b07；x7a948e8c48796aedbd77a77281725aa8efcc7777；xce16ef461d88256d2d80dfd31f0d9e7a9fd59213",
+        "related_assets": [
+          "N",
+          "CLAWDVEGAS",
+          "VITALIK",
+          "CLAWNCH",
+          "BUNKER",
+          "TCLAW"
+        ],
+        "_inferred": true
+      },
+      {
+        "one_liner": "Ӿ 讨论集中：c7qbkjpc3wehcqrbzbosjk93ci3su4w2xrc5ygkppump",
+        "sentiment": "中性",
+        "triggers": "c7qbkjpc3wehcqrbzbosjk93ci3su4w2xrc5ygkppump",
+        "related_assets": [
+          "Ӿ"
+        ],
+        "_inferred": true
+      },
+      {
+        "one_liner": "U+L 讨论集中：xff75029b9fd60d4ccd53311cb3c808695a3a9629",
+        "sentiment": "中性",
+        "triggers": "xff75029b9fd60d4ccd53311cb3c808695a3a9629",
+        "related_assets": [
+          "U+L"
+        ],
+        "_inferred": true
+      },
+      {
+        "one_liner": "BUTTCOIN 讨论集中：cm6fnnmk7nfzstp9czpsqa2v3jjzbcygaxdjysmhpump",
+        "sentiment": "中性",
+        "triggers": "cm6fnnmk7nfzstp9czpsqa2v3jjzbcygaxdjysmhpump",
+        "related_assets": [
+          "BUTTCOIN"
+        ],
+        "_inferred": true
+      },
+      {
+        "one_liner": "ELON 讨论集中：akxpuyfxavn5yofzpzmfbp2vxognpmv9noobmuhpump",
+        "sentiment": "中性",
+        "triggers": "akxpuyfxavn5yofzpzmfbp2vxognpmv9noobmuhpump",
+        "related_assets": [
+          "ELON"
+        ],
+        "_inferred": true
+      }
+    ],
+    "threads_strong": [
+      {
+        "title": "TCLAW（MC≈$172.5K vol24≈$39.6K liq≈$40.7K）",
+        "stance": "中性",
+        "count": 6,
+        "entities": [
+          "TCLAW"
+        ],
+        "points": [
+          "热度升温：讨论集中但共识不强，注意节奏与风险"
+        ],
+        "sym": "TCLAW",
+        "_msgs": [
+          "0xbe6c9dda502c523886ef30ee92233864865ceb07",
+          "0xbe6c9dda502c523886ef30ee92233864865ceb07\nhttps://travelclaw.app",
+          "0xbe6c9dda502c523886ef30ee92233864865ceb07",
+          "0xbe6c9dda502c523886ef30ee92233864865ceb07",
+          "0xbe6c9dda502c523886ef30ee92233864865ceb07",
+          "0xbe6c9dda502c523886ef30ee92233864865ceb07"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x5d4e382377a6fb965b151d92347baad4ef85c0ce",
+          "pairAddress": "0x5D4e382377A6fB965b151D92347BAaD4EF85c0Ce",
+          "baseSymbol": "TCLAW",
+          "baseAddress": "0x9c2E452019eDAAB68D5587e9b9C9E0286D0DEb07",
+          "priceUsd": "0.0001724",
+          "liquidityUsd": 40682.52,
+          "vol24h": 39645.97,
+          "chg1h": 190,
+          "chg24h": 190,
+          "fdv": 172451,
+          "marketCap": 172451
+        }
+      },
+      {
+        "title": "FLAW（MC≈$106.0K vol24≈$453.4K liq≈$131.3K）",
+        "stance": "中性",
+        "count": 3,
+        "entities": [
+          "FLAW"
+        ],
+        "points": [
+          "热度升温：讨论集中但共识不强，注意节奏与风险"
+        ],
+        "sym": "FLAW",
+        "_msgs": [
+          "0x7a948e8c48796aedbd77a77281725aa8efcc7777",
+          "0x7a948e8c48796aedbd77a77281725aa8efcc7777",
+          "0x7a948e8c48796aedbd77a77281725aa8efcc7777"
+        ],
+        "_dex": {
+          "chainId": "bsc",
+          "dexId": "pancakeswap",
+          "url": "https://dexscreener.com/bsc/0x3d25f795c311365f520f63d231fdf5f756e975a4",
+          "pairAddress": "0x3D25F795C311365F520f63D231FdF5f756E975a4",
+          "baseSymbol": "FLAW",
+          "baseAddress": "0xCB3dB85abcDCe905595276E5474982641219DBD1",
+          "priceUsd": "0.0002208",
+          "liquidityUsd": 131280.93,
+          "vol24h": 453389.6,
+          "chg1h": 166,
+          "chg24h": 166,
+          "fdv": 106025,
+          "marketCap": 106025
+        }
+      }
+    ],
+    "threads_weak": [
+      {
+        "title": "CLAWDVEGAS（MC≈$1.5M vol24≈$7.3M liq≈$950.1K）",
+        "stance": "中性",
+        "count": 2,
+        "entities": [
+          "CLAWDVEGAS"
+        ],
+        "points": [],
+        "sym": "CLAWDVEGAS",
+        "_msgs": [
+          "0xd484aab2440971960182a5bc648b57f0dd20eb07",
+          "0xd484aab2440971960182a5bc648b57f0dd20eb07"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x821b97f7d0dddb1fa5e17891c923314f630b8ece0750317462e6d0c54b3e03d6",
+          "pairAddress": "0x821b97f7d0dddb1fa5e17891c923314f630b8ece0750317462e6d0c54b3e03d6",
+          "baseSymbol": "CLAWDVEGAS",
+          "baseAddress": "0xD484AAB2440971960182a5BC648b57f0Dd20EB07",
+          "priceUsd": "0.00001466",
+          "liquidityUsd": 950060.39,
+          "vol24h": 7300241.09,
+          "chg1h": 26.42,
+          "chg24h": 4648,
+          "fdv": 1466527,
+          "marketCap": 1466527
+        }
+      },
+      {
+        "title": "U+L（MC≈$11.4K vol24≈$3.8K liq≈$425）",
+        "stance": "中性",
+        "count": 2,
+        "entities": [
+          "U+L"
+        ],
+        "points": [],
+        "sym": "U+L",
+        "_msgs": [
+          "0xff75029b9fd60d4ccd53311cb3c808695a3a9629",
+          "0xff75029b9fd60d4ccd53311cb3c808695a3a9629"
+        ],
+        "_dex": {
+          "chainId": "bsc",
+          "dexId": "pancakeswap",
+          "url": "https://dexscreener.com/bsc/0xe928e7ac9a894b1e632f38ef6e36f16b0d7de25a",
+          "pairAddress": "0xE928e7Ac9A894B1E632f38eF6E36f16b0d7de25a",
+          "baseSymbol": "U+L",
+          "baseAddress": "0xFf75029b9Fd60d4CCd53311Cb3c808695A3A9629",
+          "priceUsd": "0.00001141",
+          "liquidityUsd": 425.26,
+          "vol24h": 3794.35,
+          "chg1h": 70.57,
+          "chg24h": 3578,
+          "fdv": 11414,
+          "marketCap": 11414
+        }
+      },
+      {
+        "title": "CLAWNCH（MC≈$19.7M vol24≈$30.3M liq≈$2.5M）",
+        "stance": "中性",
+        "count": 2,
+        "entities": [
+          "CLAWNCH"
+        ],
+        "points": [],
+        "sym": "CLAWNCH",
+        "_msgs": [
+          "CLAWNCH  别下车哦",
+          "0xa1f72459dfa10bad200ac160ecd78c6b77a747be"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x03d3c21ea1daf51dd2898ebaf9342a93374877ba6ab34cc7ffe5b5d43ee46e0a",
+          "pairAddress": "0x03d3c21ea1daf51dd2898ebaf9342a93374877ba6ab34cc7ffe5b5d43ee46e0a",
+          "baseSymbol": "CLAWNCH",
+          "baseAddress": "0xa1F72459dfA10BAD200Ac160eCd78C6b77a747be",
+          "priceUsd": "0.0001969",
+          "liquidityUsd": 2524073.79,
+          "vol24h": 30335291.83,
+          "chg1h": -12.06,
+          "chg24h": 203,
+          "fdv": 19698140,
+          "marketCap": 19698140
+        }
+      },
+      {
+        "title": "BOND（MC≈$339.6K vol24≈$687 liq≈$503.8K）",
+        "stance": "中性",
+        "count": 2,
+        "entities": [
+          "BOND"
+        ],
+        "points": [],
+        "sym": "BOND",
+        "_msgs": [
+          "7wyW93u2u81iTCZ5zumeYWw69aNzGys1txJrhqKzBAGS",
+          "7wyW93u2u81iTCZ5zumeYWw69aNzGys1txJrhqKzBAGS"
+        ],
+        "_dex": {
+          "chainId": "bsc",
+          "dexId": "pancakeswap",
+          "url": "https://dexscreener.com/bsc/0x15ea04d1c1b518250619122bd0cc46b2e2d8592d",
+          "pairAddress": "0x15EA04D1c1B518250619122bd0cc46b2E2d8592d",
+          "baseSymbol": "Bond",
+          "baseAddress": "0x64222C954c00c7ac9435314d56F0f480AD777777",
+          "priceUsd": "4.073",
+          "liquidityUsd": 503833.65,
+          "vol24h": 686.82,
+          "chg1h": null,
+          "chg24h": -3.76,
+          "fdv": 339642,
+          "marketCap": 339642
+        }
+      },
+      {
+        "title": "AMD（MC≈$9.3M vol24≈$17.1K liq≈$1.6M）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "AMD"
+        ],
+        "points": [],
+        "sym": "AMD",
+        "_msgs": [
+          "AMD"
+        ],
+        "_dex": {
+          "chainId": "arbitrum",
+          "dexId": "0x9B43e504d84aDcB7321DC2551a86bff1084AE2E5",
+          "url": "https://dexscreener.com/arbitrum/0xe5757c7db63f1e2f119a9335351741ec2b27b14b",
+          "pairAddress": "0xE5757C7Db63f1e2f119a9335351741EC2B27B14B",
+          "baseSymbol": "AMD",
+          "baseAddress": "0x01296516082c0B0F0A5f3AC7646A19bA303a8dfB",
+          "priceUsd": "541.56",
+          "liquidityUsd": 1574820.95,
+          "vol24h": 17074.12,
+          "chg1h": 0.05,
+          "chg24h": -3.08,
+          "fdv": 9327295,
+          "marketCap": 9327295
+        }
+      },
+      {
+        "title": "VITALIK（MC≈$193.2K vol24≈$57.2K liq≈$43.1K）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "VITALIK"
+        ],
+        "points": [],
+        "sym": "VITALIK",
+        "_msgs": [
+          "0x826719a96e3edf9208ad220462cef280d29d6b07"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0xd4dc558468744840e302ce7a1098fe33ea2e51ae",
+          "pairAddress": "0xD4dC558468744840e302cE7A1098Fe33EA2E51Ae",
+          "baseSymbol": "Vitalik",
+          "baseAddress": "0xdd25FAadF1efB13b0C9945CA09A56Dc3d7AB6B07",
+          "priceUsd": "0.0001932",
+          "liquidityUsd": 43126.94,
+          "vol24h": 57196.92,
+          "chg1h": 225,
+          "chg24h": 225,
+          "fdv": 193230,
+          "marketCap": 193230
+        }
+      },
+      {
+        "title": "BUTTCOIN（MC≈$12.4M vol24≈$3.5M liq≈$505.6K）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "BUTTCOIN"
+        ],
+        "points": [
+          "动量情绪更强：注意冲高回落与二次派发"
+        ],
+        "sym": "BUTTCOIN",
+        "_msgs": [
+          "Cm6fNnMk7NfzStP9CZpsQA2v3jjzbcYGAxdJySmHpump"
+        ],
+        "_dex": {
+          "chainId": "solana",
+          "dexId": "pumpswap",
+          "url": "https://dexscreener.com/solana/ffcygssgwhfora9rxxka48p8yfoz8tsw85jpo3cqhdys",
+          "pairAddress": "FFcYgSSgWHforA9rXXkA48p8YFoz8TSW85Jpo3CQHDyS",
+          "baseSymbol": "Buttcoin",
+          "baseAddress": "Cm6fNnMk7NfzStP9CZpsQA2v3jjzbcYGAxdJySmHpump",
+          "priceUsd": "0.01238",
+          "liquidityUsd": 505572,
+          "vol24h": 3496583.87,
+          "chg1h": -9.54,
+          "chg24h": 33.37,
+          "fdv": 12381069,
+          "marketCap": 12381069
+        }
+      }
+    ],
+    "twitter_following": {
+      "total": 38,
+      "kept": 37,
+      "clusters": 6,
+      "metrics": {
+        "total": 38,
+        "kept": 37,
+        "candidates": 37,
+        "noise_dropped": 1,
+        "noise_drop_rate": 0.026,
+        "exact_dedupe_dropped": 0,
+        "semantic_dedupe_dropped": 0,
+        "dedupe_dropped": 0,
+        "dedupe_rate": 0.0,
+        "capped": 0,
+        "clusters": 6
+      },
+      "snippets": [
+        "Six years ago today, a truly shocking incident occurred that disgraces the name of science. A dozen scientists shared the…",
+        "Built to move value, fast.",
+        "Released BotMaker version 1.0.0: Hard isolation between bots and secrets: bot containers proxy through a keyring proxy. Neve…",
+        "14% arb here",
+        "Make no mistake. We’re here to eat their lunch. Not just run to 50/100/200m or whatever target you hold. I’d have taken any of the several trades that’ve recent",
+        "白银合约上线币安短短几天，交易量已经超过SOL，@StandX_Official 也顺应热度开放了黄金和白银的永续合约。 可以看到standx的运营节奏非常快，短短两个月，做了很多东西。 1、上线了 Maker Points 积分，可以进行挂单挖矿。 2、上线了中文版本 3、大幅提升了流动性，同时交易量单日突破了 $1",
+        "孙哥人品不行，但是有一说一，trx这走势怎么骂？",
+        "前几天听cz的ama，说实话，听完之后有点小失望 倒不是因为bn在1011的处理或者文中的“黑化”，而是没有“对抗”的血性 不是说不要合规，而是遇到侵害行业利益的，是不是能带领行业再争取一下？！至少顶住压力 虽然我也也不太喜欢coinbase的brian，但是至少他真的敢干美国政府部门（虽然也是为了cb自己的利益），不",
+        "liquidity sloshing from ai coin to ai coin while copper onchain looks ready for an imminent repricing",
+        "The AI bull case is also a copper bull case You can’t build AI infrastructure without massive amounts of copper Power system…",
+        "很多人看到 99% 概率 的市场，第一反应是： “这还有什么好想的？闭眼买 YES。” 白银那一波就是典型例子 1 月份从 $71 拉到 $120，Silver 收在 >$90 的赔率一度被打到 99%。 账户在这，自己去看他的仓位结构： 事实发生了什么： 当所有人都在 99c 买 YES、捡“确定性”那 1% 时，这",
+        "Gm Wifey’s buying all the longevity stuff she sees on Instagram without knowing our bags are down 90% so I better use to to live longer if I wanna see another p",
+        "赌坊门口常年坐着一个老人，从不进场。 他只做一件事，借钱。 谁输了想翻本，他就借。 利息不高，看起来还算厚道。 有人问他 你不怕借出去收不回来吗？ 老人笑着说 我只借给已经输红眼的人。 多年后，赌坊换了一批又一批人。 老人始终在。 🖊️隐含逻辑 赌徒追求的是一次翻身的幻觉。 放贷者吃的是长期概率。 当一个系统允许情绪主",
+        "Right now it feels like it couldn’t get any worse. By year end you’ll swear it couldn’t get any better. New ATHs in 6-12 months. And when they hit, you’ll wonde",
+        "BTC/Gold is now at its 6-year support trendline. Do you think this level will hold?",
+        "Not your keys, not your Gold!",
+        "🚨#XRP 🤝 SILVER 📈 Greenland Silver Bank is LIVE on #solana! Tokenization on-chain is happening. The narrative is real, let’s send $GSB to $1 Million market cap!",
+        "找到了他的youtube",
+        "tfw people use @bankrbot for the first time",
+        "@0xDeployer",
+        "🚨HUGE: @Ripple and StellarOrg have been identified as threats to the financial system in the Epstein files. Days after t…",
+        "So, is this the #Bitcoin wallet of Jeffrey Epstein?",
+        "🚨You may dislike Dan Pena, but he did warn everyone. \"When the real founder of #Bitcoin comes out, Bitcoin will go to f*…",
+        "🚨#XRP IS STILL STRONG! Play DICE on the number one DEX powered by @MagneticXRPL. 🎲Double your XRP here:",
+        "0x07ca17cce91978fa83ffc6fe0529f93f82909b07 看了下艾特像是搞开发的 就是不知道做的是啥",
+        "I am so glad that the @Ripple Team has nothing to do with the Epstein files! 💥#XRP IS A DONE DEAL💥",
+        "🚨BANK COLLAPSES ARE CYCLICAL — AND WHEN THEY HIT, SAVINGS VANISH. AS DIGITAL ASSETS BEGIN TO FUNCTION LIKE CASH, THOSE WITHOUT POSITIONING FALL BEHIND. THAT TRA",
+        "privacy has always been a core web3 layer and it keeps breaking in practice this piece looks at how @fluidkey & @HoudiniSwap try to close that gap here's what i",
+        "peak despair on the timeline and bitcoin isn’t even sub 70s which makes sense because most of CT doesn’t own any btc truly the last degenerates losing their mon",
+        "THIS MIGHT BE WHY EPSTEIN &amp; CO FELT THREATENED BY RIPPLE‘S LEVEL OF COMPETITION: „BITCOIN HAS BEEN A SUCCESSFUL EXPER…",
+        "New Plan??? 👀👀👀",
+        "KNOW WHAT YOU HOLD 😏 #XRP",
+        "Imagine @Ripple and #XRP are so powerful that Epstein and co. Identified XRP as a threat to their operations. You are hol…",
+        "很多人看到这组数字，第一反应是： “内幕”“操纵”“肯定不干净” 但把这 30 天 +$15.5M 拆开看，逻辑反而很冷 发生了什么： 三个人，三个完全不同的方向，却在同一件事上高度一致—— 他们都没有在“预测结果” 1️⃣ kch123 NFL → NBA → NHL，赛季轮动 +$5,964,649 不追热点，只在",
+        "He has 96% win rate btw",
+        "We’re not going to play by centralised exchanges rules any longer. The next big cult will form purely off dexes and stay clean. Before: Binance, Coinbase, etc.",
+        "以太的资金面似乎更有意思.... 昨天从26xx砸到2200的这一波.. 现货总体的CVD，在币安是净空6万个ETH... 从全网来看的话，现货CVD也是净空3亿的抛压.. 但是插到2200之后到现在的这一段.. 其实币安上看 抛压并没有减弱，甚至还有持续大量TWAP卖出的迹象 （上图右半段，几乎固定斜率下降） 也就是"
+      ],
+      "clustered_snippets": [
+        "Six years ago today, a truly shocking incident occurred that disgraces the name of science. A dozen scientists shared the…",
+        "Built to move value, fast.",
+        "Released BotMaker version 1.0.0: Hard isolation between bots and secrets: bot containers proxy through a keyring proxy. Neve…",
+        "14% arb here",
+        "Make no mistake. We’re here to eat their lunch. Not just run to 50/100/200m or whatever target you hold. I’d have taken any of the several trades that’ve recent",
+        "白银合约上线币安短短几天，交易量已经超过SOL，@StandX_Official 也顺应热度开放了黄金和白银的永续合约。 可以看到standx的运营节奏非常快，短短两个月，做了很多东西。 1、上线了 Maker Points 积分，可以进行挂单挖矿。 2、上线了中文版本 3、大幅提升了流动性，同时交易量单日突破了 $1"
+      ]
+    },
+    "twitter_following_summary": {
+      "narratives": [
+        "突破/新高"
+      ],
+      "sentiment": "偏多",
+      "events": [
+        "监管/诉讼相关讨论",
+        "上所/上架相关讨论"
+      ],
+      "meta": {
+        "total": 38,
+        "kept": 37,
+        "clusters": 6,
+        "metrics": {
+          "total": 38,
+          "kept": 37,
+          "candidates": 37,
+          "noise_dropped": 1,
+          "noise_drop_rate": 0.026,
+          "exact_dedupe_dropped": 0,
+          "semantic_dedupe_dropped": 0,
+          "dedupe_dropped": 0,
+          "dedupe_rate": 0.0,
+          "capped": 0,
+          "clusters": 6
+        }
+      }
+    },
+    "radar_items": [
+      {
+        "addr": "App2Sp9pgmQG7yD6uVaygULxALf4TpfALgnhHEkJimih",
+        "mentions": 1,
+        "tickers": [
+          "LOCK"
+        ],
+        "examples": [
+          {
+            "handle": "",
+            "text": "privacy has always been a core web3 layer\n\nand it keeps breaking in practice\n\nthis piece looks at how @fluidkey & @HoudiniSwap try to close that gap\n\nhere's what i'll cover:\n→ where i think onchain privacy fails\n→ fluidk"
+          }
+        ],
+        "dex": {
+          "chainId": "solana",
+          "dexId": "raydium",
+          "pairAddress": "6wjXjxZuoXrnhtu494XuzH9seJHU9caeyewqLJEe1dSp",
+          "url": "https://dexscreener.com/solana/6wjxjxzuoxrnhtu494xuzh9sejhu9caeyewqljee1dsp",
+          "baseSymbol": "LOCK",
+          "baseAddress": "App2Sp9pgmQG7yD6uVaygULxALf4TpfALgnhHEkJimih",
+          "quoteSymbol": "SOL",
+          "liquidityUsd": 191440.99,
+          "fdv": 128038,
+          "mcap": 128038,
+          "priceUsd": "0.07918",
+          "vol24h": 5608.57,
+          "txns24h": {
+            "buys": 264,
+            "sells": 7
+          },
+          "chg1h": -2.26,
+          "chg24h": -6.48
+        },
+        "sourceKey": "TICKER:LOCK",
+        "twitter_evidence": {
+          "total": 78,
+          "kept": 6,
+          "snippets": [
+            "blessbhoy Omerta_SOL Locking in before the price jump is the move",
+            "doing an accountability thread for february bc maybe that makes me finally lock in",
+            "BARU BUKA MAIN ACC KNP TBTB KE LOCK ANJGGGGGGGG",
+            "𖤐 ៹ ˊ rtholic bhie pls lock in",
+            "GeckoTerminal January s crown goes to $LOCKIN. Still locked. Still ours.",
+            "pantheresunlock"
+          ]
+        }
+      },
+      {
+        "addr": "5f2KbZjnJEnPpW5JqY53mv2cDH7MLixUUgxCFnLBpump",
+        "mentions": 1,
+        "tickers": [
+          "GSB"
+        ],
+        "examples": [
+          {
+            "handle": "",
+            "text": "🚨#XRP 🤝 SILVER 📈 \n\nGreenland Silver Bank is LIVE on #solana! \nTokenization on-chain is happening. \n\nThe narrative is real, let’s send $GSB to $1 Million market cap! \n\nBuy here: https://t.co/32EcnlbQOo\n\nCA: 5f2KbZjnJEnPpW"
+          }
+        ],
+        "dex": {
+          "chainId": "solana",
+          "dexId": "pumpswap",
+          "pairAddress": "9JYyABa1nGKxNbmcyxgj4TZkZ23WgsffuSSokjSLqKEj",
+          "url": "https://dexscreener.com/solana/9jyyaba1ngkxnbmcyxgj4tzkz23wgsffussokjslqkej",
+          "baseSymbol": "GSBANK",
+          "baseAddress": "5f2KbZjnJEnPpW5JqY53mv2cDH7MLixUUgxCFnLBpump",
+          "quoteSymbol": "SOL",
+          "liquidityUsd": 46426.82,
+          "fdv": 285867,
+          "mcap": 285867,
+          "priceUsd": "0.0002858",
+          "vol24h": 281256.03,
+          "txns24h": {
+            "buys": 1872,
+            "sells": 1281
+          },
+          "chg1h": 58.19,
+          "chg24h": 583
+        },
+        "sourceKey": "5f2KbZjnJEnPpW5JqY53mv2cDH7MLixUUgxCFnLBpump",
+        "twitter_evidence": {
+          "total": 34,
+          "kept": 0,
+          "snippets": []
+        }
+      },
+      {
+        "addr": "0x07ca17cce91978fa83ffc6fe0529f93f82909b07",
+        "mentions": 1,
+        "tickers": [],
+        "examples": [
+          {
+            "handle": "",
+            "text": "0x07ca17cce91978fa83ffc6fe0529f93f82909b07\n看了下艾特像是搞开发的 就是不知道做的是啥"
+          }
+        ],
+        "dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "pairAddress": "0xef1316d09eb4cf1c08802f8c4429d986dfdae8fddd9e91caafca4a811614c513",
+          "url": "https://dexscreener.com/base/0xef1316d09eb4cf1c08802f8c4429d986dfdae8fddd9e91caafca4a811614c513",
+          "baseSymbol": "SYLTH",
+          "baseAddress": "0x07Ca17cCE91978Fa83FfC6FE0529F93F82909b07",
+          "quoteSymbol": "WETH",
+          "liquidityUsd": 43389.05,
+          "fdv": 43742,
+          "mcap": 43742,
+          "priceUsd": "0.0000004374",
+          "vol24h": 338844.85,
+          "txns24h": {
+            "buys": 745,
+            "sells": 1860
+          },
+          "chg1h": 78.02,
+          "chg24h": 78.02
+        },
+        "sourceKey": "0x07ca17cce91978fa83ffc6fe0529f93f82909b07",
+        "twitter_evidence": {
+          "total": 74,
+          "kept": 2,
+          "snippets": [
+            "Smart Money 5m Buy $SYLTH 0x07ca17cce91978fa83ffc6fe0529f93f82909b07 SYLTH: Symbolizing Youth, Life, and... - Check",
+            "CRYPT0forCHANGE imjesseshow swapped 97.61336 USDC for 98707022.189858631259804239 SYLTH on base. tx: chart:"
+          ]
+        }
+      },
+      {
+        "addr": "0xbe6c9dda502c523886ef30ee92233864865ceb07",
+        "mentions": 6,
+        "tickers": [
+          "TCLAW"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0xbe6c9dda502c523886ef30ee92233864865ceb07"
+          }
+        ],
+        "dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x3c0621695ad7c37c42ba6957a6b79a592129d6800a9159e2feb04cdb68723f71",
+          "pairAddress": "0x3c0621695ad7c37c42ba6957a6b79a592129d6800a9159e2feb04cdb68723f71",
+          "baseSymbol": "TCLAW",
+          "baseAddress": "0xBE6c9DDa502C523886EF30Ee92233864865CEB07",
+          "priceUsd": "0.0000004287",
+          "liquidityUsd": 41651.98,
+          "vol24h": 169571.47,
+          "chg1h": 79.59,
+          "chg24h": 79.59,
+          "fdv": 42877,
+          "marketCap": 42877
+        },
+        "sourceKey": "TG:0xbe6c9dda502c523886ef30ee92233864865ceb07"
+      },
+      {
+        "addr": "0x7a948e8c48796aedbd77a77281725aa8efcc7777",
+        "mentions": 3,
+        "tickers": [
+          "FLAW"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0x7a948e8c48796aedbd77a77281725aa8efcc7777"
+          }
+        ],
+        "dex": {
+          "chainId": "bsc",
+          "dexId": "pancakeswap",
+          "url": "https://dexscreener.com/bsc/0x879a2981f2532673fff56e6580719bfca013d78a",
+          "pairAddress": "0x879a2981f2532673FFF56E6580719BFca013D78A",
+          "baseSymbol": "FLAW",
+          "baseAddress": "0x7a948e8C48796aeDbD77A77281725Aa8eFcc7777",
+          "priceUsd": "0.0003226",
+          "liquidityUsd": 60762.78,
+          "vol24h": 2244721.15,
+          "chg1h": 23.99,
+          "chg24h": 594,
+          "fdv": 322625,
+          "marketCap": 322625
+        },
+        "sourceKey": "TG:0x7a948e8c48796aedbd77a77281725aa8efcc7777"
+      },
+      {
+        "addr": "C7QbKjpC3WEHCqRbZBosjk93Ci3sU4w2XRc5YGKPpump",
+        "mentions": 2,
+        "tickers": [
+          "Ӿ"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "C7QbKjpC3WEHCqRbZBosjk93Ci3sU4w2XRc5YGKPpump"
+          }
+        ],
+        "dex": {
+          "chainId": "solana",
+          "dexId": "pumpswap",
+          "url": "https://dexscreener.com/solana/cvsxlmxxbe2pbiammrccsp5tlfcf97pshusx9dde1oae",
+          "pairAddress": "CvSxLMxXbe2pbiAMMRCcSp5TLFcF97pshuSX9DdE1oAe",
+          "baseSymbol": "Ӿ",
+          "baseAddress": "C7QbKjpC3WEHCqRbZBosjk93Ci3sU4w2XRc5YGKPpump",
+          "priceUsd": "0.0001746",
+          "liquidityUsd": 36759.16,
+          "vol24h": 477800.76,
+          "chg1h": 421,
+          "chg24h": 293,
+          "fdv": 174667,
+          "marketCap": 174667
+        },
+        "sourceKey": "TG:C7QbKjpC3WEHCqRbZBosjk93Ci3sU4w2XRc5YGKPpump"
+      },
+      {
+        "addr": "0xd484aab2440971960182a5bc648b57f0dd20eb07",
+        "mentions": 2,
+        "tickers": [
+          "CLAWDVEGAS"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0xd484aab2440971960182a5bc648b57f0dd20eb07"
+          }
+        ],
+        "dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x821b97f7d0dddb1fa5e17891c923314f630b8ece0750317462e6d0c54b3e03d6",
+          "pairAddress": "0x821b97f7d0dddb1fa5e17891c923314f630b8ece0750317462e6d0c54b3e03d6",
+          "baseSymbol": "CLAWDVEGAS",
+          "baseAddress": "0xD484AAB2440971960182a5BC648b57f0Dd20EB07",
+          "priceUsd": "0.00001466",
+          "liquidityUsd": 950060.39,
+          "vol24h": 7300241.09,
+          "chg1h": 26.42,
+          "chg24h": 4648,
+          "fdv": 1466527,
+          "marketCap": 1466527
+        },
+        "sourceKey": "TG:0xd484aab2440971960182a5bc648b57f0dd20eb07"
+      },
+      {
+        "addr": "0xff75029b9fd60d4ccd53311cb3c808695a3a9629",
+        "mentions": 2,
+        "tickers": [
+          "U+L"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0xff75029b9fd60d4ccd53311cb3c808695a3a9629"
+          }
+        ],
+        "dex": {
+          "chainId": "bsc",
+          "dexId": "pancakeswap",
+          "url": "https://dexscreener.com/bsc/0xe928e7ac9a894b1e632f38ef6e36f16b0d7de25a",
+          "pairAddress": "0xE928e7Ac9A894B1E632f38eF6E36f16b0d7de25a",
+          "baseSymbol": "U+L",
+          "baseAddress": "0xFf75029b9Fd60d4CCd53311Cb3c808695A3A9629",
+          "priceUsd": "0.00001141",
+          "liquidityUsd": 425.26,
+          "vol24h": 3794.35,
+          "chg1h": 70.57,
+          "chg24h": 3578,
+          "fdv": 11414,
+          "marketCap": 11414
+        },
+        "sourceKey": "TG:0xff75029b9fd60d4ccd53311cb3c808695a3a9629"
+      },
+      {
+        "addr": "7wyW93u2u81iTCZ5zumeYWw69aNzGys1txJrhqKzBAGS",
+        "mentions": 2,
+        "tickers": [
+          "BOND"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "7wyW93u2u81iTCZ5zumeYWw69aNzGys1txJrhqKzBAGS"
+          }
+        ],
+        "dex": {
+          "chainId": "solana",
+          "dexId": "meteora",
+          "url": "https://dexscreener.com/solana/qsddse7lfxed8c1gwd3yrkb6b1vt8g5xw42j5eeg4wx",
+          "pairAddress": "qSDdsE7LfXEd8C1GWd3YRKB6B1VT8G5Xw42J5EEG4WX",
+          "baseSymbol": "BOND",
+          "baseAddress": "7wyW93u2u81iTCZ5zumeYWw69aNzGys1txJrhqKzBAGS",
+          "priceUsd": "0.0003473",
+          "liquidityUsd": 46141.03,
+          "vol24h": 1181228.83,
+          "chg1h": 666,
+          "chg24h": 554,
+          "fdv": 347374,
+          "marketCap": 347374
+        },
+        "sourceKey": "TG:7wyW93u2u81iTCZ5zumeYWw69aNzGys1txJrhqKzBAGS"
+      },
+      {
+        "addr": "0x826719a96e3edf9208ad220462cef280d29d6b07",
+        "mentions": 1,
+        "tickers": [
+          "Vitalik"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0x826719a96e3edf9208ad220462cef280d29d6b07"
+          }
+        ],
+        "dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x19fd3c61d1c49127b02ae9d497a75a1b4f66a36e1d93ba035b0a303c5df25339",
+          "pairAddress": "0x19fd3c61d1c49127b02ae9d497a75a1b4f66a36e1d93ba035b0a303c5df25339",
+          "baseSymbol": "Vitalik",
+          "baseAddress": "0x826719a96E3EdF9208aD220462cef280d29d6B07",
+          "priceUsd": "0.0000003087",
+          "liquidityUsd": 32374.38,
+          "vol24h": 257760.44,
+          "chg1h": 25.21,
+          "chg24h": 25.21,
+          "fdv": 30875,
+          "marketCap": 30875
+        },
+        "sourceKey": "TG:0x826719a96e3edf9208ad220462cef280d29d6b07"
+      },
+      {
+        "addr": "Cm6fNnMk7NfzStP9CZpsQA2v3jjzbcYGAxdJySmHpump",
+        "mentions": 1,
+        "tickers": [
+          "Buttcoin"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "Cm6fNnMk7NfzStP9CZpsQA2v3jjzbcYGAxdJySmHpump"
+          }
+        ],
+        "dex": {
+          "chainId": "solana",
+          "dexId": "pumpswap",
+          "url": "https://dexscreener.com/solana/ffcygssgwhfora9rxxka48p8yfoz8tsw85jpo3cqhdys",
+          "pairAddress": "FFcYgSSgWHforA9rXXkA48p8YFoz8TSW85Jpo3CQHDyS",
+          "baseSymbol": "Buttcoin",
+          "baseAddress": "Cm6fNnMk7NfzStP9CZpsQA2v3jjzbcYGAxdJySmHpump",
+          "priceUsd": "0.01239",
+          "liquidityUsd": 506121.87,
+          "vol24h": 3496573.53,
+          "chg1h": -9.44,
+          "chg24h": 33.5,
+          "fdv": 12393782,
+          "marketCap": 12393782
+        },
+        "sourceKey": "TG:Cm6fNnMk7NfzStP9CZpsQA2v3jjzbcYGAxdJySmHpump"
+      },
+      {
+        "addr": "2akXpuyFXAVN5YofZpZMfBp2Vxognpmv9NooBMuHpump",
+        "mentions": 1,
+        "tickers": [
+          "ELON"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "2akXpuyFXAVN5YofZpZMfBp2Vxognpmv9NooBMuHpump"
+          }
+        ],
+        "dex": {
+          "chainId": "solana",
+          "dexId": "pumpswap",
+          "url": "https://dexscreener.com/solana/afpugruqysxvwemhsv1x4ezeq8pnpu3gqartpxh1sue",
+          "pairAddress": "afpugRuqYSxVwEMHSV1x4EZeq8pNPU3GqaRtpxh1sue",
+          "baseSymbol": "ELON",
+          "baseAddress": "2akXpuyFXAVN5YofZpZMfBp2Vxognpmv9NooBMuHpump",
+          "priceUsd": "0.003295",
+          "liquidityUsd": 271655.51,
+          "vol24h": 3610080.3,
+          "chg1h": 12.75,
+          "chg24h": 323,
+          "fdv": 3295317,
+          "marketCap": 3295317
+        },
+        "sourceKey": "TG:2akXpuyFXAVN5YofZpZMfBp2Vxognpmv9NooBMuHpump"
+      },
+      {
+        "addr": "0xce16ef461d88256d2d80dfd31f0d9e7a9fd59213",
+        "mentions": 1,
+        "tickers": [
+          "BUNKER"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0xce16ef461d88256d2d80dfd31f0d9e7a9fd59213"
+          }
+        ],
+        "dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x22d0b6e5b2bfa4a1bb4567114a448fe3cbfb7ba1baa79c8d974464de7e4854b3",
+          "pairAddress": "0x22d0b6e5b2bfa4a1bb4567114a448fe3cbfb7ba1baa79c8d974464de7e4854b3",
+          "baseSymbol": "BUNKER",
+          "baseAddress": "0xCe16Ef461d88256D2D80DFD31F0D9E7a9fD59213",
+          "priceUsd": "0.000006357",
+          "liquidityUsd": 277261.39,
+          "vol24h": 6913362.77,
+          "chg1h": -26.89,
+          "chg24h": 2486,
+          "fdv": 635714,
+          "marketCap": 635714
+        },
+        "sourceKey": "TG:0xce16ef461d88256d2d80dfd31f0d9e7a9fd59213"
+      },
+      {
+        "addr": "0xde9c59968c8bcd9b3050d7231c4ec6c2b1864b07",
+        "mentions": 1,
+        "tickers": [
+          "N"
+        ],
+        "examples": [
+          {
+            "handle": "TG",
+            "text": "0xde9c59968c8bcd9b3050d7231c4ec6c2b1864b07"
+          }
+        ],
+        "dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x4661caecfc12697b7e14e26e033c93376b00ab25d2a1c0cf6dedcb7efbcfdc02",
+          "pairAddress": "0x4661caecfc12697b7e14e26e033c93376b00ab25d2a1c0cf6dedcb7efbcfdc02",
+          "baseSymbol": "N",
+          "baseAddress": "0xDe9c59968C8BCd9B3050D7231c4eC6c2b1864B07",
+          "priceUsd": "0.0000004831",
+          "liquidityUsd": 45709.16,
+          "vol24h": 186177.44,
+          "chg1h": 93.36,
+          "chg24h": 93.36,
+          "fdv": 48311,
+          "marketCap": 48311
+        },
+        "sourceKey": "TG:0xde9c59968c8bcd9b3050d7231c4ec6c2b1864b07"
+      }
+    ],
+    "twitter_ca_inputs": [
+      {
+        "sym": "LOCK",
+        "evidence": {
+          "snippets": [
+            "blessbhoy Omerta_SOL Locking in before the price jump is the move",
+            "doing an accountability thread for february bc maybe that makes me finally lock in",
+            "BARU BUKA MAIN ACC KNP TBTB KE LOCK ANJGGGGGGGG",
+            "𖤐 ៹ ˊ rtholic bhie pls lock in",
+            "GeckoTerminal January s crown goes to $LOCKIN. Still locked. Still ours.",
+            "pantheresunlock"
+          ]
+        },
+        "ca": "App2Sp9pgmQG7yD6uVaygULxALf4TpfALgnhHEkJimih"
+      },
+      {
+        "sym": "SYLTH",
+        "evidence": {
+          "snippets": [
+            "Smart Money 5m Buy $SYLTH 0x07ca17cce91978fa83ffc6fe0529f93f82909b07 SYLTH: Symbolizing Youth, Life, and... - Check",
+            "CRYPT0forCHANGE imjesseshow swapped 97.61336 USDC for 98707022.189858631259804239 SYLTH on base. tx: chart:"
+          ]
+        },
+        "ca": "0x07ca17cce91978fa83ffc6fe0529f93f82909b07"
+      }
+    ],
+    "social_cards": [],
+    "debug": {
+      "human_texts": 447,
+      "messages_by_chat": {
+        "3096206759": 5,
+        "1956264308": 260,
+        "2243200666": 0,
+        "2335179695": 260,
+        "2408369357": 0,
+        "2955560057": 0,
+        "3041253761": 0,
+        "3219058398": 0,
+        "3407266761": 4,
+        "5087005415": 0
+      },
+      "tg_topics_inferred": true,
+      "tg_topics_fallback_used": true,
+      "tg_topics_fallback_reason": "llm_empty"
+    }
+  }
+}

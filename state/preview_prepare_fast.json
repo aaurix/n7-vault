@@ -1,0 +1,27 @@
+{
+  "since": "2026-02-01T04:40:20Z",
+  "until": "2026-02-01T05:40:20Z",
+  "hourKey": "2026-02-01 13:00",
+  "use_llm": false,
+  "perf": {
+    "oi_items": 0.0
+  },
+  "errors": [],
+  "prepared": {
+    "oi_lines": [],
+    "oi_items": [],
+    "perp_dash_inputs": [],
+    "oi_plans": [],
+    "tg_topics": [],
+    "threads_strong": [],
+    "threads_weak": [],
+    "radar_items": [],
+    "twitter_ca_inputs": [],
+    "social_cards": [],
+    "debug": {
+      "human_texts": 0,
+      "messages_by_chat": {},
+      "tg_topics_inferred": false
+    }
+  }
+}

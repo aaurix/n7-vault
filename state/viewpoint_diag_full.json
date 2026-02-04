@@ -1,0 +1,512 @@
+{
+  "since": "2026-02-01T16:09:49Z",
+  "until": "2026-02-01T17:09:49Z",
+  "hourKey": "2026-02-02 01:00",
+  "use_llm": true,
+  "perf": {
+    "prepare_health_check": 0.0,
+    "prepare_health_check_skipped": 1.0,
+    "prepare_meme_spawn": 0.0,
+    "prepare_meme_spawn_skipped": 1.0,
+    "tg_fetch_and_replay": 3.228,
+    "prepare_tg_fetch": 3.228,
+    "viewpoint_threads_msgs_in": 486.0,
+    "human_texts": 0.01,
+    "prepare_human_texts": 0.01,
+    "prepare_oi_items": 0.0,
+    "prepare_oi_items_skipped": 1.0,
+    "prepare_oi_plans": 0.0,
+    "prepare_oi_plans_skipped": 1.0,
+    "viewpoint_threads_extract": 9.122,
+    "viewpoint_threads": 9.122,
+    "prepare_viewpoint_threads": 9.122,
+    "prepare_tg_topics": 0.0,
+    "prepare_tg_topics_skipped": 1.0,
+    "prepare_tg_topics_fallback": 0.0,
+    "prepare_tg_topics_fallback_skipped": 1.0,
+    "prepare_twitter_following": 0.0,
+    "prepare_twitter_following_skipped": 1.0,
+    "prepare_meme_wait": 0.0,
+    "prepare_meme_wait_skipped": 1.0,
+    "prepare_tg_addr_merge": 0.0,
+    "prepare_tg_addr_merge_skipped": 1.0,
+    "prepare_social_cards": 0.0,
+    "prepare_social_cards_skipped": 1.0,
+    "prepare_perp_dash_inputs": 0.0,
+    "prepare_perp_dash_inputs_skipped": 1.0,
+    "prepare_total": 12.368
+  },
+  "errors": [],
+  "prepared": {
+    "oi_lines": [],
+    "oi_items": [],
+    "perp_dash_inputs": [],
+    "oi_plans": [],
+    "tg_topics": [],
+    "threads_strong": [
+      {
+        "title": "PURCH（MC≈$5.3M vol24≈$8.5M liq≈$277.5K）",
+        "stance": "中性",
+        "count": 6,
+        "entities": [
+          "PURCH"
+        ],
+        "points": [
+          "动量情绪更强：注意冲高回落与二次派发"
+        ],
+        "sym": "PURCH",
+        "_msgs": [
+          "7EW5dDD6MYJK4PcZ89MGApJQwWeDEeNgH4NCVU4qpump",
+          "0x13130e40cea1b3de7166cea209dc926f454c6b07",
+          "0x13130e40cea1b3de7166cea209dc926f454c6b07",
+          "7EW5dDD6MYJK4PcZ89MGApJQwWeDEeNgH4NCVU4qpump",
+          "7EW5dDD6MYJK4PcZ89MGApJQwWeDEeNgH4NCVU4qpump",
+          "now 4.5m , blasting here feels fine\nCuz i think this can go to 10m $purch"
+        ],
+        "_dex": {
+          "chainId": "solana",
+          "dexId": "pumpswap",
+          "url": "https://dexscreener.com/solana/arsufvuvr6p2ptvjoiuwimecobjc2bshrn2domgfidv6",
+          "pairAddress": "ARSUFvUVR6p2ptvJoiuwiMEcobjC2BshrN2domGFiDV6",
+          "baseSymbol": "PURCH",
+          "baseAddress": "7EW5dDD6MYJK4PcZ89MGApJQwWeDEeNgH4NCVU4qpump",
+          "priceUsd": "0.005301",
+          "liquidityUsd": 277512.9,
+          "vol24h": 8536309.59,
+          "chg1h": 532,
+          "chg24h": 448,
+          "fdv": 5301256,
+          "marketCap": 5301256
+        }
+      },
+      {
+        "title": "CLAWM（MC≈$133.6K vol24≈$611.6K liq≈$71.3K）",
+        "stance": "中性",
+        "count": 3,
+        "entities": [
+          "CLAWM"
+        ],
+        "points": [
+          "热度升温：讨论集中但共识不强，注意节奏与风险"
+        ],
+        "sym": "CLAWM",
+        "_msgs": [
+          "0xe35c758a2fa1b75aa31322e82937e8316c7f5b07",
+          "0xbc8ee637819831e7b8b7eb62cc4a6d71dabf4a6b",
+          "0xbc8ee637819831e7b8b7eb62cc4a6d71dabf4a6b"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0xb49cf84700fed392d8c57c02c4fcd7bddda6706683e84e0021ac9b71c59ff517",
+          "pairAddress": "0xb49cf84700fed392d8c57c02c4fcd7bddda6706683e84e0021ac9b71c59ff517",
+          "baseSymbol": "CLAWM",
+          "baseAddress": "0xE35c758a2fa1b75Aa31322E82937e8316c7F5B07",
+          "priceUsd": "0.000001336",
+          "liquidityUsd": 71262.69,
+          "vol24h": 611552.18,
+          "chg1h": 1036,
+          "chg24h": 1036,
+          "fdv": 133611,
+          "marketCap": 133611
+        }
+      }
+    ],
+    "threads_weak": [
+      {
+        "title": "COPPERINU（MC≈$19.0M vol24≈$4 liq≈$17.1M）",
+        "stance": "中性",
+        "count": 2,
+        "entities": [
+          "COPPERINU"
+        ],
+        "points": [],
+        "sym": "COPPERINU",
+        "_msgs": [
+          "61Wj56QgGyyB966T7YsMzEAKRLcMvJpDbPzjkrCZc4Bi",
+          "61Wj56QgGyyB966T7YsMzEAKRLcMvJpDbPzjkrCZc4Bi"
+        ],
+        "_dex": {
+          "chainId": "solana",
+          "dexId": "raydium",
+          "url": "https://dexscreener.com/solana/72q49epbqbaz3zi4wvxdm3ecr2accjbtghcvzz8k6ak4",
+          "pairAddress": "72q49ePbQbAZ3Zi4wvXDm3ECr2aCCjbTgHCVZZ8k6ak4",
+          "baseSymbol": "COPPERINU",
+          "baseAddress": "5G5jDcs7NKbw9HuUt7FvLwCZeBqBvPxhXKsbMhZKmR5q",
+          "priceUsd": "0.01899",
+          "liquidityUsd": 17096828.56,
+          "vol24h": 3.79,
+          "chg1h": null,
+          "chg24h": 99.96,
+          "fdv": 18996315,
+          "marketCap": 18996315
+        }
+      },
+      {
+        "title": "CHIEFPUSSY（MC≈$556.6K vol24≈$98.0K liq≈$70.8K）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "CHIEFPUSSY"
+        ],
+        "points": [
+          "动量情绪更强：注意冲高回落与二次派发"
+        ],
+        "sym": "CHIEFPUSSY",
+        "_msgs": [
+          "DRtvTCzfiKGhCVREmBbZdN9sB8PHeq9KdRZ3VmFhpump"
+        ],
+        "_dex": {
+          "chainId": "solana",
+          "dexId": "pumpswap",
+          "url": "https://dexscreener.com/solana/881t1o9j3zxrpimgexcrv7hrzxb73vptvwqxzvto1bgk",
+          "pairAddress": "881t1o9J3zXrpimGExcRV7HRzXb73VPTVwqXZvTo1BGk",
+          "baseSymbol": "ChiefPussy",
+          "baseAddress": "DRtvTCzfiKGhCVREmBbZdN9sB8PHeq9KdRZ3VmFhpump",
+          "priceUsd": "0.0005738",
+          "liquidityUsd": 70826.81,
+          "vol24h": 97987.94,
+          "chg1h": -1.78,
+          "chg24h": 68.08,
+          "fdv": 556563,
+          "marketCap": 556563
+        }
+      },
+      {
+        "title": "CEO（MC≈$649.5K vol24≈$922 liq≈$97.4K）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "CEO"
+        ],
+        "points": [],
+        "sym": "CEO",
+        "_msgs": [
+          "Circle CEO"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x376875233c50f3f62eb1e052f0d7acdbbdb36a9d",
+          "pairAddress": "0x376875233c50F3f62Eb1e052F0D7aCdbbdb36a9d",
+          "baseSymbol": "CEO",
+          "baseAddress": "0xA66f68ef2D8091e13585a502464bd11A159cF710",
+          "priceUsd": "0.0006495",
+          "liquidityUsd": 97364.45,
+          "vol24h": 922.35,
+          "chg1h": -2.92,
+          "chg24h": -1.6,
+          "fdv": 649509,
+          "marketCap": 649509
+        }
+      },
+      {
+        "title": "MICASA（MC≈$78.5K vol24≈$1.0M liq≈$70.8K）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "MICASA"
+        ],
+        "points": [],
+        "sym": "MICASA",
+        "_msgs": [
+          "0x1618ba5dbb97aaa04043fece55e2a78311ba9b07"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0xe9ea60159f11e77d4996deec913e3dbdea06de18430e52861fd8cddb45432a19",
+          "pairAddress": "0xe9ea60159f11e77d4996deec913e3dbdea06de18430e52861fd8cddb45432a19",
+          "baseSymbol": "Micasa",
+          "baseAddress": "0x1618bA5DbB97aAa04043fEce55E2a78311ba9B07",
+          "priceUsd": "0.0000007851",
+          "liquidityUsd": 70816.63,
+          "vol24h": 1046723.38,
+          "chg1h": -65.16,
+          "chg24h": 237,
+          "fdv": 78514,
+          "marketCap": 78514
+        }
+      },
+      {
+        "title": "NEO（MC≈$478.9M vol24≈$4 liq≈$477.9M）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "NEO"
+        ],
+        "points": [
+          "动量情绪更强：注意冲高回落与二次派发"
+        ],
+        "sym": "NEO",
+        "_msgs": [
+          "8fdBKZq7wo9fJbsZEZhq6omCgvKzLt97HY9XaGgqpump"
+        ],
+        "_dex": {
+          "chainId": "solana",
+          "dexId": "meteora",
+          "url": "https://dexscreener.com/solana/9totgrhah8fgd1rkrcpyb8o4tcq5khbtvkk5d1nchvj5",
+          "pairAddress": "9TotGRhAh8fgD1RkrCPyB8o4tCq5KHBTVkK5D1ncHvJ5",
+          "baseSymbol": "NEO",
+          "baseAddress": "GZdDpfvga5rGhFrpYp3Cvyfw9QPpY7Cpw5Q7CNXadAr3",
+          "priceUsd": "6.78",
+          "liquidityUsd": 477905106.98,
+          "vol24h": 3.99,
+          "chg1h": null,
+          "chg24h": -0.02,
+          "fdv": 478905073,
+          "marketCap": 478905073
+        }
+      },
+      {
+        "title": "BUNKER（MC≈$625.8K vol24≈$7.5M liq≈$277.1K）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "BUNKER"
+        ],
+        "points": [],
+        "sym": "BUNKER",
+        "_msgs": [
+          "0xce16ef461d88256d2d80dfd31f0d9e7a9fd59213"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x22d0b6e5b2bfa4a1bb4567114a448fe3cbfb7ba1baa79c8d974464de7e4854b3",
+          "pairAddress": "0x22d0b6e5b2bfa4a1bb4567114a448fe3cbfb7ba1baa79c8d974464de7e4854b3",
+          "baseSymbol": "BUNKER",
+          "baseAddress": "0xCe16Ef461d88256D2D80DFD31F0D9E7a9fD59213",
+          "priceUsd": "0.000006258",
+          "liquidityUsd": 277109.84,
+          "vol24h": 7476102.25,
+          "chg1h": 33.37,
+          "chg24h": 2446,
+          "fdv": 625817,
+          "marketCap": 625817
+        }
+      },
+      {
+        "title": "A10（MC≈$88.1K vol24≈$25 liq≈$104）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "A10"
+        ],
+        "points": [],
+        "sym": "A10",
+        "_msgs": [
+          "A10"
+        ],
+        "_dex": {
+          "chainId": "bsc",
+          "dexId": "pancakeswap",
+          "url": "https://dexscreener.com/bsc/0xb044529b57ef2313e770ab8a46fda430dff0b1d1",
+          "pairAddress": "0xb044529B57Ef2313E770AB8a46FdA430dff0B1D1",
+          "baseSymbol": "A10",
+          "baseAddress": "0xeDC50E3106355BB28029BE5B93984097BE924F13",
+          "priceUsd": "0.01247",
+          "liquidityUsd": 103.62,
+          "vol24h": 25.46,
+          "chg1h": -33.49,
+          "chg24h": -33.75,
+          "fdv": 88090,
+          "marketCap": 88090
+        }
+      },
+      {
+        "title": "YES（MC≈$265.5M vol24≈$4 liq≈$262.3M）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "YES"
+        ],
+        "points": [],
+        "sym": "YES",
+        "_msgs": [
+          "YES"
+        ],
+        "_dex": {
+          "chainId": "blast",
+          "dexId": "thruster",
+          "url": "https://dexscreener.com/blast/0x1d16788b97edb7d9a6ae66d5c5c16469037faa00",
+          "pairAddress": "0x1d16788b97eDB7d9a6aE66D5C5C16469037Faa00",
+          "baseSymbol": "YES",
+          "baseAddress": "0x20fE91f17ec9080E3caC2d688b4EcB48C5aC3a9C",
+          "priceUsd": "3.083",
+          "liquidityUsd": 262322416.12,
+          "vol24h": 4.24,
+          "chg1h": null,
+          "chg24h": null,
+          "fdv": 265537126,
+          "marketCap": 265537126
+        }
+      },
+      {
+        "title": "MOLT（MC≈$234.3M vol24≈$4 liq≈$187.4M）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "MOLT"
+        ],
+        "points": [],
+        "sym": "MOLT",
+        "_msgs": [
+          "0xb695559b26bb2c9703ef1935c37aeae9526bab07"
+        ],
+        "_dex": {
+          "chainId": "ethereum",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/ethereum/0xe99b29e7f9dbdd43b5a5e6fae72463dfa5d732ac",
+          "pairAddress": "0xe99b29E7F9Dbdd43B5A5e6FaE72463DFa5d732Ac",
+          "baseSymbol": "MOLT",
+          "baseAddress": "0xea163d5E7C9658a0e2D3A5785Dff7bb020311b27",
+          "priceUsd": "0.002342",
+          "liquidityUsd": 187419501.65,
+          "vol24h": 4,
+          "chg1h": null,
+          "chg24h": null,
+          "fdv": 234274377,
+          "marketCap": 234274377
+        }
+      },
+      {
+        "title": "CLAWNCH（MC≈$16.6M vol24≈$31.8M liq≈$2.3M）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "CLAWNCH"
+        ],
+        "points": [],
+        "sym": "CLAWNCH",
+        "_msgs": [
+          "CLAWNCH"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x03d3c21ea1daf51dd2898ebaf9342a93374877ba6ab34cc7ffe5b5d43ee46e0a",
+          "pairAddress": "0x03d3c21ea1daf51dd2898ebaf9342a93374877ba6ab34cc7ffe5b5d43ee46e0a",
+          "baseSymbol": "CLAWNCH",
+          "baseAddress": "0xa1F72459dfA10BAD200Ac160eCd78C6b77a747be",
+          "priceUsd": "0.0001655",
+          "liquidityUsd": 2277103.61,
+          "vol24h": 31797241.13,
+          "chg1h": 7.49,
+          "chg24h": 238,
+          "fdv": 16556867,
+          "marketCap": 16556867
+        }
+      },
+      {
+        "title": "LEOPARD（MC≈$126.3K vol24≈$12 liq≈$27.7K）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "LEOPARD"
+        ],
+        "points": [
+          "动量情绪更强：注意冲高回落与二次派发"
+        ],
+        "sym": "LEOPARD",
+        "_msgs": [
+          "3SsvRDN22iJWnMgc2t88E2tTv1SJitkuHLYdo2Dgpump"
+        ],
+        "_dex": {
+          "chainId": "bsc",
+          "dexId": "pancakeswap",
+          "url": "https://dexscreener.com/bsc/0x01839856993b0883d8ad2f9ddc5450cfbe551e8a",
+          "pairAddress": "0x01839856993B0883d8AD2f9DDC5450cfBe551E8a",
+          "baseSymbol": "LEOPARD",
+          "baseAddress": "0x4Efab39b14167Da54aebed2094a61aA1FD384056",
+          "priceUsd": "0.0000000000003363",
+          "liquidityUsd": 27712.75,
+          "vol24h": 12.3,
+          "chg1h": null,
+          "chg24h": -3.25,
+          "fdv": 126310,
+          "marketCap": 126310
+        }
+      },
+      {
+        "title": "ROCINATE（MC≈$23.0K vol24≈$36.1K liq≈$23.8K）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "ROCINATE"
+        ],
+        "points": [],
+        "sym": "ROCINATE",
+        "_msgs": [
+          "0xd2d1992382670E67e80d0B26Be46eaa956C20B07"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x346cf151a00cf47e035ce34f4b5b8b41093a7041dd86a69d89ca60b16d33c9b0",
+          "pairAddress": "0x346cf151a00cf47e035ce34f4b5b8b41093a7041dd86a69d89ca60b16d33c9b0",
+          "baseSymbol": "ROCINATE",
+          "baseAddress": "0xd2d1992382670E67e80d0B26Be46eaa956C20B07",
+          "priceUsd": "0.0000002299",
+          "liquidityUsd": 23828.38,
+          "vol24h": 36112.05,
+          "chg1h": -6.63,
+          "chg24h": -6.63,
+          "fdv": 22995,
+          "marketCap": 22995
+        }
+      },
+      {
+        "title": "KELLYCLAUD（MC≈$2.3M vol24≈$7 liq≈$1.7M）",
+        "stance": "中性",
+        "count": 1,
+        "entities": [
+          "KELLYCLAUD"
+        ],
+        "points": [],
+        "sym": "KELLYCLAUD",
+        "_msgs": [
+          "$Kellyclaude ath 4x, here are some thoughts\n\nhttps://x.com/i/status/2017995647279132870"
+        ],
+        "_dex": {
+          "chainId": "base",
+          "dexId": "uniswap",
+          "url": "https://dexscreener.com/base/0x0a628392f13e922bfbb78868d5a0e741b6d1acc742a32048d92816105dd47cc8",
+          "pairAddress": "0x0a628392f13e922bfbb78868d5a0e741b6d1acc742a32048d92816105dd47cc8",
+          "baseSymbol": "KellyClaude",
+          "baseAddress": "0xAd0BbBE6cBb804d4BfCcbb8941960b9E0d2c44cA",
+          "priceUsd": "0.00002317",
+          "liquidityUsd": 1738067.79,
+          "vol24h": 7.03,
+          "chg1h": null,
+          "chg24h": -4.13,
+          "fdv": 2317423,
+          "marketCap": 2317423
+        }
+      }
+    ],
+    "twitter_following": {},
+    "twitter_following_summary": {},
+    "radar_items": [],
+    "twitter_ca_inputs": [],
+    "social_cards": [],
+    "debug": {
+      "human_texts": 486,
+      "messages_by_chat": {
+        "3096206759": 3,
+        "1956264308": 260,
+        "2243200666": 1,
+        "2335179695": 260,
+        "2408369357": 0,
+        "2955560057": 4,
+        "3041253761": 0,
+        "3219058398": 0,
+        "3407266761": 27,
+        "5087005415": 0
+      },
+      "tg_topics_inferred": false,
+      "tg_topics_fallback_used": false,
+      "tg_topics_fallback_reason": ""
+    }
+  }
+}

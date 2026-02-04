@@ -1,0 +1,72 @@
+{
+  "run_started_at": "2026-02-04T10:05:22Z",
+  "steps": {
+    "health_check": {
+      "start": "2026-02-04T10:05:22Z",
+      "end": "2026-02-04T10:05:22Z",
+      "status": "ok"
+    },
+    "meme_spawn": {
+      "start": "2026-02-04T10:05:22Z",
+      "end": "2026-02-04T10:05:22Z",
+      "status": "ok"
+    },
+    "twitter_following": {
+      "start": "2026-02-04T10:05:22Z",
+      "end": "2026-02-04T10:05:34Z",
+      "status": "ok"
+    },
+    "tg_fetch": {
+      "start": "2026-02-04T10:05:22Z",
+      "end": "2026-02-04T10:05:39Z",
+      "status": "ok"
+    },
+    "human_texts": {
+      "start": "2026-02-04T10:05:39Z",
+      "end": "2026-02-04T10:05:39Z",
+      "status": "ok"
+    },
+    "oi_items": {
+      "start": "2026-02-04T10:05:39Z",
+      "end": "2026-02-04T10:05:57Z",
+      "status": "ok"
+    },
+    "oi_plans": {
+      "start": "2026-02-04T10:05:57Z",
+      "end": "2026-02-04T10:07:51Z",
+      "status": "ok"
+    },
+    "viewpoint_threads": {
+      "start": "2026-02-04T10:07:51Z",
+      "end": "2026-02-04T10:08:12Z",
+      "status": "ok"
+    },
+    "tg_topics": {
+      "start": "2026-02-04T10:08:12Z",
+      "end": "2026-02-04T10:08:16Z",
+      "status": "ok"
+    },
+    "meme_wait": {
+      "start": "2026-02-04T10:08:16Z",
+      "end": "2026-02-04T10:08:16Z",
+      "status": "ok"
+    },
+    "tg_addr_merge": {
+      "start": "2026-02-04T10:08:16Z",
+      "end": "2026-02-04T10:08:20Z",
+      "status": "ok"
+    },
+    "social_cards": {
+      "start": "2026-02-04T10:08:20Z",
+      "end": "2026-02-04T10:08:20Z",
+      "status": "ok"
+    },
+    "perp_dash_inputs": {
+      "start": "2026-02-04T10:08:20Z",
+      "end": "2026-02-04T10:08:20Z",
+      "status": "ok"
+    }
+  },
+  "last_step": null,
+  "updated_at": "2026-02-04T10:08:20Z"
+}

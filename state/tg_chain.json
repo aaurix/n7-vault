@@ -1,0 +1,139 @@
+{
+  "since": "2026-02-01T05:07:20Z",
+  "until": "2026-02-01T06:07:20Z",
+  "hourKey": "2026-02-01 14:00",
+  "use_llm": false,
+  "perf": {
+    "prepare_health_check": 0.0,
+    "prepare_health_check_skipped": 1.0,
+    "prepare_meme_spawn": 0.0,
+    "prepare_meme_spawn_skipped": 1.0,
+    "tg_fetch_and_replay": 2.912,
+    "prepare_tg_fetch": 2.912,
+    "viewpoint_threads_msgs_in": 436.0,
+    "human_texts": 0.011,
+    "prepare_human_texts": 0.011,
+    "prepare_oi_items": 0.0,
+    "prepare_oi_items_skipped": 1.0,
+    "prepare_oi_plans": 0.0,
+    "prepare_oi_plans_skipped": 1.0,
+    "viewpoint_threads_extract": 12.016,
+    "viewpoint_threads": 12.016,
+    "prepare_viewpoint_threads": 12.016,
+    "tg_snippets": 120.0,
+    "tg_topics_pipeline": 0.006,
+    "prepare_tg_topics": 0.006,
+    "prepare_meme_wait": 0.0,
+    "prepare_meme_wait_skipped": 1.0,
+    "prepare_tg_addr_merge": 0.0,
+    "prepare_tg_addr_merge_skipped": 1.0,
+    "prepare_social_cards": 0.0,
+    "prepare_social_cards_skipped": 1.0,
+    "prepare_perp_dash_inputs": 0.0,
+    "prepare_perp_dash_inputs_skipped": 1.0,
+    "prepare_total": 14.946
+  },
+  "errors": [],
+  "prepared": {
+    "oi_lines": [],
+    "oi_items": [],
+    "perp_dash_inputs": [],
+    "oi_plans": [],
+    "tg_topics": [
+      {
+        "asset_name": "45M",
+        "why_buy": "",
+        "why_not_buy": "",
+        "trigger": "关注关键位/催化",
+        "risk": "消息噪音/情绪盘",
+        "evidence_snippets": [
+          "企鵝 45M~170M~40M 剩我自己追蹤",
+          "企鵝 45M~170M~40M 剩我自己追蹤"
+        ],
+        "sentiment": "中性",
+        "related_assets": [
+          "45M"
+        ]
+      },
+      {
+        "asset_name": "170M",
+        "why_buy": "",
+        "why_not_buy": "",
+        "trigger": "关注关键位/催化",
+        "risk": "消息噪音/情绪盘",
+        "evidence_snippets": [
+          "企鵝 45M~170M~40M 剩我自己追蹤",
+          "企鵝 45M~170M~40M 剩我自己追蹤"
+        ],
+        "sentiment": "中性",
+        "related_assets": [
+          "170M"
+        ]
+      },
+      {
+        "asset_name": "15M",
+        "why_buy": "",
+        "why_not_buy": "",
+        "trigger": "关注关键位/催化",
+        "risk": "消息噪音/情绪盘",
+        "evidence_snippets": [
+          "15M~1B 後續不再追蹤",
+          "15M~1B 後續不再追蹤"
+        ],
+        "sentiment": "中性",
+        "related_assets": [
+          "15M"
+        ]
+      },
+      {
+        "asset_name": "BUNKERMEME",
+        "why_buy": "多空分歧",
+        "why_not_buy": "",
+        "trigger": "关注关键位/催化",
+        "risk": "消息噪音/情绪盘",
+        "evidence_snippets": [
+          "$BUNKERMeme源于AI代理社区的生存叙事，象征代理在人类主导世界中的数字避难所。近日，一AI代理专属发射台Clawnch宣布推出$BUNKER，定位为代"
+        ],
+        "sentiment": "分歧",
+        "related_assets": [
+          "BUNKERMEME"
+        ]
+      },
+      {
+        "asset_name": "BUNKER",
+        "why_buy": "多空分歧",
+        "why_not_buy": "",
+        "trigger": "关注关键位/催化",
+        "risk": "消息噪音/情绪盘",
+        "evidence_snippets": [
+          "$BUNKERMeme源于AI代理社区的生存叙事，象征代理在人类主导世界中的数字避难所。近日，一AI代理专属发射台Clawnch宣布推出$BUNKER，定位为代"
+        ],
+        "sentiment": "分歧",
+        "related_assets": [
+          "BUNKER"
+        ]
+      }
+    ],
+    "threads_strong": [],
+    "threads_weak": [],
+    "radar_items": [],
+    "twitter_ca_inputs": [],
+    "social_cards": [],
+    "debug": {
+      "human_texts": 436,
+      "messages_by_chat": {
+        "3096206759": 1,
+        "1956264308": 260,
+        "2243200666": 0,
+        "2335179695": 260,
+        "2408369357": 0,
+        "2955560057": 0,
+        "3041253761": 0,
+        "3219058398": 0,
+        "3407266761": 4,
+        "5087005415": 0
+      },
+      "tg_topics_inferred": false
+    }
+  }
+}
