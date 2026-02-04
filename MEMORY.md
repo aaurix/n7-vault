@@ -11,6 +11,7 @@
 - **Input normalization**: accept `$symbol` forms; default quote is USDT; social anchor uses `$SYMBOL`.
 - **Script LLM routing**: scripts’ chat/completions use OpenRouter; embeddings remain on OpenAI.
 - **Ops behavior**: default allow commit+push unless explicitly told not to; fix missing deps properly (no monkey patches).
+- **Logging best practice**: follow official guidance—do not auto-log chats to daily. Only record key events/important execution rules as summaries when I judge they're important.
 
 ## Ops / reminders
 - Pill reminder acknowledgements are tracked locally in `memory/pill_ack.json`.
