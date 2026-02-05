@@ -1,14 +1,3 @@
-# WhatsApp delivery + idempotency
+# WhatsApp Delivery
 
-## WhatsApp constraints
-- Keep each message chunk <= ~950 chars to avoid truncation/failure.
-- Split by section boundaries and newlines.
-
-## Idempotency
-- State file: `/Users/massis/clawd/state/hourly_summary_delivery.json`
-- Keyed by `hourKey + summaryHash`.
-- Track `whatsappSent` boolean.
-
-## Cron notes
-- Cron exec: avoid heredocs.
-- If WhatsApp gateway disconnects (428/499), treat as transient; next run should recover.
+See `references/delivery-whatsapp.md` for full guidance.

@@ -15,11 +15,10 @@ This skill is the **runbook** for the hourly summary pipeline in this repo.
 
 ## Quick start (most common)
 - Run locally:
-  - `python3 /Users/massis/clawd/scripts/hourly_market_summary.py`
+  - `PYTHONPATH=src python3 -m market_ops hourly`
 - Inspect JSON keys:
-  - `summary_whatsapp` (delivery body; TG social cards include drivers+1 risk)
+  - `summary` (delivery body; TG social cards include drivers+1 risk)
   - `errors` (debug only; never user-visible)
-  - `tg_viewpoint_messages` (input size sanity check)
 - Cron rule of thumb:
   - **Do not use heredocs** like `python3 - <<'PY'` (cron exec may fail)
 - Delivery rule of thumb:

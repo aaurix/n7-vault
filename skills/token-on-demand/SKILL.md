@@ -14,30 +14,25 @@ This skill covers **interactive** analysis requests (not cron).
      - `PUMP` / `pump` / `$pump` → `PUMPUSDT` (**default quote: USDT**)
    - Social search normalization:
      - Uses cashtag anchor `$PUMP` (uppercase) + perp symbol anchor `PUMPUSDT`
-     - For ambiguous tickers (see `scripts/hourly/twitter_context.py` ambiguous list), bare words are de-emphasized and stronger anchors are required.
+     - For ambiguous tickers, bare words are de-emphasized and stronger anchors are required.
    - Prepare→Agent pattern:
-     - prepare（无LLM）: `python3 /Users/massis/clawd/scripts/analyze_symbol_prepare.py <SYMBOL_OR_TICKER> --pretty`
-     - agent（默认输出）: `python3 /Users/massis/clawd/scripts/analyze_symbol.py <SYMBOL_OR_TICKER>`
-   - Debug normalization:
-     - `python3 /Users/massis/clawd/scripts/analyze_symbol_prepare.py pump --dry-run-normalize`
-     - `python3 /Users/massis/clawd/scripts/analyze_symbol_prepare.py --self-check`
+     - prepare（无LLM）: `PYTHONPATH=src python3 -m market_ops symbol <SYMBOL_OR_TICKER> --no-llm`
+     - agent（默认输出）: `PYTHONPATH=src python3 -m market_ops symbol <SYMBOL_OR_TICKER>`
    - Default output: **方案2 决策仪表盘**（趋势/OI/社交评分 + 要点）
    - Optional: **方案1 交易计划**（`--template plan`）
 
 2) **链上 meme（CA-based）**
    - Input: contract address (0x… / solana base58)
    - Output: DexScreener metrics + TG/Twitter context + risk/tradability bullets
+   - Command: `PYTHONPATH=src python3 -m market_ops ca <CA>`
 
 ## Quick commands
 - Symbol dashboard (default):
-  - `python3 /Users/massis/clawd/scripts/analyze_symbol.py <SYMBOL_OR_TICKER>`
-  - examples: `python3 .../analyze_symbol.py PUMP` / `python3 .../analyze_symbol.py $pump`
+  - `PYTHONPATH=src python3 -m market_ops symbol <SYMBOL_OR_TICKER>`
 - Symbol trade plan (方案1):
-  - `python3 /Users/massis/clawd/scripts/analyze_symbol.py <SYMBOL_OR_TICKER> --template plan`
-- Symbol prepare JSON (deterministic, no LLM):
-  - `python3 /Users/massis/clawd/scripts/analyze_symbol_prepare.py <SYMBOL_OR_TICKER> --pretty`
+  - `PYTHONPATH=src python3 -m market_ops symbol <SYMBOL_OR_TICKER> --template plan`
 - CA analysis:
-  - `python3 /Users/massis/clawd/scripts/analyze_ca.py <CA>`
+  - `PYTHONPATH=src python3 -m market_ops ca <CA>`
 
 ## Output boundaries
 - No raw quotes unless user asks
