@@ -1,4 +1,4 @@
-from market_ops.core.indicators import flow_label
+from scripts.market_ops.core.indicators import flow_label
 
 
 def test_flow_label_up_up():

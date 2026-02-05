@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from market_ops.render import split_whatsapp_text
+from scripts.market_ops.render import split_whatsapp_text
 
 
 def test_split_whatsapp_text_chunks_are_bounded() -> None:

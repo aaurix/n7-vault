@@ -1,4 +1,4 @@
-from market_ops.pipeline.runner import PipelineRunner
+from scripts.market_ops.pipeline.runner import PipelineRunner
 
 
 def test_runner_executes_steps_in_order():

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from market_ops.services.tg_preprocess import prefilter_tg_topic_text, score_tg_cluster
+from scripts.market_ops.services.tg_preprocess import prefilter_tg_topic_text, score_tg_cluster
 
 
 def test_prefilter_accepts_event_and_symbol() -> None:

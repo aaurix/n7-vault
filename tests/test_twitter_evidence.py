@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from market_ops.services.twitter_evidence import _alias_hit, _build_queries, _is_relevant, TwitterQuerySpec
+from scripts.market_ops.services.twitter_evidence import _alias_hit, _build_queries, _is_relevant, TwitterQuerySpec
 
 
 def test_alias_hit_contract_address() -> None:

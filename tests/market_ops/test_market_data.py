@@ -1,4 +1,4 @@
-from market_ops.ports.market_data import fetch_dex_market
+from scripts.market_ops.ports.market_data import fetch_dex_market
 
 
 class DummyDex:

@@ -1,4 +1,4 @@
-from market_ops.core.formatting import fmt_pct, fmt_usd
+from scripts.market_ops.core.formatting import fmt_pct, fmt_usd
 
 
 def test_fmt_pct():

@@ -1,4 +1,4 @@
-from market_ops.utils.paths import repo_root
+from scripts.market_ops.utils.paths import repo_root
 
 
 def test_repo_root_contains_readme():

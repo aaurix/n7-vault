@@ -1,4 +1,4 @@
-from market_ops.schema import wrap_result
+from scripts.market_ops.schema import wrap_result
 
 
 def test_wrap_result_basic():

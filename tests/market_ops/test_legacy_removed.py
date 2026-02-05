@@ -1,4 +1,5 @@
-def test_legacy_scripts_removed():
-    import importlib
+import importlib
 
-    assert importlib.util.find_spec("scripts") is None
+
+def test_scripts_package_present():
+    assert importlib.util.find_spec("scripts.market_ops") is not None
