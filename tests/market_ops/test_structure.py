@@ -58,3 +58,18 @@ def test_symbol_ca_feature_modules_exist():
 def test_symbol_ca_legacy_removed():
     assert importlib.util.find_spec("scripts.market_ops.services.symbol_analysis") is None
     assert importlib.util.find_spec("scripts.market_ops.services.ca_analysis") is None
+
+
+def test_meme_radar_feature_modules_exist():
+    assert importlib.util.find_spec("scripts.market_ops.features.meme_radar.service") is not None
+    assert importlib.util.find_spec("scripts.market_ops.features.meme_radar.engine") is not None
+
+
+def test_twitter_following_feature_modules_exist():
+    assert importlib.util.find_spec("scripts.market_ops.features.twitter_following.service") is not None
+
+
+def test_meme_radar_legacy_removed():
+    assert importlib.util.find_spec("scripts.market_ops.services.meme_radar") is None
+    assert importlib.util.find_spec("scripts.market_ops.services.meme_radar_engine") is None
+    assert importlib.util.find_spec("scripts.market_ops.services.twitter_following") is None

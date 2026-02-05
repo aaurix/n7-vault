@@ -1,4 +1,4 @@
-from ...services.meme_radar import merge_tg_addr_candidates_into_radar
+from ...features.meme_radar.service import merge_tg_addr_candidates_into_radar
 
 
 def step(ctx):

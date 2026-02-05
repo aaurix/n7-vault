@@ -1,4 +1,4 @@
-from scripts.market_ops.services.meme_radar_engine import _detect_bird_auth_error, _normalize_candidates
+from scripts.market_ops.features.meme_radar.engine import _detect_bird_auth_error, _normalize_candidates
 
 
 def test_normalize_candidates_dedup():

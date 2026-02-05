@@ -8,10 +8,10 @@ import json
 from concurrent.futures import Future, ThreadPoolExecutor, TimeoutError
 from typing import Any, Dict, List, Optional
 
-from ..shared.filters import BASE58_RE, EVM_ADDR_RE
-from ..models import PipelineContext
-from .diagnostics import measure
-from .meme_radar_engine import run_meme_radar
+from ...shared.filters import BASE58_RE, EVM_ADDR_RE
+from ...models import PipelineContext
+from ...services.diagnostics import measure
+from .engine import run_meme_radar
 
 
 _EXECUTOR = ThreadPoolExecutor(max_workers=1)

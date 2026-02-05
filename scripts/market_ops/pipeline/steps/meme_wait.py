@@ -1,4 +1,4 @@
-from ...services.meme_radar import wait_meme_radar
+from ...features.meme_radar.service import wait_meme_radar
 
 
 def step(ctx):
