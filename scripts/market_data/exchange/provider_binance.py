@@ -21,7 +21,7 @@ from typing import Any, Dict, List, Optional
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-from .exchange_ccxt import fetch_ohlcv, fetch_ticker_last, fetch_open_interest_history
+from .provider_ccxt import fetch_ohlcv, fetch_ticker_last, fetch_open_interest_history
 
 FAPI = "https://fapi.binance.com"
 
