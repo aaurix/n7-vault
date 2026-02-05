@@ -10,3 +10,9 @@ def test_normalize_candidates_dedup():
 def test_detect_bird_auth_error():
     raw = "Missing auth_token - provide via --auth-token\nMissing required credentials"
     assert _detect_bird_auth_error(raw)
+
+
+def test_twitter_following_render_removed():
+    import importlib.util
+
+    assert importlib.util.find_spec("scripts.market_ops.services.twitter_following_render") is None
