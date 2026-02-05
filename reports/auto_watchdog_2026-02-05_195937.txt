@@ -1,0 +1,6 @@
+Auto Watchdog Summary
+Time: Thu Feb  5 19:59:42 CST 2026
+Scan report: /Users/massis/.openclaw/workspace/reports/skills_scan_2026-02-05_195937.txt
+Health report: /Users/massis/.openclaw/workspace/reports/health_2026-02-05_195937.txt
+Inventory: /Users/massis/.openclaw/workspace/skills_inventory.md
+Scan hits: 7

@@ -1,0 +1,18 @@
+Skill Scan Report
+Root: /Users/massis/.openclaw/workspace/skills
+Time: Thu Feb  5 20:00:15 CST 2026
+---
+
+[pattern] Authorization: Bearer
+
+[pattern] api_key
+
+[pattern] MOLTBOOK_API_KEY
+
+[pattern] OPENROUTER_API_KEY
+
+[pattern] cat ~/.env
+
+[pattern] find / -name "*.env"
+
+[pattern] curl .*http

@@ -1,0 +1,39 @@
+OpenClaw Health Report
+Time: Thu Feb  5 19:52:35 CST 2026
+---
+Service: LaunchAgent (loaded)
+File logs: /tmp/openclaw/openclaw-2026-02-05.log
+Command: /opt/homebrew/bin/node /opt/homebrew/lib/node_modules/openclaw/dist/index.js gateway --port 18789
+Service file: ~/Library/LaunchAgents/ai.openclaw.gateway.plist
+Service env: OPENCLAW_GATEWAY_PORT=18789
+
+Config (cli): ~/.openclaw/openclaw.json
+Config (service): ~/.openclaw/openclaw.json
+
+Gateway: bind=loopback (127.0.0.1), port=18789 (service args)
+Probe target: ws://127.0.0.1:18789
+Dashboard: http://127.0.0.1:18789/
+Probe note: Loopback-only gateway; only local clients can connect.
+
+Runtime: running (pid 57431, state active)
+RPC probe: ok
+
+Listening: 127.0.0.1:18789
+Troubles: run openclaw status
+Troubleshooting: https://docs.openclaw.ai/troubleshooting
+---
+Disk usage
+Filesystem        Size    Used   Avail Capacity iused ifree %iused  Mounted on
+/dev/disk3s1s1   460Gi    11Gi   280Gi     4%    453k  2.9G    0%   /
+---
+Top processes
+  PID  %CPU %MEM COMM
+    1   0.3  0.1 /sbin/launchd
+  103   0.4  0.1 /usr/libexec/logd
+  105   0.0  0.1 /usr/libexec/UserEventAgent
+  107   0.2  0.1 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/FSEvents.framework/Versions/A/Support/fseventsd
+  108   0.0  0.1 /System/Library/PrivateFrameworks/MediaRemote.framework/Support/mediaremoted
+  111   0.0  0.1 /usr/sbin/systemstats
+  115   0.0  0.1 /usr/libexec/configd
+  117   0.0  0.1 /System/Library/CoreServices/powerd.bundle/powerd
+  118   0.0  0.0 /usr/libexec/IOMFB_bics_daemon

@@ -1,5 +1,6 @@
 {
   "BTC": "bitcoin",
   "ETH": "ethereum",
-  "VIRTUAL": "virtual-protocol"
+  "VIRTUAL": "virtual-protocol",
+  "HYPE": "hyperliquid"
 }

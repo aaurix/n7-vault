@@ -48,3 +48,21 @@
 {"hourKey":"2026-02-04 13:00","summaryHash":"fd3f3c77c360e6b21021656f2dbdad823cccb0e5","sent":true,"reason":"sent","ts":"2026-02-04T05:07:38Z"}
 {"hourKey":null,"summaryHash":null,"sent":false,"reason":"prep_failed","ts":"2026-02-04T14:05:00+08:00"}
 {"hourKey":"2026-02-04 18:00","summaryHash":"c165a9cab2a396a6effc31dcd5d717d2c1323ce7","sent":true,"reason":"sent","ts":"2026-02-04T10:10:01Z"}
+{"hourKey":"2026-02-05 01:00","summaryHash":"0776bee1a06def2b82cba771bc106ced6eaa7d6b","sent":true,"reason":"sent","ts":"2026-02-05T01:05:00+08:00"}
+{"hourKey":"2026-02-05 02:00","summaryHash":"7d1ae13517aea070a90a87d9f10f7b5e100d6730","sent":true,"reason":"sent","ts":"2026-02-05T02:05:00+08:00"}
+{"hourKey":"2026-02-05 03:00","summaryHash":"263b7cff1975fb3aba5e056351606e0246f943a3","sent":true,"reason":"sent","ts":"2026-02-05T03:05:00+08:00"}
+{"hourKey":"2026-02-05 04:00","summaryHash":"23add60699860cab7286d740ec415df0155e6df0","sent":true,"reason":"sent","ts":"2026-02-05T04:08:00+08:00"}
+{"hourKey":"2026-02-05 05:00","summaryHash":"02fbe2d5313bd65d1907117a1a23d35ac86b98d4","sent":true,"reason":"sent","ts":"2026-02-05T05:05:00+08:00"}
+{"hourKey":"2026-02-05 06:00","summaryHash":"7262c38c7f397785879ecf029d94a5b8562df2a0","sent":true,"reason":"sent","ts":"2026-02-05T06:07:18+08:00"}
+{"hourKey":"2026-02-05 07:00","summaryHash":"4a5fea9895adc97d08d9a62f3749f0eea5f2a6f1","sent":true,"reason":"sent","ts":"2026-02-05T07:07:37+08:00"}
+{"hourKey":"2026-02-05 08:00","summaryHash":"a73806dcc4685f28073423012cd585d5cf6b5b21","sent":true,"reason":"sent","ts":"2026-02-05T08:05:00+08:00"}
+{"hourKey":"2026-02-05 09:00","summaryHash":"5e33ced4b71193332a4b2b1283ab5843fdb005ee","sent":true,"reason":"sent","ts":"2026-02-05T09:10:00+08:00"}
+{"hourKey":null,"summaryHash":null,"sent":false,"reason":"prep_failed","ts":"2026-02-05T11:05:00+08:00"}
+{"hourKey":null,"summaryHash":null,"sent":false,"reason":"prep_failed","ts":"2026-02-05T12:05:00+08:00"}
+{"hourKey":null,"summaryHash":null,"sent":false,"reason":"prep_failed","ts":"2026-02-05T13:05:00+08:00"}
+{"hourKey":null,"summaryHash":null,"sent":false,"reason":"prep_failed: missing hourly_prepare.py","ts":"2026-02-05T14:05:00+08:00"}
+{"hourKey":null,"summaryHash":null,"sent":false,"reason":"prep_failed","ts":"2026-02-05T15:05:00+08:00"}
+{"hourKey":null,"summaryHash":null,"sent":false,"reason":"prep_failed","ts":"2026-02-05T17:05:00+08:00"}
+{"hourKey":"2026-02-05 19:00","summaryHash":"","sent":false,"reason":"prep_failed: ModuleNotFoundError - market_ops","ts":"2026-02-05T19:05:00+08:00"}
+{"hourKey":null,"summaryHash":null,"sent":false,"reason":"prep_failed: ModuleNotFoundError - No module named market_ops","ts":"2026-02-05T20:06:00+08:00"}
+{"hourKey":"2026-02-05 21:00","summaryHash":"5b69de22927e77cd7cfccd42137ef8e10ddbf267","sent":true,"reason":"sent","ts":"2026-02-05T21:08:30+08:00"}
