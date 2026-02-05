@@ -8,7 +8,7 @@ from __future__ import annotations
 import re
 from typing import Dict, List, Optional, Tuple
 
-from ..filters import extract_symbols_and_addrs
+from ..shared.filters import extract_symbols_and_addrs
 from scripts.market_data import DexBatcher, get_shared_dex_batcher
 
 

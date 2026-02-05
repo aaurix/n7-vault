@@ -12,7 +12,7 @@ from scripts.market_data import get_shared_dex_batcher, get_shared_social_batche
 from scripts.market_data.social import bird_utils
 
 from ..config import SH_TZ
-from ..filters import is_botish_text
+from ..shared.filters import is_botish_text
 from .entity_resolver import EntityResolver, get_shared_entity_resolver
 from .evidence_cleaner import _clean_evidence_snippet
 from .twitter_evidence import TwitterQuerySpec, twitter_evidence, twitter_evidence_for_ca

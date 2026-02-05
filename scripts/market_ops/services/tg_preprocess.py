@@ -7,7 +7,7 @@ from __future__ import annotations
 import re
 from typing import Any, Dict, List, Optional
 
-from ..filters import BASE58_RE, EVM_ADDR_RE, TICKER_DOLLAR_RE
+from ..shared.filters import BASE58_RE, EVM_ADDR_RE, TICKER_DOLLAR_RE
 from .entity_resolver import EntityResolver, get_shared_entity_resolver
 from .evidence_cleaner import _clean_snippet_text, _NOISE_RE
 

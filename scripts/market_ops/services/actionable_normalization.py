@@ -7,7 +7,7 @@ from __future__ import annotations
 import re
 from typing import Any, Dict, List
 
-from ..filters import stance_from_texts
+from ..shared.filters import stance_from_texts
 from .entity_resolver import get_shared_entity_resolver
 from .evidence_cleaner import _clean_evidence_snippet
 

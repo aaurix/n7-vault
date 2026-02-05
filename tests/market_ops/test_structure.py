@@ -15,3 +15,11 @@ def test_output_summary_module_exists():
 
 def test_summary_render_removed():
     assert importlib.util.find_spec("scripts.market_ops.services.summary_render") is None
+
+
+def test_shared_filters_module_exists():
+    assert importlib.util.find_spec("scripts.market_ops.shared.filters") is not None
+
+
+def test_filters_module_removed():
+    assert importlib.util.find_spec("scripts.market_ops.filters") is None

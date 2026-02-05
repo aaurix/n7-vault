@@ -8,7 +8,7 @@ import json
 from concurrent.futures import Future, ThreadPoolExecutor, TimeoutError
 from typing import Any, Dict, List, Optional
 
-from ..filters import BASE58_RE, EVM_ADDR_RE
+from ..shared.filters import BASE58_RE, EVM_ADDR_RE
 from ..models import PipelineContext
 from .diagnostics import measure
 from .meme_radar_engine import run_meme_radar
