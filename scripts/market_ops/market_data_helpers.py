@@ -6,8 +6,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
-from scripts.market_data.exchange.binance_futures import get_mark_price
-from scripts.market_data.exchange.exchange_ccxt import fetch_ticker_last
+from scripts.market_data import get_shared_exchange_batcher
 
 
 def as_num(x: Any) -> Optional[float]:
@@ -51,11 +50,12 @@ def fetch_cex_price(sym: str) -> Optional[float]:
     if not s:
         return None
     sym2 = s if s.endswith("USDT") or "/" in s else f"{s}USDT"
-    px = fetch_ticker_last(sym2)
+    exchange = get_shared_exchange_batcher()
+    px = exchange.ticker_last(sym2)
     if px is not None:
         return px
     try:
         sym3 = sym2.replace("/", "")
-        return get_mark_price(sym3)
+        return exchange.mark_price(sym3)
     except Exception:
         return None

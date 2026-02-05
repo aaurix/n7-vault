@@ -5,11 +5,10 @@
 from __future__ import annotations
 
 import datetime as dt
-import json
 import re
-import subprocess
 from typing import Any, Dict, List, Optional, Tuple
 
+from scripts.market_data import get_shared_social_batcher
 from ..config import SH_TZ, UTC
 from ..embed_cluster import greedy_cluster
 from ..filters import extract_symbols_and_addrs
@@ -46,27 +45,6 @@ _LIGHT_NOISE = {
 
 
 
-def _run_bird_home_following(n: int, *, timeout_s: int = 35) -> str:
-    cmd = ["bird", "home", "--following", "-n", str(n), "--json", "--quote-depth", "1"]
-    p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=timeout_s)
-    if p.returncode != 0 and not (p.stdout or "").strip():
-        raise RuntimeError(f"bird home failed: {p.stderr}")
-    return p.stdout or ""
-
-
-def _salvage_json(raw: str) -> Any:
-    s = (raw or "").strip()
-    if not s:
-        raise ValueError("empty json")
-    start = min([i for i in [s.find("{"), s.find("[")] if i != -1] or [0])
-    tail = max(s.rfind("}"), s.rfind("]"))
-    if tail != -1:
-        s = s[start : tail + 1]
-    else:
-        s = s[start:]
-    return json.loads(s)
-
-
 def _parse_bird_time(s: str) -> Optional[dt.datetime]:
     if not s:
         return None
@@ -83,36 +61,20 @@ def _parse_bird_time(s: str) -> Optional[dt.datetime]:
         return None
 
 
-def _extract_list(obj: Any) -> List[Dict[str, Any]]:
-    if isinstance(obj, dict):
-        for k in ["tweets", "data", "items", "results", "timeline", "entries"]:
-            if k in obj and isinstance(obj[k], list):
-                return [x for x in obj[k] if isinstance(x, dict)]
-    if isinstance(obj, list):
-        return [x for x in obj if isinstance(x, dict)]
-    return []
-
-
 def _fetch_following_rows(*, hours: int, limit: int, now_sh: dt.datetime) -> List[Dict[str, Any]]:
     tries = [limit, max(80, limit // 2), 80, 60, 40]
-    obj = None
+    tweets: Optional[List[Dict[str, Any]]] = None
     last_err: Optional[Exception] = None
+    social = get_shared_social_batcher()
     for nn in tries:
-        raw = _run_bird_home_following(nn)
         try:
-            obj = json.loads(raw)
+            tweets = social.bird_following(n=nn)
             break
-        except Exception:
-            try:
-                obj = _salvage_json(raw)
-                break
-            except Exception as e:
-                last_err = e
-                obj = None
-    if obj is None:
-        raise RuntimeError(f"Failed to parse bird JSON (last error: {last_err})")
-
-    tweets = _extract_list(obj)
+        except Exception as e:
+            last_err = e
+            tweets = None
+    if tweets is None:
+        raise RuntimeError(f"bird_following_failed:{last_err}")
 
     cut = now_sh - dt.timedelta(hours=hours)
     rows: List[Dict[str, Any]] = []

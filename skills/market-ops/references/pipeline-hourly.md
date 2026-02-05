@@ -2,6 +2,9 @@
 
 Primary entrypoint:
 - `python3 -m scripts.market_ops hourly`
+Optional flags:
+- `--fresh` disables disk cache for this run
+- `--cache-ttl exchange=300,onchain=900,social=60` overrides per-domain TTLs
 
 Flow:
 1. Telegram health check

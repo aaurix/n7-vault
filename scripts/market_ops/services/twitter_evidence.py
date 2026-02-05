@@ -12,12 +12,11 @@ This is used as auxiliary context for OI trader plans.
 
 from __future__ import annotations
 
-import json
 import re
-import subprocess
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
+from scripts.market_data import get_shared_social_batcher
 
 _PROMO_PAT = re.compile(
     r"(join our telegram|vip telegram|dm to join|link in bio|join alpha|calls|signal active|\bvip\b|airdrop\b|giveaway|\bdaily alpha\b|\bjoin:\b)",
@@ -176,19 +175,6 @@ def _is_relevant(raw: str, *, aliases: List[str], base: str) -> bool:
     return (base_l in low) or (f"${base_l}" in low)
 
 
-def _run_bird_search(query: str, *, n: int = 30, timeout_s: int = 18) -> List[Dict[str, Any]]:
-    cmd = ["bird", "search", query, "-n", str(n), "--json"]
-    try:
-        p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=timeout_s)
-        raw = (p.stdout or "").strip()
-        if not raw:
-            return []
-        data = json.loads(raw)
-        return data if isinstance(data, list) else []
-    except Exception:
-        return []
-
-
 def _is_good_snippet(text: str, *, symbol: str, base: str, require_symbol: bool = True) -> bool:
     t = (text or "").strip()
     if not t:
@@ -319,8 +305,12 @@ def twitter_evidence(spec: TwitterQuerySpec) -> Dict[str, Any]:
 
     queries = _build_queries(spec)
     rows: List[Dict[str, Any]] = []
+    social = get_shared_social_batcher()
     for q in queries:
-        rows.extend(_run_bird_search(q, n=60))
+        try:
+            rows.extend(social.bird_search(q, limit=60))
+        except Exception:
+            pass
         if len(rows) >= spec.max_rows:
             break
 

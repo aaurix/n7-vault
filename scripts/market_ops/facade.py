@@ -6,8 +6,8 @@ from .services.symbol_analysis import analyze_symbol
 from .services.ca_analysis import analyze_ca
 
 
-def analyze_hourly(total_budget_s: float = 240.0) -> dict:
-    ctx = build_context(total_budget_s=total_budget_s)
+def analyze_hourly(total_budget_s: float = 240.0, *, fresh: bool = False, cache_ttl: str = "") -> dict:
+    ctx = build_context(total_budget_s=total_budget_s, fresh=fresh, cache_ttl=cache_ttl)
     run_hourly(ctx)
     summary = render(ctx)
     return wrap_result(mode="hourly", data={"prepared": summary}, summary=summary, errors=ctx.errors, use_llm=ctx.use_llm)

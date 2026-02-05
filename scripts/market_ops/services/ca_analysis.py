@@ -5,7 +5,7 @@ import re
 import subprocess
 from typing import Any, Dict, List, Optional
 
-from scripts.market_data.onchain.dexscreener import best_pair, dexscreener_search, pair_metrics, resolve_addr_symbol
+from scripts.market_data import get_shared_dex_batcher
 from ..llm_openai import chat_json, load_chat_api_key
 from ..twitter_context import twitter_evidence_for_ca
 
@@ -15,11 +15,12 @@ SOL_CA_RE = re.compile(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$")
 
 
 def _dex_by_addr(addr: str) -> Optional[Dict[str, Any]]:
-    pairs = dexscreener_search(addr)
-    best = best_pair(pairs)
+    dex = get_shared_dex_batcher()
+    pairs = dex.search(addr)
+    best = dex.best_pair(pairs)
     if not best:
         return None
-    return pair_metrics(best)
+    return dex.pair_metrics(best)
 
 
 def _mcporter_search(q: str, *, limit: int = 80) -> List[Dict[str, Any]]:
@@ -92,7 +93,7 @@ def analyze_ca(address: str, allow_llm: bool = True) -> Dict[str, Any]:
 
     report: Dict[str, Any] = {"address": addr}
 
-    sym = resolve_addr_symbol(addr) or ""
+    sym = get_shared_dex_batcher().resolve_addr_symbol(addr) or ""
     report["symbol"] = sym
 
     dex = _dex_by_addr(addr) or {}

@@ -9,7 +9,7 @@ import re
 from typing import Dict, List, Optional, Tuple
 
 from ..filters import extract_symbols_and_addrs
-from scripts.market_data.onchain.dexscreener import DexScreenerClient, get_shared_dexscreener_client
+from scripts.market_data import DexBatcher, get_shared_dex_batcher
 
 
 _EVM_RE = re.compile(r"^0x[a-fA-F0-9]{40}$")
@@ -30,8 +30,8 @@ def _allow_addr(addr: str, *, require_sol_digit: bool) -> bool:
 
 
 class EntityResolver:
-    def __init__(self, dex: Optional[DexScreenerClient] = None) -> None:
-        self.dex = dex or get_shared_dexscreener_client()
+    def __init__(self, dex: Optional[DexBatcher] = None) -> None:
+        self.dex = dex or get_shared_dex_batcher()
         self._addr_cache: Dict[str, Optional[str]] = {}
 
     def extract_symbols_and_addrs(
@@ -74,7 +74,7 @@ class EntityResolver:
 _SHARED_RESOLVER: Optional[EntityResolver] = None
 
 
-def get_shared_entity_resolver(dex: Optional[DexScreenerClient] = None) -> EntityResolver:
+def get_shared_entity_resolver(dex: Optional[DexBatcher] = None) -> EntityResolver:
     global _SHARED_RESOLVER
     if _SHARED_RESOLVER is None:
         _SHARED_RESOLVER = EntityResolver(dex=dex)

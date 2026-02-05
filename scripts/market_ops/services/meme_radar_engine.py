@@ -5,12 +5,10 @@
 from __future__ import annotations
 
 import datetime as dt
-import json
-import subprocess
 import time
 from typing import Any, Dict, Iterable, List, Optional, Sequence
 
-from scripts.market_data.onchain.dexscreener import DexScreenerClient, get_shared_dexscreener_client
+from scripts.market_data import get_shared_dex_batcher, get_shared_social_batcher
 from scripts.market_data.social import bird_utils
 
 from ..config import SH_TZ
@@ -20,51 +18,8 @@ from .evidence_cleaner import _clean_evidence_snippet
 from .twitter_evidence import TwitterQuerySpec, twitter_evidence, twitter_evidence_for_ca
 
 
-def _run_bird_home_following(n: int, *, timeout_s: int = 35) -> str:
-    cmd = ["bird", "home", "--following", "-n", str(n), "--json", "--quote-depth", "1"]
-    p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=timeout_s)
-    if p.returncode != 0 and not (p.stdout or "").strip():
-        raise RuntimeError(f"bird home failed: {p.stderr}")
-    return p.stdout or ""
-
-
-def _detect_bird_auth_error(raw: str) -> bool:
-    text = (raw or "").lower()
-    if not text:
-        return False
-    return any(
-        pat in text
-        for pat in [
-            "missing auth_token",
-            "missing ct0",
-            "missing required credentials",
-            "no twitter cookies found",
-            "failed to read macos keychain",
-        ]
-    )
-
-
-def _safe_parse_bird_json(raw: str) -> Optional[Any]:
-    try:
-        return json.loads(raw)
-    except Exception:
-        pass
-    try:
-        return bird_utils.salvage_json(raw)
-    except Exception:
-        return None
-
-
-def _fetch_following_rows(*, hours: int, limit: int, now_sh: dt.datetime, timeout_s: int) -> List[Dict[str, Any]]:
-    raw = _run_bird_home_following(limit, timeout_s=timeout_s)
-    if _detect_bird_auth_error(raw):
-        raise RuntimeError("bird_auth_missing")
-
-    obj = _safe_parse_bird_json(raw)
-    if obj is None:
-        raise RuntimeError("bird_json_invalid")
-
-    tweets = bird_utils.extract_bird_items(obj)
+def _fetch_following_rows(*, hours: int, limit: int, now_sh: dt.datetime, timeout_s: int, social) -> List[Dict[str, Any]]:
+    tweets = social.bird_following(n=limit, timeout_s=timeout_s)
     cut = now_sh - dt.timedelta(hours=hours)
 
     rows: List[Dict[str, Any]] = []
@@ -86,6 +41,22 @@ def _fetch_following_rows(*, hours: int, limit: int, now_sh: dt.datetime, timeou
             break
 
     return rows
+
+
+def _detect_bird_auth_error(raw: str) -> bool:
+    text = (raw or "").lower()
+    if not text:
+        return False
+    return any(
+        pat in text
+        for pat in [
+            "missing auth_token",
+            "missing ct0",
+            "missing required credentials",
+            "no twitter cookies found",
+            "failed to read macos keychain",
+        ]
+    )
 
 
 def _normalize_key(*, addr: str, sym: str) -> str:
@@ -249,7 +220,8 @@ def run_meme_radar(
 
     now_sh = ctx.now_sh if ctx is not None else dt.datetime.now(SH_TZ)
     resolver: EntityResolver = ctx.resolver if ctx is not None else get_shared_entity_resolver()
-    dex: DexScreenerClient = ctx.dex if ctx is not None else get_shared_dexscreener_client()
+    dex = ctx.dex if ctx is not None else get_shared_dex_batcher()
+    social = ctx.social if ctx is not None else get_shared_social_batcher()
 
     timeout_s = 35.0
     if ctx is not None:
@@ -257,7 +229,7 @@ def run_meme_radar(
 
     try:
         t0 = time.perf_counter()
-        rows = _fetch_following_rows(hours=hours, limit=tweet_limit, now_sh=now_sh, timeout_s=timeout_s)
+        rows = _fetch_following_rows(hours=hours, limit=tweet_limit, now_sh=now_sh, timeout_s=timeout_s, social=social)
         perf["fetch_following"] = round(time.perf_counter() - t0, 3)
     except Exception as e:
         rows = []

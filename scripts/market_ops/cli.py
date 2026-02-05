@@ -4,6 +4,8 @@ import json
 
 def main():
     ap = argparse.ArgumentParser(prog="market_ops")
+    ap.add_argument("--fresh", action="store_true")
+    ap.add_argument("--cache-ttl", default="")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     s = sub.add_parser("symbol")
@@ -27,7 +29,7 @@ def main():
     elif args.cmd == "ca":
         out = analyze_ca_facade(args.address, allow_llm=not args.no_llm)
     else:
-        out = analyze_hourly(total_budget_s=args.budget)
+        out = analyze_hourly(total_budget_s=args.budget, fresh=args.fresh, cache_ttl=args.cache_ttl)
 
     print(json.dumps(out, ensure_ascii=False, indent=2))
 
