@@ -10,11 +10,11 @@ health_report="$REPORT_DIR/health_$(date +%F_%H%M%S).txt"
 summary_report="$REPORT_DIR/auto_watchdog_$(date +%F_%H%M%S).txt"
 
 # Update skills inventory
-"$ROOT/scripts/update_skills_inventory.sh" >/dev/null
+"$ROOT/scripts/jobs/job_update_skills_inventory.sh" >/dev/null
 
 # Run scans
-"$ROOT/scripts/scan_skills.sh" "$ROOT/skills" "$scan_report" >/dev/null
-"$ROOT/scripts/monitor_health.sh" "$health_report" >/dev/null
+"$ROOT/scripts/jobs/job_scan_skills.sh" "$ROOT/skills" "$scan_report" >/dev/null
+"$ROOT/scripts/jobs/job_monitor_health.sh" "$health_report" >/dev/null
 
 # Determine if scan has hits
 hits=$(grep -vE '^(Skill Scan Report|Root:|Time:|---|\[pattern\])' "$scan_report" | sed '/^\s*$/d' | wc -l | tr -d ' ')
