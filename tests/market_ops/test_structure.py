@@ -80,3 +80,13 @@ def test_shared_utils_exist():
     assert importlib.util.find_spec("scripts.market_ops.shared.evidence_cleaner") is not None
     assert importlib.util.find_spec("scripts.market_ops.shared.diagnostics") is not None
     assert importlib.util.find_spec("scripts.market_ops.shared.state_manager") is not None
+
+
+def test_kline_fetcher_moved_to_market_data():
+    assert importlib.util.find_spec("scripts.market_data.utils.kline_fetcher") is not None
+    assert importlib.util.find_spec("scripts.market_ops.kline_fetcher") is None
+
+
+def test_market_data_helpers_moved():
+    assert importlib.util.find_spec("scripts.market_data.utils.market_data_helpers") is not None
+    assert importlib.util.find_spec("scripts.market_ops.market_data_helpers") is None
