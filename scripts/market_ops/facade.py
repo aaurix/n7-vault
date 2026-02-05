@@ -1,7 +1,7 @@
 from .schema import wrap_result
 from .services.context_builder import build_context
 from .pipeline.hourly import run_hourly
-from .services.summary_render import render
+from .output.summary import render
 from .services.symbol_analysis import analyze_symbol
 from .services.ca_analysis import analyze_ca
 
