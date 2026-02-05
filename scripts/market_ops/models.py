@@ -11,11 +11,11 @@ from typing import Any, Dict, List, Optional, TYPE_CHECKING, TypedDict
 
 if TYPE_CHECKING:
     from scripts.market_data.social.provider_tg import TgClient
-    from .services.state_manager import HourlyStateManager
+    from .shared.state_manager import HourlyStateManager
     from scripts.market_data.exchange.batcher import ExchangeBatcher
     from scripts.market_data.onchain.batcher import DexBatcher
     from scripts.market_data.social.batcher import SocialBatcher
-    from .services.entity_resolver import EntityResolver
+    from .shared.entity_resolver import EntityResolver
 
 
 class SocialCard(TypedDict, total=False):

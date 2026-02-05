@@ -73,3 +73,10 @@ def test_meme_radar_legacy_removed():
     assert importlib.util.find_spec("scripts.market_ops.services.meme_radar") is None
     assert importlib.util.find_spec("scripts.market_ops.services.meme_radar_engine") is None
     assert importlib.util.find_spec("scripts.market_ops.services.twitter_following") is None
+
+
+def test_shared_utils_exist():
+    assert importlib.util.find_spec("scripts.market_ops.shared.entity_resolver") is not None
+    assert importlib.util.find_spec("scripts.market_ops.shared.evidence_cleaner") is not None
+    assert importlib.util.find_spec("scripts.market_ops.shared.diagnostics") is not None
+    assert importlib.util.find_spec("scripts.market_ops.shared.state_manager") is not None

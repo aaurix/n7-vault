@@ -8,8 +8,8 @@ import re
 from typing import Any, Dict, List
 
 from ..shared.filters import stance_from_texts
-from .entity_resolver import get_shared_entity_resolver
-from .evidence_cleaner import _clean_evidence_snippet
+from ..shared.entity_resolver import get_shared_entity_resolver
+from ..shared.evidence_cleaner import _clean_evidence_snippet
 
 
 def _sentiment_from_actionable(*, why_buy: str, why_not: str) -> str:

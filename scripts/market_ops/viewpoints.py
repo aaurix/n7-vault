@@ -16,7 +16,7 @@ import time
 from typing import Any, Dict, List
 
 from .shared.filters import GENERIC_TOKENS, stance_from_texts
-from .services.entity_resolver import EntityResolver, get_shared_entity_resolver
+from .shared.entity_resolver import EntityResolver, get_shared_entity_resolver
 
 
 def _dedupe_keep_order(items: List[str]) -> List[str]:

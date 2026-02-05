@@ -10,8 +10,8 @@ from typing import Any, Dict, List
 from ..models import PipelineContext
 from ..perp_dashboard import build_perp_dash_inputs
 from ..output.whatsapp import WHATSAPP_CHUNK_MAX, build_summary, split_whatsapp_text
-from .diagnostics import measure
-from .diagnostics import sha1_text
+from ..shared.diagnostics import measure
+from ..shared.diagnostics import sha1_text
 
 
 def _top_steps(perf: Dict[str, float], *, limit: int = 5) -> List[Dict[str, Any]]:

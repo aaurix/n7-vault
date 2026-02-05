@@ -13,8 +13,8 @@ from scripts.market_data.social import bird_utils
 
 from ...config import SH_TZ
 from ...shared.filters import is_botish_text
-from ...services.entity_resolver import EntityResolver, get_shared_entity_resolver
-from ...services.evidence_cleaner import _clean_evidence_snippet
+from ...shared.entity_resolver import EntityResolver, get_shared_entity_resolver
+from ...shared.evidence_cleaner import _clean_evidence_snippet
 from ...services.twitter_evidence import TwitterQuerySpec, twitter_evidence, twitter_evidence_for_ca
 
 

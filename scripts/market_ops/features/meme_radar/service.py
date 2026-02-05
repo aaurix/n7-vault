@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional
 
 from ...shared.filters import BASE58_RE, EVM_ADDR_RE
 from ...models import PipelineContext
-from ...services.diagnostics import measure
+from ...shared.diagnostics import measure
 from .engine import run_meme_radar
 
 

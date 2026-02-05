@@ -14,9 +14,9 @@ from ...embed_cluster import greedy_cluster
 from ...shared.filters import extract_symbols_and_addrs
 from ...llm_openai import embeddings, detect_twitter_following_events, summarize_twitter_following
 from ...models import PipelineContext
-from ...services.evidence_cleaner import _clean_evidence_snippet
-from ...services.diagnostics import log_llm_failure
-from ...services.diagnostics import measure
+from ...shared.evidence_cleaner import _clean_evidence_snippet
+from ...shared.diagnostics import log_llm_failure
+from ...shared.diagnostics import measure
 
 
 _RT_PREFIX_RE = re.compile(r"^RT @\w+:\s*", re.IGNORECASE)

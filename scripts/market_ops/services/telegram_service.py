@@ -12,7 +12,7 @@ from ..shared.filters import BASE58_RE, EVM_ADDR_RE, TICKER_DOLLAR_RE, is_botish
 from ..models import PipelineContext
 from scripts.market_data.social.provider_tg import msg_text, sender_id
 from ..viewpoints import extract_viewpoint_threads
-from .diagnostics import measure
+from ..shared.diagnostics import measure
 
 import os
 import time

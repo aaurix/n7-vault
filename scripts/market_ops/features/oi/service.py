@@ -12,7 +12,7 @@ from ...config import TG_CHANNELS
 from ...kline_fetcher import run_kline_json
 from ...llm_openai import summarize_oi_trading_plans
 from ...models import PipelineContext
-from ...services.diagnostics import measure
+from ...shared.diagnostics import measure
 from .plan import build_oi_items, build_oi_plans
 
 

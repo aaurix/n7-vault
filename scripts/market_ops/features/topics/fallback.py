@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from ...embed_cluster import cosine
 from ...shared.filters import stance_from_texts
 from ...llm_openai import embeddings
-from ...services.entity_resolver import EntityResolver, get_shared_entity_resolver
+from ...shared.entity_resolver import EntityResolver, get_shared_entity_resolver
 from ...services.tg_preprocess import (
     clean_tg_text,
     extract_event_words,
