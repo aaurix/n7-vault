@@ -28,12 +28,41 @@ def _run_bird_home_following(n: int, *, timeout_s: int = 35) -> str:
     return p.stdout or ""
 
 
+def _detect_bird_auth_error(raw: str) -> bool:
+    text = (raw or "").lower()
+    if not text:
+        return False
+    return any(
+        pat in text
+        for pat in [
+            "missing auth_token",
+            "missing ct0",
+            "missing required credentials",
+            "no twitter cookies found",
+            "failed to read macos keychain",
+        ]
+    )
+
+
+def _safe_parse_bird_json(raw: str) -> Optional[Any]:
+    try:
+        return json.loads(raw)
+    except Exception:
+        pass
+    try:
+        return bird_utils.salvage_json(raw)
+    except Exception:
+        return None
+
+
 def _fetch_following_rows(*, hours: int, limit: int, now_sh: dt.datetime, timeout_s: int) -> List[Dict[str, Any]]:
     raw = _run_bird_home_following(limit, timeout_s=timeout_s)
-    try:
-        obj = json.loads(raw)
-    except Exception:
-        obj = bird_utils.salvage_json(raw)
+    if _detect_bird_auth_error(raw):
+        raise RuntimeError("bird_auth_missing")
+
+    obj = _safe_parse_bird_json(raw)
+    if obj is None:
+        raise RuntimeError("bird_json_invalid")
 
     tweets = bird_utils.extract_bird_items(obj)
     cut = now_sh - dt.timedelta(hours=hours)
@@ -306,4 +335,4 @@ def run_meme_radar(
     return out
 
 
-__all__ = ["run_meme_radar", "_normalize_candidates"]
+__all__ = ["run_meme_radar", "_normalize_candidates", "_detect_bird_auth_error"]
