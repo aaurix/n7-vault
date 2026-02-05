@@ -1,4 +1,4 @@
-from scripts.market_ops.market_data_helpers import fetch_dex_market
+from scripts.market_data.utils.market_data_helpers import fetch_dex_market
 
 
 class DummyDex:

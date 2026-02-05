@@ -1,4 +1,4 @@
-from scripts.market_ops.kline_fetcher import summarize_klines
+from scripts.market_data.utils.kline_fetcher import summarize_klines
 
 
 def test_summarize_klines_basic():
