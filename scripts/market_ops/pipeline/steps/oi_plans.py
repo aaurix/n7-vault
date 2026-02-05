@@ -1,4 +1,4 @@
-from ...services.oi_service import build_oi_plans_step
+from ...features.oi.service import build_oi_plans_step
 
 
 def step(ctx):

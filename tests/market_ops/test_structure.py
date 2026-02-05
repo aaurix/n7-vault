@@ -23,3 +23,14 @@ def test_shared_filters_module_exists():
 
 def test_filters_module_removed():
     assert importlib.util.find_spec("scripts.market_ops.filters") is None
+
+
+def test_oi_feature_modules_exist():
+    assert importlib.util.find_spec("scripts.market_ops.features.oi.service") is not None
+    assert importlib.util.find_spec("scripts.market_ops.features.oi.plan") is not None
+
+
+def test_oi_legacy_modules_removed():
+    assert importlib.util.find_spec("scripts.market_ops.oi") is None
+    assert importlib.util.find_spec("scripts.market_ops.services.oi_service") is None
+    assert importlib.util.find_spec("scripts.market_ops.oi_plan_pipeline") is None

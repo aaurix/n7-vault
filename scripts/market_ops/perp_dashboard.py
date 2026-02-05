@@ -4,7 +4,7 @@
 """Deterministic perp mini-dashboard builder/renderer.
 
 Designed for hourly summaries:
-- Input is market_ops.oi_plan_pipeline.build_oi_items() output (oi_items).
+- Input is market_ops.features.oi.plan.build_oi_items() output (oi_items).
 - Output is compact, WhatsApp-friendly lines (no raw quotes).
 
 This module is intentionally dependency-free and stable.
