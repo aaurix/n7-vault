@@ -9,7 +9,7 @@ import re
 from typing import Dict, List, Optional, Tuple
 
 from ..filters import extract_symbols_and_addrs
-from ..adapters.dexscreener import DexScreenerClient, get_shared_dexscreener_client
+from scripts.market_data.onchain.dexscreener import DexScreenerClient, get_shared_dexscreener_client
 
 
 _EVM_RE = re.compile(r"^0x[a-fA-F0-9]{40}$")

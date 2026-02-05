@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
-from .adapters.binance_futures import get_mark_price
-from .adapters.exchange_ccxt import fetch_ticker_last
+from scripts.market_data.exchange.binance_futures import get_mark_price
+from scripts.market_data.exchange.exchange_ccxt import fetch_ticker_last
 
 
 def as_num(x: Any) -> Optional[float]:

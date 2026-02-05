@@ -9,8 +9,8 @@ import datetime as dt
 from ..config import DEFAULT_TOTAL_BUDGET_S, SH_TZ, UTC
 from ..llm_openai import load_chat_api_key, load_openai_api_key
 from ..models import PipelineContext, TimeBudget
-from ..adapters.tg_client import TgClient
-from ..adapters.dexscreener import get_shared_dexscreener_client
+from scripts.market_data.social.tg_client import TgClient
+from scripts.market_data.onchain.dexscreener import get_shared_dexscreener_client
 from .entity_resolver import get_shared_entity_resolver
 from .state_manager import HourlyStateManager
 

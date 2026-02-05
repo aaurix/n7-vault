@@ -10,9 +10,9 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, TYPE_CHECKING, TypedDict
 
 if TYPE_CHECKING:
-    from .adapters.tg_client import TgClient
+    from scripts.market_data.social.tg_client import TgClient
     from .services.state_manager import HourlyStateManager
-    from .adapters.dexscreener import DexScreenerClient
+    from scripts.market_data.onchain.dexscreener import DexScreenerClient
     from .services.entity_resolver import EntityResolver
 
 

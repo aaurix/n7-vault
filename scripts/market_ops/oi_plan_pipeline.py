@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Dict, List, Optional
 
-from .adapters.binance_futures import oi_changes, price_changes
+from scripts.market_data.exchange.binance_futures import oi_changes, price_changes
 from .twitter_context import twitter_context_for_symbol
 
 

@@ -1,4 +1,4 @@
-from ..adapters.dexscreener import get_shared_dexscreener_client
+from scripts.market_data.onchain.dexscreener import get_shared_dexscreener_client
 
 
 def fetch_dex_market(addr: str, sym: str, dex=None) -> dict:

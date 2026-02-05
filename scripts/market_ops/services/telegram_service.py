@@ -10,7 +10,7 @@ from ..bots import load_bot_sender_ids
 from ..config import TG_CHANNELS, VIEWPOINT_CHAT_IDS
 from ..filters import BASE58_RE, EVM_ADDR_RE, TICKER_DOLLAR_RE, is_botish_text
 from ..models import PipelineContext
-from ..adapters.tg_client import msg_text, sender_id
+from scripts.market_data.social.tg_client import msg_text, sender_id
 from ..viewpoints import extract_viewpoint_threads
 from .diagnostics import measure
 

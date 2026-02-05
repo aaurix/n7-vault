@@ -4,8 +4,8 @@ import json
 import re
 from typing import Any, Dict, List, Optional, Tuple
 
-from ..adapters.binance_futures import oi_changes, price_changes
-from ..adapters.coingecko import get_market_cap_fdv
+from scripts.market_data.exchange.binance_futures import oi_changes, price_changes
+from scripts.market_data.onchain.coingecko import get_market_cap_fdv
 from ..kline_fetcher import run_kline_json
 from ..llm_openai import chat_json, load_chat_api_key, summarize_oi_trading_plans
 from ..render import WHATSAPP_CHUNK_MAX, split_whatsapp_text
