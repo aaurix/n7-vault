@@ -6,6 +6,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from scripts.market_data.exchange.binance_futures import oi_changes, price_changes
 from scripts.market_data.onchain.coingecko import get_market_cap_fdv
+from ..core.formatting import fmt_num, fmt_pct, fmt_usd
+from ..core.indicators import flow_label
 from ..kline_fetcher import run_kline_json
 from ..llm_openai import chat_json, load_chat_api_key, summarize_oi_trading_plans
 from ..render import WHATSAPP_CHUNK_MAX, split_whatsapp_text
@@ -112,22 +114,6 @@ def _safe_get(d: Any, *keys: str) -> Any:
             return None
         cur = cur.get(k)
     return cur
-
-
-def _flow_label(*, px_chg: Optional[float], oi_chg: Optional[float]) -> str:
-    if not isinstance(px_chg, (int, float)) or not isinstance(oi_chg, (int, float)):
-        return "资金方向不明"
-
-    if oi_chg >= 5 and px_chg >= 1:
-        return "多头加仓（价↑OI↑）"
-    if oi_chg >= 5 and px_chg <= -1:
-        return "空头加仓（价↓OI↑）"
-    if oi_chg <= -5 and px_chg >= 1:
-        return "空头回补（价↑OI↓）"
-    if oi_chg <= -5 and px_chg <= -1:
-        return "多头止损/出清（价↓OI↓）"
-
-    return "轻微/震荡（价/OI变化不大）"
 
 
 def _key_levels(k1: Dict[str, Any], k4: Dict[str, Any]) -> Dict[str, Optional[float]]:
@@ -339,7 +325,7 @@ def run_prepare(symbol: str) -> Dict[str, Any]:
         "stats": _twitter_stats(snippets),
     }
 
-    flow = _flow_label(px_chg=_as_num(px.get("px_4h")) or _as_num(px.get("px_1h")), oi_chg=_as_num(oi.get("oi_4h")) or _as_num(oi.get("oi_1h")))
+    flow = flow_label(px_chg=_as_num(px.get("px_4h")) or _as_num(px.get("px_1h")), oi_chg=_as_num(oi.get("oi_4h")) or _as_num(oi.get("oi_1h")))
 
     levels = _key_levels(k1 if isinstance(k1, dict) else {}, k4 if isinstance(k4, dict) else {})
 
@@ -412,35 +398,6 @@ def run_prepare(symbol: str) -> Dict[str, Any]:
         "errors": errors,
         "prepared": prepared,
     }
-
-
-def _fmt_pct(x: Optional[float]) -> str:
-    return "?" if x is None else f"{x:+.1f}%"
-
-
-def _fmt_num(x: Any) -> str:
-    if x is None:
-        return "?"
-    try:
-        return f"{float(x):.6g}"
-    except Exception:
-        return str(x)
-
-
-def _fmt_usd(x: Any) -> str:
-    if x is None:
-        return "?"
-    try:
-        v = float(x)
-        if abs(v) >= 1e9:
-            return f"${v/1e9:.2f}B"
-        if abs(v) >= 1e6:
-            return f"${v/1e6:.2f}M"
-        if abs(v) >= 1e3:
-            return f"${v/1e3:.1f}K"
-        return f"${v:.0f}"
-    except Exception:
-        return "?"
 
 
 def _extract_kline_brief(k: Dict[str, Any]) -> Dict[str, Any]:
@@ -604,15 +561,15 @@ def _rule_dashboard(prepared: Dict[str, Any]) -> Dict[str, Any]:
         }
 
     bullets: List[str] = []
-    bullets.append(f"价格24h {_fmt_pct(price.get('chg_24h_pct'))} | 4h {_fmt_pct(price.get('chg_4h_pct'))}")
-    bullets.append(f"OI 24h {_fmt_pct(oi.get('chg_24h_pct'))} | 4h {_fmt_pct(oi.get('chg_4h_pct'))}")
+    bullets.append(f"价格24h {fmt_pct(price.get('chg_24h_pct'))} | 4h {fmt_pct(price.get('chg_4h_pct'))}")
+    bullets.append(f"OI 24h {fmt_pct(oi.get('chg_24h_pct'))} | 4h {fmt_pct(oi.get('chg_4h_pct'))}")
     bullets.append(_oi_narrative())
 
     lv = derived.get("key_levels") if isinstance(derived.get("key_levels"), dict) else {}
     sup = lv.get("support")
     res = lv.get("resistance")
     if sup is not None or res is not None:
-        bullets.append(f"关键位：上{_fmt_num(res)} / 下{_fmt_num(sup)}")
+        bullets.append(f"关键位：上{fmt_num(res)} / 下{fmt_num(sup)}")
 
     if total:
         bullets.append(f"社交证据：有效{kept}/{total}")
@@ -621,9 +578,9 @@ def _rule_dashboard(prepared: Dict[str, Any]) -> Dict[str, Any]:
 
     actions = ["等关键位确认再出手"]
     if verdict == "偏多" and sup is not None:
-        actions = [f"回踩{_fmt_num(sup)}不破再偏多"]
+        actions = [f"回踩{fmt_num(sup)}不破再偏多"]
     elif verdict == "偏空" and res is not None:
-        actions = [f"反抽{_fmt_num(res)}受压再偏空"]
+        actions = [f"反抽{fmt_num(res)}受压再偏空"]
 
     risks: List[str] = ["勿追单；优先等收线"]
     if total and kept <= 1:
@@ -665,21 +622,21 @@ def _rule_plan(prepared: Dict[str, Any]) -> Dict[str, Any]:
 
     triggers: List[str] = []
     if res is not None:
-        triggers.append(f"突破站稳{_fmt_num(res)}")
+        triggers.append(f"突破站稳{fmt_num(res)}")
     if sup is not None:
-        triggers.append(f"跌破收在{_fmt_num(sup)}下")
+        triggers.append(f"跌破收在{fmt_num(sup)}下")
 
     targets: List[str] = []
     if res is not None:
-        targets.append(f"目标看{_fmt_num(res)}上方扩展")
+        targets.append(f"目标看{fmt_num(res)}上方扩展")
     if sup is not None:
-        targets.append(f"目标看{_fmt_num(sup)}下方延伸")
+        targets.append(f"目标看{fmt_num(sup)}下方延伸")
 
     invalid = "确认失败则撤"
     if bias == "偏多" and sup is not None:
-        invalid = f"有效跌破{_fmt_num(sup)}"[:28]
+        invalid = f"有效跌破{fmt_num(sup)}"[:28]
     if bias == "偏空" and res is not None:
-        invalid = f"有效站回{_fmt_num(res)}"[:28]
+        invalid = f"有效站回{fmt_num(res)}"[:28]
 
     return {
         "symbol": sym,
@@ -709,21 +666,21 @@ def _render_dashboard_text(prepared: Dict[str, Any], dash: Dict[str, Any]) -> st
 
     lines: List[str] = []
     lines.append(f"*{sym} 方案2 决策仪表盘*")
-    lines.append(f"- 现价：{_fmt_num(price.get('now'))} | 24h {_fmt_pct(price.get('chg_24h_pct'))}")
-    lines.append(f"- 涨跌：1h {_fmt_pct(price.get('chg_1h_pct'))} | 4h {_fmt_pct(price.get('chg_4h_pct'))}")
+    lines.append(f"- 现价：{fmt_num(price.get('now'))} | 24h {fmt_pct(price.get('chg_24h_pct'))}")
+    lines.append(f"- 涨跌：1h {fmt_pct(price.get('chg_1h_pct'))} | 4h {fmt_pct(price.get('chg_4h_pct'))}")
     lines.append(
-        f"- OI：1h {_fmt_pct(oi.get('chg_1h_pct'))} | 4h {_fmt_pct(oi.get('chg_4h_pct'))} | 24h {_fmt_pct(oi.get('chg_24h_pct'))}"
+        f"- OI：1h {fmt_pct(oi.get('chg_1h_pct'))} | 4h {fmt_pct(oi.get('chg_4h_pct'))} | 24h {fmt_pct(oi.get('chg_24h_pct'))}"
     )
-    lines.append(f"- OI名义：{_fmt_usd(oi.get('oi_value_now'))}")
+    lines.append(f"- OI名义：{fmt_usd(oi.get('oi_value_now'))}")
 
     mc = market.get("market_cap")
     fdv = market.get("fdv")
     if mc is not None or fdv is not None:
         bits = []
         if mc is not None:
-            bits.append(f"MC{_fmt_usd(mc)}")
+            bits.append(f"MC{fmt_usd(mc)}")
         if fdv is not None:
-            bits.append(f"FDV{_fmt_usd(fdv)}")
+            bits.append(f"FDV{fmt_usd(fdv)}")
         if bits:
             lines.append(f"- {'/'.join(bits)}")
 
@@ -739,7 +696,7 @@ def _render_dashboard_text(prepared: Dict[str, Any], dash: Dict[str, Any]) -> st
 
     lv = derived.get("key_levels") if isinstance(derived.get("key_levels"), dict) else {}
     if lv.get("support") is not None or lv.get("resistance") is not None:
-        lines.append(f"- 关键位：上{_fmt_num(lv.get('resistance'))} / 下{_fmt_num(lv.get('support'))}")
+        lines.append(f"- 关键位：上{fmt_num(lv.get('resistance'))} / 下{fmt_num(lv.get('support'))}")
 
     k1_sw = k1.get("swing") if isinstance(k1.get("swing"), dict) else {}
     k4_sw = k4.get("swing") if isinstance(k4.get("swing"), dict) else {}
@@ -754,26 +711,26 @@ def _render_dashboard_text(prepared: Dict[str, Any], dash: Dict[str, Any]) -> st
 
     struct_lines: List[str] = []
     if k1_sw.get("hi") is not None or k1_sw.get("lo") is not None:
-        struct_lines.append(f"1H swing：上{_fmt_num(k1_sw.get('hi'))} / 下{_fmt_num(k1_sw.get('lo'))}")
+        struct_lines.append(f"1H swing：上{fmt_num(k1_sw.get('hi'))} / 下{fmt_num(k1_sw.get('lo'))}")
     if k4_sw.get("hi") is not None or k4_sw.get("lo") is not None:
-        struct_lines.append(f"4H swing：上{_fmt_num(k4_sw.get('hi'))} / 下{_fmt_num(k4_sw.get('lo'))}")
+        struct_lines.append(f"4H swing：上{fmt_num(k4_sw.get('hi'))} / 下{fmt_num(k4_sw.get('lo'))}")
     if k1_rg.get("hi") is not None or k1_rg.get("lo") is not None:
         pos = k1_rg.get("pos")
         pos_s = "?" if pos is None else f"{float(pos):.2f}"
-        struct_lines.append(f"1H 区间：{_fmt_num(k1_rg.get('lo'))}~{_fmt_num(k1_rg.get('hi'))} | pos {pos_s}")
+        struct_lines.append(f"1H 区间：{fmt_num(k1_rg.get('lo'))}~{fmt_num(k1_rg.get('hi'))} | pos {pos_s}")
 
     ind_bits: List[str] = []
     if ema4 is not None or slope4 is not None:
         if isinstance(slope4, (int, float)):
-            ind_bits.append(f"4H EMA20 {_fmt_num(ema4)} | 斜率{slope4:+.2f}%")
+            ind_bits.append(f"4H EMA20 {fmt_num(ema4)} | 斜率{slope4:+.2f}%")
         else:
-            ind_bits.append(f"4H EMA20 {_fmt_num(ema4)}")
+            ind_bits.append(f"4H EMA20 {fmt_num(ema4)}")
     if rsi1 is not None or rsi4 is not None:
-        ind_bits.append(f"RSI：1H {_fmt_num(rsi1)} | 4H {_fmt_num(rsi4)}")
+        ind_bits.append(f"RSI：1H {fmt_num(rsi1)} | 4H {fmt_num(rsi4)}")
     if atr1 is not None or atr4 is not None:
-        ind_bits.append(f"ATR：1H {_fmt_num(atr1)} | 4H {_fmt_num(atr4)}")
+        ind_bits.append(f"ATR：1H {fmt_num(atr1)} | 4H {fmt_num(atr4)}")
     if vol1.get("ratio") is not None:
-        ind_bits.append(f"量能比(1H)：{_fmt_num(vol1.get('ratio'))}")
+        ind_bits.append(f"量能比(1H)：{fmt_num(vol1.get('ratio'))}")
 
     if struct_lines or ind_bits:
         lines.append("*关键结构数据*")
@@ -802,7 +759,7 @@ def _render_dashboard_text(prepared: Dict[str, Any], dash: Dict[str, Any]) -> st
                     talk=int(st.get("trader_talk_hits") or 0),
                 )
             )
-            lines.append(f"- 倾向分：{_fmt_num(st.get('stance_score'))}（-1空/+1多）")
+            lines.append(f"- 倾向分：{fmt_num(st.get('stance_score'))}（-1空/+1多）")
 
     exp: List[str] = []
     if trend_s >= 70:

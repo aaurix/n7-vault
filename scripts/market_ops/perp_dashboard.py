@@ -14,6 +14,9 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Tuple
 
+from .core.formatting import fmt_pct, fmt_price, fmt_usd
+from .core.indicators import flow_label
+
 
 def _as_num(x: Any) -> Optional[float]:
     try:
@@ -31,51 +34,6 @@ def _safe_get(d: Any, *keys: str) -> Any:
             return None
         cur = cur.get(k)
     return cur
-
-
-def _fmt_pct(x: Any, *, digits: int = 1) -> str:
-    v = _as_num(x)
-    if v is None:
-        return "?"
-    return f"{v:+.{digits}f}%"
-
-
-def _fmt_num(x: Any, *, digits: int = 4) -> str:
-    v = _as_num(x)
-    if v is None:
-        return "?"
-    # Keep deterministic; avoid scientific notation for typical crypto prices.
-    try:
-        if abs(v) >= 1000:
-            return f"{v:.0f}"
-        if abs(v) >= 100:
-            return f"{v:.1f}"
-        if abs(v) >= 10:
-            return f"{v:.2f}"
-        if abs(v) >= 1:
-            return f"{v:.2f}"
-        # sub-$1
-        return f"{v:.{digits}g}" if v != 0 else "0"
-    except Exception:
-        return str(x)
-
-
-def _fmt_usd(x: Any) -> str:
-    v = _as_num(x)
-    if v is None:
-        return "?"
-    try:
-        if abs(v) >= 1e12:
-            return f"${v/1e12:.2f}T"
-        if abs(v) >= 1e9:
-            return f"${v/1e9:.2f}B"
-        if abs(v) >= 1e6:
-            return f"${v/1e6:.2f}M"
-        if abs(v) >= 1e3:
-            return f"${v/1e3:.1f}K"
-        return f"${v:.0f}"
-    except Exception:
-        return str(x)
 
 
 def _pick_market_cap_fdv(it: Dict[str, Any]) -> Tuple[Optional[float], Optional[float]]:
@@ -102,27 +60,6 @@ def _pick_market_cap_fdv(it: Dict[str, Any]) -> Tuple[Optional[float], Optional[
         fdv = _as_num(dex.get("fdv"))
 
     return mc, fdv
-
-
-def flow_label(*, px_chg: Optional[float], oi_chg: Optional[float]) -> str:
-    """Price/OI quadrant label (deterministic heuristic).
-
-    Inputs are % changes over the same horizon (prefer 4h).
-    """
-
-    if not isinstance(px_chg, (int, float)) or not isinstance(oi_chg, (int, float)):
-        return "资金方向不明"
-
-    if oi_chg >= 5 and px_chg >= 1:
-        return "多头加仓（价↑OI↑）"
-    if oi_chg >= 5 and px_chg <= -1:
-        return "空头加仓（价↓OI↑）"
-    if oi_chg <= -5 and px_chg >= 1:
-        return "空头回补（价↑OI↓）"
-    if oi_chg <= -5 and px_chg <= -1:
-        return "多头止损/出清（价↓OI↓）"
-
-    return "轻微/震荡（价/OI变化不大）"
 
 
 def _key_levels(k1: Dict[str, Any], k4: Dict[str, Any]) -> Dict[str, Optional[float]]:
@@ -174,11 +111,11 @@ def _action_notes(
 
     # 1) Level-based trigger (always the most actionable)
     if bias == "偏多" and res is not None:
-        notes.append(f"上破并站稳{_fmt_num(res)}才追")
+        notes.append(f"上破并站稳{fmt_price(res)}才追")
     elif bias == "偏空" and sup is not None:
-        notes.append(f"跌破{_fmt_num(sup)}延续偏空")
+        notes.append(f"跌破{fmt_price(sup)}延续偏空")
     elif sup is not None and res is not None:
-        notes.append(f"区间：上{_fmt_num(res)}/下{_fmt_num(sup)}")
+        notes.append(f"区间：上{fmt_price(res)}/下{fmt_price(sup)}")
 
     # 2) Overextension / squeeze risk
     if rsi1 is not None and pos1 is not None:
@@ -353,10 +290,10 @@ def render_perp_dashboards_mini(perp_dash_inputs: List[Dict[str, Any]], *, top_n
         mc = _as_num(d.get("market_cap"))
         line1 = f"{i}) {sym}（{bias}）"
         if price_now is not None:
-            line1 += f"现价{_fmt_num(price_now)} "
+            line1 += f"现价{fmt_price(price_now)} "
         if mc is not None:
-            line1 += f"MC{_fmt_usd(mc)} "
-        line1 += f"价4h{_fmt_pct(px.get('4h_pct'))} OI4h{_fmt_pct(oi.get('4h_pct'))} → {flow}"
+            line1 += f"MC{fmt_usd(mc)} "
+        line1 += f"价4h{fmt_pct(px.get('4h_pct'))} OI4h{fmt_pct(oi.get('4h_pct'))} → {flow}"
         out.append(line1)
 
         # Line 2: 1H/4H trend + extreme emotion
