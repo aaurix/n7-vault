@@ -20,3 +20,15 @@ def test_build_symbol_sections_contains_core_titles():
     md = render_markdown(sections)
     rt = render_richtext(sections)
     assert "要点1" in md and "要点1" in rt
+
+
+def test_render_symbol_report_dual_output():
+    from scripts.market_ops.output.symbol_report import render_symbol_report
+
+    prepared = {"prepared": {"symbol": "TEST"}}
+    dash = {"verdict": "观望"}
+    report = render_symbol_report(prepared, dash, template="dashboard")
+    assert report["markdown"]
+    assert report["richtext"]
+    assert "TEST" in report["markdown"]
+    assert "TEST" in report["richtext"]
