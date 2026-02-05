@@ -6,13 +6,13 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from ..embed_cluster import greedy_cluster
-from ..llm_openai import embeddings, summarize_narratives
-from ..models import PipelineContext
-from ..topic_pipeline import build_topics
-from ..tg_topics_fallback import tg_topics_fallback
-from .diagnostics import measure
-from .tg_preprocess import filter_tg_topic_texts, postfilter_tg_topic_item, score_tg_cluster
+from ...embed_cluster import greedy_cluster
+from ...llm_openai import embeddings, summarize_narratives
+from ...models import PipelineContext
+from .pipeline import build_topics
+from .fallback import tg_topics_fallback
+from ...services.diagnostics import measure
+from ...services.tg_preprocess import filter_tg_topic_texts, postfilter_tg_topic_item, score_tg_cluster
 
 
 def build_tg_topics(ctx: PipelineContext) -> None:

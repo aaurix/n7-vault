@@ -34,3 +34,17 @@ def test_oi_legacy_modules_removed():
     assert importlib.util.find_spec("scripts.market_ops.oi") is None
     assert importlib.util.find_spec("scripts.market_ops.services.oi_service") is None
     assert importlib.util.find_spec("scripts.market_ops.oi_plan_pipeline") is None
+
+
+def test_topics_feature_modules_exist():
+    assert importlib.util.find_spec("scripts.market_ops.features.topics.pipeline") is not None
+    assert importlib.util.find_spec("scripts.market_ops.features.topics.tg") is not None
+    assert importlib.util.find_spec("scripts.market_ops.features.topics.twitter") is not None
+    assert importlib.util.find_spec("scripts.market_ops.features.topics.fallback") is not None
+
+
+def test_topics_legacy_modules_removed():
+    assert importlib.util.find_spec("scripts.market_ops.topic_pipeline") is None
+    assert importlib.util.find_spec("scripts.market_ops.tg_topics_fallback") is None
+    assert importlib.util.find_spec("scripts.market_ops.services.tg_topics") is None
+    assert importlib.util.find_spec("scripts.market_ops.services.twitter_topics") is None

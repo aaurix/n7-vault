@@ -1,4 +1,4 @@
-from ...services.tg_topics import build_tg_topics
+from ...features.topics.tg import build_tg_topics
 
 
 def step(ctx):

@@ -1,4 +1,4 @@
-from ...services.twitter_topics import build_twitter_ca_topics
+from ...features.topics.twitter import build_twitter_ca_topics
 
 
 def step(ctx):
