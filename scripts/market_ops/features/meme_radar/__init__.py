@@ -1,1 +1,0 @@
-"""Meme radar feature slice."""

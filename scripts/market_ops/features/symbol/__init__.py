@@ -1,1 +1,0 @@
-"""Symbol analysis feature slice."""
