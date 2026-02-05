@@ -4,7 +4,6 @@ import subprocess
 
 def test_cli_help():
     env = dict(os.environ)
-    env["PYTHONPATH"] = "src"
-    r = subprocess.run(["python3", "-m", "market_ops", "--help"], capture_output=True, text=True, env=env)
+    r = subprocess.run(["python3", "-m", "scripts.market_ops", "--help"], capture_output=True, text=True, env=env)
     assert r.returncode == 0
     assert "symbol" in r.stdout

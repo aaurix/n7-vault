@@ -1,8 +1,6 @@
 import argparse
 import json
 
-from market_ops.facade import analyze_ca_facade, analyze_hourly, analyze_symbol_facade
-
 
 def main():
     ap = argparse.ArgumentParser(prog="market_ops")
@@ -21,6 +19,8 @@ def main():
     h.add_argument("--budget", type=float, default=240.0)
 
     args = ap.parse_args()
+
+    from .facade import analyze_ca_facade, analyze_hourly, analyze_symbol_facade
 
     if args.cmd == "symbol":
         out = analyze_symbol_facade(args.symbol, template=args.template, allow_llm=not args.no_llm)
