@@ -33,3 +33,4 @@ canvas/
 *key*.json
 *token*.txt
 *token*.json
+.worktrees/
