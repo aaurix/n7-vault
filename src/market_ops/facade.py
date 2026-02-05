@@ -1,0 +1,23 @@
+from market_ops.schema import wrap_result
+from market_ops.services.context_builder import build_context
+from market_ops.pipeline.hourly import run_hourly
+from market_ops.services.summary_render import render
+from market_ops.services.symbol_analysis import analyze_symbol
+from market_ops.services.ca_analysis import analyze_ca
+
+
+def analyze_hourly(total_budget_s: float = 240.0) -> dict:
+    ctx = build_context(total_budget_s=total_budget_s)
+    run_hourly(ctx)
+    summary = render(ctx)
+    return wrap_result(mode="hourly", data={"prepared": summary}, summary=summary, errors=ctx.errors, use_llm=ctx.use_llm)
+
+
+def analyze_symbol_facade(symbol: str, template: str = "dashboard", allow_llm: bool = True) -> dict:
+    out = analyze_symbol(symbol, template=template, allow_llm=allow_llm)
+    return wrap_result(mode="symbol", data=out.get("data", {}), summary=out.get("summary"), errors=out.get("errors", []), use_llm=out.get("use_llm", False))
+
+
+def analyze_ca_facade(addr: str, allow_llm: bool = True) -> dict:
+    out = analyze_ca(addr, allow_llm=allow_llm)
+    return wrap_result(mode="ca", data=out.get("data", {}), summary=out.get("summary"), errors=out.get("errors", []), use_llm=out.get("use_llm", False))

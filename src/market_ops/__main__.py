@@ -1,4 +1,4 @@
-"""Entry point placeholder; wired to CLI in Task 10."""
+from market_ops.cli import main
 
 if __name__ == "__main__":
-    pass
+    main()
