@@ -4,8 +4,7 @@ import json
 import re
 from typing import Any, Dict, List, Optional, Tuple
 
-from scripts.market_data.exchange.binance_futures import oi_changes, price_changes
-from scripts.market_data.onchain.coingecko import get_market_cap_fdv
+from scripts.market_data import get_shared_dex_batcher, get_shared_exchange_batcher
 from ..core.formatting import fmt_num, fmt_pct, fmt_usd
 from ..core.indicators import flow_label
 from ..kline_fetcher import run_kline_json
@@ -281,12 +280,12 @@ def run_prepare(symbol: str) -> Dict[str, Any]:
     tw: Dict[str, Any] = {}
 
     try:
-        px = price_changes(sym)
+        px = get_shared_exchange_batcher().price_changes(sym)
     except Exception as e:
         errors.append(f"price_changes:{type(e).__name__}:{e}")
 
     try:
-        oi = oi_changes(sym)
+        oi = get_shared_exchange_batcher().oi_changes(sym)
     except Exception as e:
         errors.append(f"oi_changes:{type(e).__name__}:{e}")
 
@@ -301,7 +300,7 @@ def run_prepare(symbol: str) -> Dict[str, Any]:
         errors.append(f"kline_4h:{type(e).__name__}:{e}")
 
     try:
-        mcfdv = get_market_cap_fdv(base)
+        mcfdv = get_shared_dex_batcher().market_cap_fdv(base)
     except Exception as e:
         errors.append(f"coingecko:{type(e).__name__}:{e}")
 

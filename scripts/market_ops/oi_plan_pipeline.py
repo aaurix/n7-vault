@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Dict, List, Optional
 
-from scripts.market_data.exchange.binance_futures import oi_changes, price_changes
+from scripts.market_data import get_shared_exchange_batcher
 from .twitter_context import twitter_context_for_symbol
 
 
@@ -111,6 +111,7 @@ def build_oi_items(
     """
 
     items: List[Dict[str, Any]] = []
+    exchange = get_shared_exchange_batcher()
     for idx, s in enumerate((oi_signals or [])[:top_n]):
         sym = s.get("symbol")
         if not sym:
@@ -119,8 +120,8 @@ def build_oi_items(
         k1 = kline_fetcher(sym, interval="1h", lookback=120)
         k4 = kline_fetcher(sym, interval="4h", lookback=80)
 
-        px = price_changes(sym)
-        oi = oi_changes(sym)
+        px = exchange.price_changes(sym)
+        oi = exchange.oi_changes(sym)
 
         # pull volume ratio from kline json
         vr = None

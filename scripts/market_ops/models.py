@@ -12,7 +12,6 @@ from typing import Any, Dict, List, Optional, TYPE_CHECKING, TypedDict
 if TYPE_CHECKING:
     from scripts.market_data.social.provider_tg import TgClient
     from .services.state_manager import HourlyStateManager
-    from scripts.market_data.onchain.provider_dexscreener import DexScreenerClient
     from scripts.market_data.exchange.batcher import ExchangeBatcher
     from scripts.market_data.onchain.batcher import DexBatcher
     from scripts.market_data.social.batcher import SocialBatcher
@@ -71,7 +70,7 @@ class PipelineContext:
     client: "TgClient"
     budget: TimeBudget
     state: "HourlyStateManager"
-    dex: "DexScreenerClient"
+    dex: "DexBatcher"
     resolver: "EntityResolver"
     exchange: "ExchangeBatcher"
     dex_batcher: "DexBatcher"

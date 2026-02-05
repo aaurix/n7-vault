@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Sequence
 
-from scripts.market_data.exchange.binance_futures import get_klines
+from scripts.market_data import get_shared_exchange_batcher
 
 
 def _as_float(x: Any) -> Optional[float]:
@@ -151,7 +151,8 @@ def summarize_klines(klines: List[List[Any]], *, interval: str) -> Dict[str, Any
 
 def run_kline_json(symbol: str, *, interval: str, lookback: int = 80, timeout_s: int = 18) -> Dict[str, Any]:
     try:
-        klines = get_klines(symbol, interval, lookback, timeout=timeout_s)
+        exchange = get_shared_exchange_batcher()
+        klines = exchange.ohlcv(symbol, interval, lookback, timeout_s=timeout_s)
     except Exception:
         return {}
     return summarize_klines(klines, interval=interval)
