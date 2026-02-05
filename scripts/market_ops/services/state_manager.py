@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
-from market_ops.utils.paths import repo_root
+from ..utils.paths import repo_root
 
 
 def _iso_now() -> str:

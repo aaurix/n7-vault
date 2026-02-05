@@ -11,7 +11,7 @@ import urllib.request as urlreq
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from market_ops.utils.paths import repo_root
+from ..utils.paths import repo_root
 
 
 DEFAULT_TTL_S = 60 * 60

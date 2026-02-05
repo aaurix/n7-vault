@@ -7,7 +7,7 @@ from __future__ import annotations
 import subprocess
 from typing import Any, Dict, List, Optional
 
-from market_ops.utils.paths import repo_root
+from ..utils.paths import repo_root
 
 from ..filters import BASE58_RE, EVM_ADDR_RE
 from ..models import PipelineContext

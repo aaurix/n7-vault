@@ -13,7 +13,7 @@ import subprocess
 from pathlib import Path
 from typing import Any, Dict
 
-from market_ops.utils.paths import repo_root
+from .utils.paths import repo_root
 
 
 BINANCE_KLINE_SCRIPT: Path = repo_root() / "scripts" / "binance_kline_context.py"

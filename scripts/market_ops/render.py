@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from market_ops.perp_dashboard import render_perp_dashboards_mini
+from .perp_dashboard import render_perp_dashboards_mini
 
 
 WHATSAPP_CHUNK_MAX = 950

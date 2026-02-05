@@ -5,9 +5,9 @@ import re
 import subprocess
 from typing import Any, Dict, List, Optional
 
-from market_ops.adapters.dexscreener import best_pair, dexscreener_search, pair_metrics, resolve_addr_symbol
-from market_ops.llm_openai import chat_json, load_chat_api_key
-from market_ops.twitter_context import twitter_evidence_for_ca
+from ..adapters.dexscreener import best_pair, dexscreener_search, pair_metrics, resolve_addr_symbol
+from ..llm_openai import chat_json, load_chat_api_key
+from ..twitter_context import twitter_evidence_for_ca
 
 
 EVM_CA_RE = re.compile(r"^0x[a-fA-F0-9]{40}$")

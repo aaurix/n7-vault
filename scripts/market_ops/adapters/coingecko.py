@@ -22,7 +22,7 @@ from typing import Any, Dict, List, Optional
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-from market_ops.utils.paths import repo_root
+from ..utils.paths import repo_root
 
 BASE = "https://api.coingecko.com/api/v3"
 

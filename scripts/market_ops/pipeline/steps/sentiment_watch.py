@@ -1,4 +1,4 @@
-from market_ops.services.sentiment_watch import compute_sentiment_and_watch
+from ...services.sentiment_watch import compute_sentiment_and_watch
 
 
 def step(ctx):

@@ -1,4 +1,4 @@
-from market_ops.services.telegram_service import build_human_texts
+from ...services.telegram_service import build_human_texts
 
 
 def step(ctx):

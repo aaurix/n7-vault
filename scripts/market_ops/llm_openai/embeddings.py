@@ -11,7 +11,7 @@ import os
 import urllib.request as urlreq
 from typing import Dict, List, Optional, Sequence
 
-from market_ops.utils.paths import repo_root
+from ..utils.paths import repo_root
 
 from .keys import load_openai_api_key
 

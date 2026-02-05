@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 from typing import Set
 
-from market_ops.utils.paths import repo_root
+from .utils.paths import repo_root
 
 
 DEFAULT_PATH: Path = repo_root() / "state" / "bot_senders.json"

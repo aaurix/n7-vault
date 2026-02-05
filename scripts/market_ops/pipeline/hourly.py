@@ -1,5 +1,5 @@
-from market_ops.pipeline.runner import PipelineRunner
-from market_ops.pipeline.steps import (
+from ..pipeline.runner import PipelineRunner
+from ..pipeline.steps import (
     health_check,
     meme_spawn,
     tg_fetch,

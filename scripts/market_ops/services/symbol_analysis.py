@@ -4,12 +4,12 @@ import json
 import re
 from typing import Any, Dict, List, Optional, Tuple
 
-from market_ops.adapters.binance_futures import oi_changes, price_changes
-from market_ops.adapters.coingecko import get_market_cap_fdv
-from market_ops.kline_fetcher import run_kline_json
-from market_ops.llm_openai import chat_json, load_chat_api_key, summarize_oi_trading_plans
-from market_ops.render import WHATSAPP_CHUNK_MAX, split_whatsapp_text
-from market_ops.twitter_context import TwitterQuerySpec, twitter_evidence
+from ..adapters.binance_futures import oi_changes, price_changes
+from ..adapters.coingecko import get_market_cap_fdv
+from ..kline_fetcher import run_kline_json
+from ..llm_openai import chat_json, load_chat_api_key, summarize_oi_trading_plans
+from ..render import WHATSAPP_CHUNK_MAX, split_whatsapp_text
+from ..twitter_context import TwitterQuerySpec, twitter_evidence
 
 
 DEFAULT_QUOTE = "USDT"

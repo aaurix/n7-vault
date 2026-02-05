@@ -1,4 +1,4 @@
-from market_ops.services.narrative_assets import infer_narrative_assets_from_tg
+from ...services.narrative_assets import infer_narrative_assets_from_tg
 
 
 def step(ctx):

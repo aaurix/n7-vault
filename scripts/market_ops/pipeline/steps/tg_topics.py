@@ -1,4 +1,4 @@
-from market_ops.services.tg_topics import build_tg_topics
+from ...services.tg_topics import build_tg_topics
 
 
 def step(ctx):
