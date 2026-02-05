@@ -1,7 +1,7 @@
 # Hourly Pipeline
 
 Primary entrypoint:
-- `PYTHONPATH=src python3 -m market_ops hourly`
+- `python3 -m scripts.market_ops hourly`
 
 Flow:
 1. Telegram health check

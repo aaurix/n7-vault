@@ -15,7 +15,7 @@ This skill is the **runbook** for the hourly summary pipeline in this repo.
 
 ## Quick start (most common)
 - Run locally:
-  - `PYTHONPATH=src python3 -m market_ops hourly`
+  - `python3 -m scripts.market_ops hourly`
 - Inspect JSON keys:
   - `summary` (delivery body; TG social cards include drivers+1 risk)
   - `errors` (debug only; never user-visible)

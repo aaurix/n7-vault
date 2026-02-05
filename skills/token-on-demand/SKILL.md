@@ -16,23 +16,23 @@ This skill covers **interactive** analysis requests (not cron).
      - Uses cashtag anchor `$PUMP` (uppercase) + perp symbol anchor `PUMPUSDT`
      - For ambiguous tickers, bare words are de-emphasized and stronger anchors are required.
    - Prepare→Agent pattern:
-     - prepare（无LLM）: `PYTHONPATH=src python3 -m market_ops symbol <SYMBOL_OR_TICKER> --no-llm`
-     - agent（默认输出）: `PYTHONPATH=src python3 -m market_ops symbol <SYMBOL_OR_TICKER>`
+     - prepare（无LLM）: `python3 -m scripts.market_ops symbol <SYMBOL_OR_TICKER> --no-llm`
+     - agent（默认输出）: `python3 -m scripts.market_ops symbol <SYMBOL_OR_TICKER>`
    - Default output: **方案2 决策仪表盘**（趋势/OI/社交评分 + 要点）
    - Optional: **方案1 交易计划**（`--template plan`）
 
 2) **链上 meme（CA-based）**
    - Input: contract address (0x… / solana base58)
    - Output: DexScreener metrics + TG/Twitter context + risk/tradability bullets
-   - Command: `PYTHONPATH=src python3 -m market_ops ca <CA>`
+   - Command: `python3 -m scripts.market_ops ca <CA>`
 
 ## Quick commands
 - Symbol dashboard (default):
-  - `PYTHONPATH=src python3 -m market_ops symbol <SYMBOL_OR_TICKER>`
+  - `python3 -m scripts.market_ops symbol <SYMBOL_OR_TICKER>`
 - Symbol trade plan (方案1):
-  - `PYTHONPATH=src python3 -m market_ops symbol <SYMBOL_OR_TICKER> --template plan`
+  - `python3 -m scripts.market_ops symbol <SYMBOL_OR_TICKER> --template plan`
 - CA analysis:
-  - `PYTHONPATH=src python3 -m market_ops ca <CA>`
+  - `python3 -m scripts.market_ops ca <CA>`
 
 ## Output boundaries
 - No raw quotes unless user asks
