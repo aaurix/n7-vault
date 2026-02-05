@@ -1,4 +1,4 @@
-from scripts.market_ops.ports.market_data import fetch_dex_market
+from scripts.market_ops.market_data_helpers import fetch_dex_market
 
 
 class DummyDex:
@@ -7,5 +7,5 @@ class DummyDex:
 
 
 def test_fetch_dex_market():
-    out = fetch_dex_market("0x1", "SYM", dex=DummyDex())
+    out = fetch_dex_market("0x1", "SYM", dex_client=DummyDex())
     assert out["price"] == 1
