@@ -9,7 +9,7 @@ from ..core.formatting import fmt_num, fmt_pct, fmt_usd
 from ..core.indicators import flow_label
 from ..kline_fetcher import run_kline_json
 from ..llm_openai import chat_json, load_chat_api_key, summarize_oi_trading_plans
-from ..render import WHATSAPP_CHUNK_MAX, split_whatsapp_text
+from ..output.whatsapp import WHATSAPP_CHUNK_MAX, split_whatsapp_text
 from .twitter_evidence import TwitterQuerySpec, twitter_evidence
 
 
