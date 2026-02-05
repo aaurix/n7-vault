@@ -13,3 +13,9 @@ def test_runner_executes_steps_in_order():
     runner = PipelineRunner(ctx={}, steps=[("s1", s1), ("s2", s2)])
     runner.run()
     assert order == ["a", "b"]
+
+
+def test_metrics_report_module_removed():
+    import importlib.util
+
+    assert importlib.util.find_spec("scripts.market_ops.services.metrics_report") is None
