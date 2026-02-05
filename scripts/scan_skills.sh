@@ -22,7 +22,8 @@ PATTERNS=(
   echo "Time: $(date)"
   echo "---"
   for p in "${PATTERNS[@]}"; do
-    echo "\n[pattern] $p"
+    echo ""
+    echo "[pattern] $p"
     rg -n --no-heading --hidden -g 'SKILL.md' "$p" "$ROOT" || true
   done
 } > "$OUT"
