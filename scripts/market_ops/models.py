@@ -10,9 +10,12 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, TYPE_CHECKING, TypedDict
 
 if TYPE_CHECKING:
-    from scripts.market_data.social.tg_client import TgClient
+    from scripts.market_data.social.provider_tg import TgClient
     from .services.state_manager import HourlyStateManager
-    from scripts.market_data.onchain.dexscreener import DexScreenerClient
+    from scripts.market_data.onchain.provider_dexscreener import DexScreenerClient
+    from scripts.market_data.exchange.batcher import ExchangeBatcher
+    from scripts.market_data.onchain.batcher import DexBatcher
+    from scripts.market_data.social.batcher import SocialBatcher
     from .services.entity_resolver import EntityResolver
 
 
@@ -70,6 +73,9 @@ class PipelineContext:
     state: "HourlyStateManager"
     dex: "DexScreenerClient"
     resolver: "EntityResolver"
+    exchange: "ExchangeBatcher"
+    dex_batcher: "DexBatcher"
+    social: "SocialBatcher"
 
     errors: List[str] = field(default_factory=list)
     llm_failures: List[str] = field(default_factory=list)
