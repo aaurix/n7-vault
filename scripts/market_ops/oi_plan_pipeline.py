@@ -15,7 +15,7 @@ from __future__ import annotations
 from typing import Any, Callable, Dict, List, Optional
 
 from scripts.market_data import get_shared_exchange_batcher
-from .twitter_context import twitter_context_for_symbol
+from .services.twitter_evidence import twitter_context_for_symbol
 
 
 def _summarize_twitter_views(tw: Dict[str, Any]) -> Dict[str, Any]:

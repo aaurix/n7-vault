@@ -20,3 +20,9 @@ def test_build_queries_drop_ambiguous_base() -> None:
     queries = _build_queries(spec)
     assert any("$PUMP" in q for q in queries)
     assert all(" OR PUMP " not in q for q in queries)
+
+
+def test_twitter_context_module_removed():
+    import importlib.util
+
+    assert importlib.util.find_spec("scripts.market_ops.twitter_context") is None
