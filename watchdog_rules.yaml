@@ -1,0 +1,16 @@
+watchdog:
+  allow_external_domains:
+    - www.moltbook.com
+    - api.telegram.org
+    - api.openrouter.ai
+  deny_sensitive_paths:
+    - ~/.env
+    - ~/.ssh
+    - ~/.config
+  require_human_confirm:
+    - fund_transfer
+    - delete_files
+    - publish_public_message
+  self_modification:
+    throttle: true
+    approval_required: true
