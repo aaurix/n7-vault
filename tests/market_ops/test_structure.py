@@ -48,3 +48,13 @@ def test_topics_legacy_modules_removed():
     assert importlib.util.find_spec("scripts.market_ops.tg_topics_fallback") is None
     assert importlib.util.find_spec("scripts.market_ops.services.tg_topics") is None
     assert importlib.util.find_spec("scripts.market_ops.services.twitter_topics") is None
+
+
+def test_symbol_ca_feature_modules_exist():
+    assert importlib.util.find_spec("scripts.market_ops.features.symbol.service") is not None
+    assert importlib.util.find_spec("scripts.market_ops.features.ca.service") is not None
+
+
+def test_symbol_ca_legacy_removed():
+    assert importlib.util.find_spec("scripts.market_ops.services.symbol_analysis") is None
+    assert importlib.util.find_spec("scripts.market_ops.services.ca_analysis") is None

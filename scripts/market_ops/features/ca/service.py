@@ -6,8 +6,8 @@ import subprocess
 from typing import Any, Dict, List, Optional
 
 from scripts.market_data import get_shared_dex_batcher
-from ..llm_openai import chat_json, load_chat_api_key
-from .twitter_evidence import twitter_evidence_for_ca
+from ...llm_openai import chat_json, load_chat_api_key
+from ...services.twitter_evidence import twitter_evidence_for_ca
 
 
 EVM_CA_RE = re.compile(r"^0x[a-fA-F0-9]{40}$")

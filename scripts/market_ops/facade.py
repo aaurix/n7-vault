@@ -2,8 +2,8 @@ from .schema import wrap_result
 from .services.context_builder import build_context
 from .pipeline.hourly import run_hourly
 from .output.summary import render
-from .services.symbol_analysis import analyze_symbol
-from .services.ca_analysis import analyze_ca
+from .features.symbol.service import analyze_symbol
+from .features.ca.service import analyze_ca
 
 
 def analyze_hourly(total_budget_s: float = 240.0, *, fresh: bool = False, cache_ttl: str = "") -> dict:
