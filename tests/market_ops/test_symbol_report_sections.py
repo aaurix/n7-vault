@@ -13,7 +13,7 @@ def test_build_symbol_sections_contains_core_titles():
         }
     }
     dash = {"verdict": "偏多", "bullets": ["要点1"], "risks": ["风险1"]}
-    sections = build_symbol_sections(prepared, dash, template="dashboard")
+    sections = build_symbol_sections(prepared, dash)
     titles = [s.title for s in sections]
     assert "行情概览" in titles
     assert "评分与解释" in titles
@@ -27,7 +27,7 @@ def test_render_symbol_report_dual_output():
 
     prepared = {"prepared": {"symbol": "TEST"}}
     dash = {"verdict": "观望"}
-    report = render_symbol_report(prepared, dash, template="dashboard")
+    report = render_symbol_report(prepared, dash)
     assert report["markdown"]
     assert report["richtext"]
     assert "TEST" in report["markdown"]
