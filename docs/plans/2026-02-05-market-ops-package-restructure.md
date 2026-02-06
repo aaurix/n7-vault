@@ -623,7 +623,6 @@ def main():
 
     s = sub.add_parser("symbol")
     s.add_argument("symbol")
-    s.add_argument("--template", default="dashboard", choices=["dashboard", "plan"])
     s.add_argument("--no-llm", action="store_true")
 
     c = sub.add_parser("ca")
@@ -636,7 +635,7 @@ def main():
     args = ap.parse_args()
 
     if args.cmd == "symbol":
-        out = analyze_symbol_facade(args.symbol, template=args.template, allow_llm=not args.no_llm)
+        out = analyze_symbol_facade(args.symbol, allow_llm=not args.no_llm)
     elif args.cmd == "ca":
         out = analyze_ca_facade(args.address, allow_llm=not args.no_llm)
     else:

@@ -25,8 +25,8 @@ Unify all market data access behind small, domain‑scoped batchers (Exchange / 
 - mcporter CLI (local Telegram search): `hawkfi-telegram.search`
 
 **LLM**
-- OpenRouter Chat API (LLM)
-- OpenAI Embeddings API
+- OpenAI-compatible Chat API (`OPENAI_BASE_URL`)
+- Local Embeddings (SentenceTransformers via `OPENAI_EMBEDDINGS_MODEL`)
 
 ## Target Architecture (Lightweight, Explicit)
 **Structure**
@@ -128,4 +128,3 @@ Rules:
 - Unit tests for CLI cache TTL parsing
 - Regression tests for symbol/CA/hourly pipelines still passing
 - Keep `PYTHONPATH=.` in test runs until a project‑level fix is agreed
-
