@@ -1,9 +1,7 @@
 import pytest
 
 
-def test_resolve_chat_endpoint_uses_openai_env(monkeypatch, tmp_path):
-    # Prevent reading real-user fallback env file (~/.clawdbot/.env)
-    monkeypatch.setenv("HOME", str(tmp_path))
+def test_resolve_chat_endpoint_uses_openai_env(monkeypatch):
     monkeypatch.setenv("OPENAI_API_KEY", "k-test")
     monkeypatch.setenv("OPENAI_BASE_URL", "https://example.com/v1/")
     monkeypatch.setenv("OPENAI_CHAT_MODEL", "deepseek-chat")
@@ -16,8 +14,7 @@ def test_resolve_chat_endpoint_uses_openai_env(monkeypatch, tmp_path):
     assert model == "deepseek-chat"
 
 
-def test_resolve_chat_endpoint_defaults_base_url(monkeypatch, tmp_path):
-    monkeypatch.setenv("HOME", str(tmp_path))
+def test_resolve_chat_endpoint_defaults_base_url(monkeypatch):
     monkeypatch.setenv("OPENAI_API_KEY", "k-test")
     monkeypatch.delenv("OPENAI_BASE_URL", raising=False)
     monkeypatch.setenv("OPENAI_CHAT_MODEL", "gpt-4o-mini")
@@ -28,8 +25,7 @@ def test_resolve_chat_endpoint_defaults_base_url(monkeypatch, tmp_path):
     assert base == "https://api.openai.com/v1"
 
 
-def test_resolve_chat_endpoint_requires_key(monkeypatch, tmp_path):
-    monkeypatch.setenv("HOME", str(tmp_path))
+def test_resolve_chat_endpoint_requires_key(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
 
